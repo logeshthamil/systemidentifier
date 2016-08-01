@@ -4,16 +4,29 @@ class AliasingCompensation(object):
     def __init__(self, input_signal=None, maximum_harmonics=None):
         pass
 
-    def SetInput(self):
+    def SetMaximumHarmonics(self):
         pass
 
-    def GetOutput(self):
+    def SetPreprocessingInput(self):
         pass
 
-    def GetHarmonics(self):
+    def GetPreprocessingOutput(self):
         pass
 
-class UpsamplingAliasingCompensation(AliasingCompensation):
+    def SetPostprocessingInput(self):
+        pass
+
+    def GetPostprocessingOutput(self):
+        pass
+
+class FullUpsamplingAliasingCompensation(AliasingCompensation):
+
+    def __init__(self, input_signal=None, maximum_harmonics=1,
+                 resampling_algorithm=sumpf.modules.ResampleSignal.SPECTRUM):
+        pass
+        # signal processing blocks
+
+class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
 
     def __init__(self, input_signal=None, maximum_harmonics=1,
                  resampling_algorithm=sumpf.modules.ResampleSignal.SPECTRUM):
@@ -25,3 +38,8 @@ class LowpassAliasingCompensation(AliasingCompensation):
     def __init__(self, input_signal=None, maximum_harmonics=1, filter_function=None, attenuation=None):
         pass
         # signal processing blocks
+
+class NoAliasingCompensation(AliasingCompensation):
+
+    def __init__(self, input_signal=None, maximum_harmonics=1, filter_function=None, attenuation=None):
+        pass

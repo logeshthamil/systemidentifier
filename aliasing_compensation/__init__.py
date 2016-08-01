@@ -1,1 +1,2 @@
-from aliasing_compensation_techniques import UpsamplingAliasingCompensation,LowpassAliasingCompensation
+from aliasing_compensation_techniques import FullUpsamplingAliasingCompensation,LowpassAliasingCompensation, \
+    ReducedUpsamplingAliasingCompensation

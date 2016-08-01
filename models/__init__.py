@@ -1,1 +1,1 @@
-from generate_nonlinearmodels import HammersteinGroupModel,HammersteinModel
+from generate_nonlinearmodels import HammersteinGroupModel
