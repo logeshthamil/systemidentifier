@@ -3,7 +3,17 @@ import mpmath
 import sumpf
 
 def power_series(degree):
+    """
+    A function which calculates the power of certain degree of an array of values.
+    @param degree: the degree
+    @return: the function which calculates the power of an array
+    """
     def func(channel):
+        """
+        A function which calculates the poser of an array of values.
+        @param channel: an array of values
+        @return:
+        """
         result = channel
         for i in range(1, degree):
             result = numpy.multiply(result, channel)
