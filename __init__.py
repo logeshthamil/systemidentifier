@@ -1,6 +1,6 @@
-import aliasing_compensation
+import aliasing_compensation as aliasing_compensation
 import common
-import nonlinear_functions
+import nonlinear_functions as nonlinear
 import aliasing_compensation
 
 from common import function_factory, Evaluation, AnalyzeModels

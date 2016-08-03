@@ -41,16 +41,25 @@ class AliasingCompensation(object):
         """
         pass
 
+    def _GetDownsamplingPosition(self):
+        """
+        Gets the downsampling position.
+        @return: the downsampling position
+        """
+        pass
+
 class FullUpsamplingAliasingCompensation(AliasingCompensation):
     """
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the whole spectrum of the nonlinearly processed signals.
     """
-    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
+    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None, downsampling_position=None):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
+        for downsampling after the linear filter block
         """
         pass
         # signal processing blocks
@@ -74,11 +83,13 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the baseband spectrum of the input signal.
     """
-    def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None):
+    def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None, downsampling_position=None):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
+        for downsampling after the linear filter block
         """
         pass
         # signal processing blocks
@@ -129,7 +140,8 @@ class NoAliasingCompensation(AliasingCompensation):
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         """
-        pass
+        if input
+        self._input_signal = input_signal
 
     def GetPreprocessingOutput(self):
         """

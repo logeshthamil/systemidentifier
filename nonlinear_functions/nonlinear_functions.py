@@ -42,7 +42,7 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         """
         pass
 
-class PowerseriesNonlinearBlock(PolynomialNonlinearBlock):
+class Powerseries(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using powers.
     """
@@ -53,7 +53,7 @@ class PowerseriesNonlinearBlock(PolynomialNonlinearBlock):
         """
         pass
 
-class ChebyshevNonlinearBlock(PolynomialNonlinearBlock):
+class Chebyshev(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using Chebyshev polynomials.
     """
@@ -64,7 +64,7 @@ class ChebyshevNonlinearBlock(PolynomialNonlinearBlock):
         """
         pass
 
-class HermiteNonlinearBlock(PolynomialNonlinearBlock):
+class Hermite(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using Hermite polynomials.
     """
@@ -75,7 +75,7 @@ class HermiteNonlinearBlock(PolynomialNonlinearBlock):
         """
         pass
 
-class LegendreNonlinearBlock(PolynomialNonlinearBlock):
+class Legendre(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using Legendre polynomials.
     """
@@ -86,7 +86,7 @@ class LegendreNonlinearBlock(PolynomialNonlinearBlock):
         """
         pass
 
-class ClippingNonlinearBlock(NonlinearBlock):
+class Clipping(NonlinearBlock):
     """
     A class to create a nonlinear block using hard clipping function.
     """
@@ -143,7 +143,7 @@ class ClippingNonlinearBlock(NonlinearBlock):
 #     """
 #     pass
 #
-def get_polynomialnonlinearfunction_array(polynomialnonlinearblock=None, degree_array=None):
+def get_polynl_array(nl_block=None, degree_array=None):
     """
     A function to create an array of polynomial nonlinear functions.
     @param degree: the degree
