@@ -140,8 +140,7 @@ class NoAliasingCompensation(AliasingCompensation):
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         """
-        if input
-        self._input_signal = input_signal
+        pass
 
     def GetPreprocessingOutput(self):
         """
