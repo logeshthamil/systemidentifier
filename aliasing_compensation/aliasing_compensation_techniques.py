@@ -1,4 +1,5 @@
 import sumpf
+import math
 
 class AliasingCompensation(object):
     """
@@ -59,7 +60,7 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the whole spectrum of the nonlinearly processed signals.
     """
-    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None, downsampling_position=None):
+    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None, downsampling_position=1):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -67,29 +68,42 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
         @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
         for downsampling after the linear filter block
         """
+        if input_signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = input_signal
+        self._maximum_harmonics = maximum_harmonics
         self._downsampling_position = downsampling_position
-        # signal processing blocks
+        self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
         @return: the output signal of the preprocessing aliasing compensation
         """
-        pass
+        resampling_rate = self._input_signal.GetSamplingRate() * self._maximum_harmonics
+        resampler = sumpf.modules.ResampleSignal(signal=self._input_signal, samplingrate=resampling_rate,
+                                                 algorithm=self._resampling_algorithm)
+        return resampler.GetOutput()
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
         @return: the output signal of the postprocessing aliasing compensation
         """
-        pass
+        resampling_rate = self._input_signal.GetSamplingRate()
+        resampler = sumpf.modules.ResampleSignal(signal=self._postprocessing_input, samplingrate=resampling_rate,
+                                                 algorithm=self._resampling_algorithm)
+        return resampler.GetOutput()
 
 class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     """
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the baseband spectrum of the input signal.
     """
-    def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None, downsampling_position=None):
+    def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None, downsampling_position=1):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -97,22 +111,35 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
         @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
         for downsampling after the linear filter block
         """
-        pass
-        # signal processing blocks
+        if input_signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = input_signal
+        self._maximum_harmonics = maximum_harmonics
+        self._downsampling_position = downsampling_position
+        self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
         @return: the output signal of the preprocessing aliasing compensation
         """
-        pass
+        resampling_rate = self._input_signal.GetSamplingRate()*math.ceil((self._maximum_harmonics+1.0)/2.0)
+        resampler = sumpf.modules.ResampleSignal(signal=self._input_signal, samplingrate=resampling_rate,
+                                                 algorithm=self._resampling_algorithm)
+        return resampler.GetOutput()
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
         @return: the output signal of the postprocessing aliasing compensation
         """
-        pass
+        resampling_rate = self._input_signal.GetSamplingRate()
+        resampler = sumpf.modules.ResampleSignal(signal=self._postprocessing_input, samplingrate=resampling_rate,
+                                                 algorithm=self._resampling_algorithm)
+        return resampler.GetOutput()
 
 class LowpassAliasingCompensation(AliasingCompensation):
     """
