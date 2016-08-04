@@ -20,17 +20,13 @@ class HammersteinGroupModel(object):
         else:
             self.__input_signal = input_signal
         if nonlinear_functions is None:
-            self.__nonlinear_functions = (nlsp.nonlinear_functions.Powerseries(degree=1),)
+            self.__nonlinear_functions = (nlsp.nonlinear_functions.Power(degree=1),)
         else:
             self.__nonlinear_functions = nonlinear_functions
         if filter_impulseresponses is None:
-            self.__filter_irs = (sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),length=len(self.__input_signal)).GetSignal(),)
+            self.__filter_irs = (sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),length=len(self.__input_signal)).GetSignal(),)*len(self.__nonlinear_functions)
         else:
             self.__filter_irs = filter_impulseresponses
-        if aliasing_compensation is None:
-            self.__aliasingcompensation = nlsp.aliasing_compensation.NoAliasingCompensation()
-        else:
-            self.__aliasingcompensation = aliasing_compensation
 
         # check if the filter ir length and the nonlinear functions length is same
         if len(self.__nonlinear_functions) == len(self.__filter_irs):
@@ -39,14 +35,25 @@ class HammersteinGroupModel(object):
             print "the given arguments dont have same length"
         self.__passsignal = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
 
+        # create multiple aliasing compensation instances which is similar to the aliasing compensation parameter received
+        if aliasing_compensation is None:
+            self.__aliasingcompensation = nlsp.aliasing_compensation.NoAliasingCompensation()
+        else:
+            self.__aliasingcompensation = aliasing_compensation
+        aliasing_comp = []
+        while len(aliasing_comp) != self.__branches:
+            classname = self.__aliasingcompensation.__class__
+            aliasing_comp.append(classname())
+        self.__aliasingcompensation = aliasing_comp
+
         # construct HGM from given paramters
         self.__constructHGM()
 
     def __constructHGM(self):
         self.__hmodels = []
-        for nl,ir in zip(self.__nonlinear_functions, self.__filter_irs):
+        for i,(nl,ir,alias) in enumerate(zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensation)):
             h = HammersteinModel(input_signal=self.__passsignal.GetSignal(), nonlinear_function=nl,
-                                 filter_impulseresponse=ir, aliasing_compensation=self.__aliasingcompensation)
+                                 filter_impulseresponse=ir, aliasing_compensation=alias)
             self.__hmodels.append(h)
 
     @sumpf.Output(tuple)
@@ -110,7 +117,7 @@ class HammersteinModel(object):
         else:
             self.__filterir     = filter_impulseresponse
         if nonlinear_function is None:
-            self.__nonlin_func  = nlsp.nonlinear.Powerseries(degree=1)
+            self.__nonlin_func  = nlsp.nonlinear_functions.Power(degree=1)
         else:
             self.__nonlin_func      = nonlinear_function
         if aliasing_compensation is None:
@@ -127,11 +134,11 @@ class HammersteinModel(object):
         elif self.__downsampling_position == 2:
             self.__filteraliascomp = self.__signalaliascomp
             self.__signalaliascomp2 = self.__signalaliascomp
-            self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation()
+            self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation(maximum_harmonics=1)
 
         # set up the signal processing objects
         self.__passsignal    = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
-        self.__passfilter    = sumpf.modules.PassThroughSignal(signal=self.__filterir)
+        self.__passfilter    = sumpf.modules.PassThroughSignal(self.__filterir)
         self.__transform     = sumpf.modules.FourierTransform()
         self.__itransform    = sumpf.modules.InverseFourierTransform()
         self.__splitsignalspec   = sumpf.modules.SplitSpectrum(channels=[0])
@@ -147,14 +154,16 @@ class HammersteinModel(object):
         self.__Connect()
 
     def __Connect(self):
+        sumpf.connect(self.__nonlin_func.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
         sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
-        sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput(), self.__nonlin_func.SetInput)
+        sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_func.SetInput)
         sumpf.connect(self.__nonlin_func.GetOutput, self.__signalaliascomp1.SetPostprocessingInput)
         sumpf.connect(self.__signalaliascomp1.GetPreprocessingOutput, self.__merger.AddInput)
         sumpf.connect(self.__passfilter.GetSignal, self.__filteraliascomp.SetPreprocessingInput)
         sumpf.connect(self.__filteraliascomp.GetPreprocessingOutput, self.__merger.AddInput)
         sumpf.connect(self.__merger.GetOutput, self.__transform.SetSignal)
         sumpf.connect(self.__transform.GetSpectrum, self.__splitsignalspec.SetInput)
+        sumpf.connect(self.__transform.GetSpectrum, self.__splitfilterspec.SetInput)
         sumpf.connect(self.__splitsignalspec.GetOutput, self.__multiplier.SetValue1)
         sumpf.connect(self.__splitfilterspec.GetOutput, self.__multiplier.SetValue2)
         sumpf.connect(self.__multiplier.GetResult, self.__itransform.SetSpectrum)

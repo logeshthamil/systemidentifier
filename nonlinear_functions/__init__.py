@@ -1,1 +1,1 @@
-from nonlinear_functions import Powerseries, Chebyshev, Hermite, Legendre, Clipping, get_polynl_array
+from nonlinear_functions import Power, Chebyshev, Hermite, Legendre, Clipping

@@ -1,14 +1,17 @@
+import sumpf
+import numpy
 
 class NonlinearBlock(object):
     """
     An abstract base class to create a nonlinear block using nonlinear functions
     """
+    @sumpf.Input(data_type=sumpf.Signal,observers=["GetOutput"])
     def SetInput(self, input_signal=None):
         """
         Set the input signal to the nonlinear block
         @param input_signal: the input signal
         """
-        pass
+        self._passinput.SetSignal(signal=input_signal)
 
     def GetOutput(self):
         """
@@ -26,32 +29,50 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         @param signal: the input signal
         @param degree: the degree of the polynomial used in nonlinear block
         """
-        pass
+        if signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = signal
+        if degree is None:
+            self._degree = 1
+        else:
+            self._degree = degree
+        self._passinput = sumpf.modules.PassThroughSignal(signal=signal)
 
+    @sumpf.Input(data_type=int,observers=["GetMaximumHarmonics"])
     def SetDegree(self, degree=None):
         """
         Set the degree of the polynomial nonlinear block.
         @param degree: the degree (should be integer value)
         """
-        pass
+        self._degree = degree
 
+    @sumpf.Output(data_type=int)
     def GetMaximumHarmonics(self):
         """
         Get the maximum harmonics introduced by the polynomial nonlinear block.
         @return: the maximum harmonics
         """
-        pass
+        return self._degree
 
-class Powerseries(PolynomialNonlinearBlock):
+class Power(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using powers.
     """
+
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
         Get the output of the nonlinear block using powers.
         @return: the output signal
         """
-        pass
+        nl_function = powerseries_expansion(degree=self._degree)
+        new_channels = []
+        for c in self._input_signal.GetChannels():
+            self.__dummy = c
+            new_channels.append(tuple(nl_function((c))))
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+                            labels=self._input_signal.GetLabels())
 
 class Chebyshev(PolynomialNonlinearBlock):
     """
@@ -111,38 +132,43 @@ class Clipping(NonlinearBlock):
         """
         pass
 
-# def powerseries_expansion(degree=None):
-#     """
-#     A function to generate power of an array of samples.
-#     @param degree: the degree
-#     @return: the power function
-#     """
-#     pass
-#
-# def chebyshev_polynomial(degree=None):
-#     """
-#     A function to generate chebyshev polynomial of an array of samples.
-#     @param degree: the degree
-#     @return: the chebyshev function
-#     """
-#     pass
-#
-# def hermite_polynomial(degree=None):
-#     """
-#     A function to generate chebyshev polynomial of an array of samples.
-#     @param degree: the degree
-#     @return: the chebyshev function
-#     """
-#     pass
-#
-# def legendre_polynomial(degree=None):
-#     """
-#     A function to generate chebyshev polynomial of an array of samples.
-#     @param degree: the degree
-#     @return: the chebyshev function
-#     """
-#     pass
-#
+def powerseries_expansion(degree=None):
+    """
+    A function to generate power of an array of samples.
+    @param degree: the degree
+    @return: the power function
+    """
+    def func(channel):
+        result = channel
+        for i in range(1, degree):
+            result = numpy.multiply(result, channel)
+        return result
+    return func
+
+def chebyshev_polynomial(degree=None):
+    """
+    A function to generate chebyshev polynomial of an array of samples.
+    @param degree: the degree
+    @return: the chebyshev function
+    """
+    pass
+
+def hermite_polynomial(degree=None):
+    """
+    A function to generate chebyshev polynomial of an array of samples.
+    @param degree: the degree
+    @return: the chebyshev function
+    """
+    pass
+
+def legendre_polynomial(degree=None):
+    """
+    A function to generate chebyshev polynomial of an array of samples.
+    @param degree: the degree
+    @return: the chebyshev function
+    """
+    pass
+
 def get_polynl_array(nl_block=None, degree_array=None):
     """
     A function to create an array of polynomial nonlinear functions.

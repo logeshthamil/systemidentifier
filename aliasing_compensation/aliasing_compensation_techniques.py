@@ -1,3 +1,4 @@
+import sumpf
 
 class AliasingCompensation(object):
     """
@@ -6,47 +7,52 @@ class AliasingCompensation(object):
     aliasing compensation.
     """
 
+    @sumpf.Input(data_type=int)
     def SetMaximumHarmonics(self, maximum_harmonics=None):
         """
         Sets the maximum harmonics until which the aliasing compensation has to be compensated for.
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         """
-        pass
+        self._maximum_harmonics = maximum_harmonics
 
+    @sumpf.Input(data_type=sumpf.Signal,observers=["GetPreprocessingOutput"])
     def SetPreprocessingInput(self, preprocessing_input=None):
         """
         Sets the input signal of the preprocessing unit.
         @param input_signal: the input signal of the preprocessing unit
         """
-        pass
+        self._input_signal = preprocessing_input
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
         @return: the output signal of the preprocessing aliasing compensation
         """
-        pass
+        return self._input_signal
 
+    @sumpf.Input(data_type=sumpf.Signal,observers=["GetPostprocessingOutput"])
     def SetPostprocessingInput(self, postprocessing_input=None):
         """
         Sets the input signal of the postprocessing aliasing compensation.
         @param postprocessing_input: the input signal of the postprocessing aliasing compensation
         """
-        pass
+        self._postprocessing_input = postprocessing_input
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
         @return: the output signal of the postprocessing aliasing compensation
         """
-        pass
+        return self._postprocessing_input
 
     def _GetDownsamplingPosition(self):
         """
         Gets the downsampling position.
         @return: the downsampling position
         """
-        pass
+        return self._downsampling_position
 
 class FullUpsamplingAliasingCompensation(AliasingCompensation):
     """
@@ -61,7 +67,7 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
         @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
         for downsampling after the linear filter block
         """
-        pass
+        self._downsampling_position = downsampling_position
         # signal processing blocks
 
     def GetPreprocessingOutput(self):
@@ -140,11 +146,9 @@ class NoAliasingCompensation(AliasingCompensation):
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         """
-        pass
-
-    def GetPreprocessingOutput(self):
-        """
-        Gets the output signal of the preprocessing aliasing compensation.
-        @return: the output signal of the preprocessing aliasing compensation
-        """
-        pass
+        if input_signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = input_signal
+        self._maximum_harmonics = maximum_harmonics
+        self._downsampling_position = 1
