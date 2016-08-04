@@ -155,6 +155,7 @@ class HammersteinModel(object):
 
     def __Connect(self):
         sumpf.connect(self.__nonlin_func.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
+        sumpf.connect(self.__nonlin_func.GetMaximumHarmonics, self.__filteraliascomp.SetMaximumHarmonics)
         sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
         sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_func.SetInput)
         sumpf.connect(self.__nonlin_func.GetOutput, self.__signalaliascomp1.SetPostprocessingInput)
