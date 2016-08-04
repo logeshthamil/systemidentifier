@@ -134,9 +134,9 @@ class HammersteinModel(object):
             self.__signalaliascomp1 = self.__signalaliascomp
             self.__signalaliascomp2 = nlsp.aliasing_compensation.NoAliasingCompensation()
         elif self.__downsampling_position == 2:
-            self.__filteraliascomp = self.__signalaliascomp
+            self.__filteraliascomp = self.__signalaliascomp.__class__()
             self.__signalaliascomp2 = self.__signalaliascomp
-            self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation(maximum_harmonics=1)
+            self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation()
 
         # set up the signal processing objects
         self.__passsignal    = sumpf.modules.PassThroughSignal(signal=self.__input_signal)

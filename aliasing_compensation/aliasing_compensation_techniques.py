@@ -119,7 +119,8 @@ class LowpassAliasingCompensation(AliasingCompensation):
     A class to compensate the aliasing introduced in a nonlinear model using a lowpass filter. The cutoff frequency of
     the lowpass filter is modified based on the attenuation needed at the stop band frequency.
     """
-    def __init__(self, input_signal=None, maximum_harmonics=1, filter_function=None, attenuation=None):
+    def __init__(self, input_signal=None, maximum_harmonics=1,
+                 filter_function=sumpf.modules.FilterGenerator.BUTTERWORTH(order=10), attenuation=100):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -127,15 +128,33 @@ class LowpassAliasingCompensation(AliasingCompensation):
         compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH()
         @param attenuation: the required attenuation (in dB) at the cutoff frequency
         """
-        pass
-        # signal processing blocks
+        if input_signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = input_signal
+        self._maximum_harmonics = maximum_harmonics
+        self._filter_function = sumpf.modules.FilterGenerator(filterfunction=filter_function)
+        self._attenuation = attenuation
+        self._filter_order = filter_function.GetOrder()
+        self._downsampling_position = 1
 
+    @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
         @return: the output signal of the preprocessing aliasing compensation
         """
-        pass
+        property = sumpf.modules.ChannelDataProperties()
+        property.SetSignal(signal=self._input_signal)
+        cutoff_frequency = ((self._input_signal.GetSamplingRate()/2.0)/self._maximum_harmonics)\
+               /(2.0**(self._attenuation/(6.0*self._filter_order)))
+        self._filter_function.SetFrequency(frequency=cutoff_frequency)
+        self._filter_function.SetResolution(property.GetResolution())
+        self._filter_function.SetLength(property.GetSpectrumLength())
+        result_spectrum = sumpf.modules.Multiply(value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
+                                                 value2=self._filter_function.GetSpectrum()).GetResult()
+        return sumpf.modules.InverseFourierTransform(spectrum=result_spectrum).GetSignal()
+
 
 class NoAliasingCompensation(AliasingCompensation):
     """
