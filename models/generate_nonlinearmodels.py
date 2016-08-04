@@ -44,23 +44,25 @@ class HammersteinGroupModel(object):
         while len(aliasing_comp) != self.__branches:
             classname = self.__aliasingcompensation.__class__
             aliasing_comp.append(classname())
-        self.__aliasingcompensation = aliasing_comp
+        self.__aliasingcompensations = aliasing_comp
 
         # construct HGM from given paramters
         self.__constructHGM()
 
     def __constructHGM(self):
         self.__hmodels = []
-        for i,(nl,ir,alias) in enumerate(zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensation)):
+        for i,(nl,ir,alias) in enumerate(zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
             h = HammersteinModel(input_signal=self.__passsignal.GetSignal(), nonlinear_function=nl,
                                  filter_impulseresponse=ir, aliasing_compensation=alias)
             self.__hmodels.append(h)
+
+    def _get_aliasing_compensation(self):
+        return self.__aliasingcompensation
 
     @sumpf.Output(tuple)
     def GetFilterImpulseResponses(self):
         return self.__filter_irs
 
-    @sumpf.Output(tuple)
     def GetNonlinearFunctions(self):
         return self.__nonlinear_functions
 

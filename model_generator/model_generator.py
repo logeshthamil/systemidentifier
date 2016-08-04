@@ -1,15 +1,29 @@
+import sumpf
+import nlsp
+import collections
 
 class HGMModelGenerator():
     """
     An abstract base class whose instances generate models.
     """
 
+    @sumpf.Output(nlsp.HammersteinGroupModel)
     def GetOutputModel(self):
         """
         Get the output model.
         @return: the output model
         """
-        pass
+        nl_functions = []
+        for nl in self._nonlinear_functions:
+            degree = nl.GetMaximumHarmonics()
+            nl_function = nl.__class__(degree=degree)
+            nl_functions.append(nl_function)
+        model = self._input_model.__class__
+        self._output_model = model(nonlinear_functions=nl_functions,
+                                   filter_impulseresponses=self._filter_impulseresponses,
+                                   aliasing_compensation=self._aliasing_compensation)
+        print self._output_model
+        return self._output_model
 
 class ModifyModel(HGMModelGenerator):
     """
@@ -27,35 +41,55 @@ class ModifyModel(HGMModelGenerator):
         @param aliasing_compensation: the aliasing compensation technique
         Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
         """
-        pass
+        if input_model is None:
+            self._input_model = nlsp.HammersteinGroupModel()
+        else:
+            self._input_model = input_model
+        if filter_impulseresponses is None:
+            self._filter_impulseresponses = self._input_model.GetFilterImpulseResponses()
+        else:
+            self._filter_impulseresponses = filter_impulseresponses
+        if nonlinear_functions is None:
+            self._nonlinear_functions = self._input_model.GetNonlinearFunctions()
+        else:
+            self._nonlinear_functions = nonlinear_functions
+        if aliasing_compensation is None:
+            self._aliasing_compensation = self._input_model._get_aliasing_compensation()
+        else:
+            self._aliasing_compensation = aliasing_compensation
 
+
+    @sumpf.Input(nlsp.HammersteinGroupModel, "GetOutputModel")
     def SetInputModel(self, input_model=None):
         """
         Set the input model.
         @param input_model: the input model
         """
-        pass
+        self._input_model = input_model
 
+    @sumpf.Input(tuple, "GetOutputModel")
     def SetFilterImpulseResponses(self, filter_impulseresponses=None):
         """
         Set the filter impulse responses of the model.
         @param filter_impulseresponses: the filter impulse responses
         """
-        pass
+        self._filter_impulseresponses = filter_impulseresponses
 
+    @sumpf.Input(tuple, "GetOutputModel")
     def SetNonlinearFunctions(self, nonlinear_functions=None):
         """
         Set the nonlinear functions of the model.
         @param: nonlinear_functions: the nonlinear functions
         """
-        pass
+        self._nonlinear_functions = nonlinear_functions
 
+    @sumpf.Input("GetOutputModel")
     def SetAliasingCompensation(self, aliasing_compensation=None):
         """
         Set the aliasing compensation technique.
         @param aliasing_compensation: the aliasing compensation technique
         """
-        pass
+        self._aliasing_compensation = aliasing_compensation
 
 
 class PredefinedModelGeneration(HGMModelGenerator):
