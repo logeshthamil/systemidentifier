@@ -92,7 +92,9 @@ class HammersteinGroupModel(object):
             self.__sums[i] = self.__a
         if len(self.__hmodels) == 1:
             self.__sums[0] = self.__hmodels[0]
-        return self.__sums[0].GetOutput()
+            return self.__sums[0].GetOutput()
+        else:
+            return self.__sums[0].GetResult()
 
 class HammersteinModel(object):
     """
@@ -159,7 +161,7 @@ class HammersteinModel(object):
         sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
         sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_func.SetInput)
         sumpf.connect(self.__nonlin_func.GetOutput, self.__signalaliascomp1.SetPostprocessingInput)
-        sumpf.connect(self.__signalaliascomp1.GetPreprocessingOutput, self.__merger.AddInput)
+        sumpf.connect(self.__signalaliascomp1.GetPostprocessingOutput, self.__merger.AddInput)
         sumpf.connect(self.__passfilter.GetSignal, self.__filteraliascomp.SetPreprocessingInput)
         sumpf.connect(self.__filteraliascomp.GetPreprocessingOutput, self.__merger.AddInput)
         sumpf.connect(self.__merger.GetOutput, self.__transform.SetSignal)
