@@ -1,3 +1,4 @@
+import math
 import nlsp
 import sumpf
 
@@ -12,27 +13,74 @@ class Evaluation():
         @param identified_output: the output of the identified nonlinear model
         @return:
         """
-        pass
+        if reference_output is None:
+            self.__reference_output = sumpf.Signal()
+        else:
+            self.__reference_output = reference_output
+        if identified_output is None:
+            self.__identified_output = identified_output
+        else:
+            self.__identified_output = identified_output
 
-    def SetReferenceOutput(self):
+    @sumpf.Input(sumpf.Signal,["GetSignaltoErrorRatio","GetSERvsFrequency"])
+    def SetReferenceOutput(self, reference_output):
         """
         Sets the output of the nonlinear system or the reference output.
         """
-        pass
+        self.__reference_output = reference_output
 
-    def SetIdentifiedOutput(self):
+    @sumpf.Input(sumpf.Signal,["GetSignaltoErrorRatio","GetSERvsFrequency"])
+    def SetIdentifiedOutput(self, identified_output):
         """
         Sets the output fo the identified nonlinear model or the identified output.
         """
-        pass
+        self.__identified_output = identified_output
 
-    def GetSignaltoErrorRatio(self):
+    @sumpf.Output(float)
+    def GetSignaltoErrorRatio(self, frequency_range=[20.0, 20000.0]):
         """
         Get the Signal to Error Ratio between the reference output and the identified output.
         @return: the Signal to Error Ratio
         """
-        pass
+        ref_signalorspectrum = self.__reference_output
+        iden_signalorspectrum = self.__identified_output
+        try:
+            if isinstance(ref_signalorspectrum, list) != True:
+                observed_l = []
+                observed_l.append(ref_signalorspectrum)
+            else:
+                observed_l = ref_signalorspectrum
+            if isinstance(iden_signalorspectrum, list) != True:
+                identified_l = []
+                identified_l.append(iden_signalorspectrum)
+            else:
+                identified_l = iden_signalorspectrum
+            snr = []
+            for observed,identified in zip(observed_l,identified_l):
+                if isinstance(observed,(sumpf.Signal,sumpf.Spectrum)) and isinstance(observed,(sumpf.Signal,sumpf.Spectrum)):
+                    if isinstance(observed,sumpf.Signal):
+                        observed = sumpf.modules.FourierTransform(observed).GetSpectrum()
+                    if isinstance(identified,sumpf.Signal):
+                        identified = sumpf.modules.FourierTransform(identified).GetSpectrum()
+                    if len(observed) != len(identified):
+                        merged_spectrum = sumpf.modules.MergeSpectrums(spectrums=[observed,identified],
+                                                           on_length_conflict=sumpf.modules.MergeSpectrums.FILL_WITH_ZEROS).GetOutput()
+                        observed = sumpf.modules.SplitSpectrum(data=merged_spectrum,channels=[0]).GetOutput()
+                        identified = sumpf.modules.SplitSpectrum(data=merged_spectrum,channels=[1]).GetOutput()
+                    reference = observed
+                    reference = nlsp.common.helper_functions_private.cut_spectrum(reference,frequency_range)
+                    identified = nlsp.common.helper_functions_private.cut_spectrum(identified,frequency_range)
+                    noise =  reference - identified
+                    div = identified / noise
+                    div_energy = nlsp.common.helper_functions_private.calculateenergy_time(div)
+                    snr.append(10*math.log10(div_energy[0]))
+                else:
+                    print "The given arguments is not a sumpf.Signal or sumpf.Spectrum"
+        except ZeroDivisionError:
+            snr = [float("inf"),]
+        return snr
 
+    @sumpf.Output(sumpf.Spectrum)
     def GetSERvsFrequency(self):
         """
         Get the spectrum of the Signal to Error Ratio.
