@@ -5,3 +5,4 @@ from excitation_generators import *
 import math_operations as math
 import plots as plot
 from find_harmonics import FindHarmonicImpulseResponse_NovakSweep
+import helper_functions as helper_functions

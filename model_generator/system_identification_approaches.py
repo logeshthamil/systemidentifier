@@ -134,6 +134,8 @@ class SineSweep(SystemIdentification):
             for column in range(0,branches):
                 temp = sumpf.modules.Multiply(value1=harmonics_tf[column], value2=A_inverse[row][column]).GetResult()
                 A = A + temp
+                nlsp.common.plot.plot(A,show=False)
+            nlsp.common.plot.show()
             B_temp = sumpf.modules.InverseFourierTransform(A).GetSignal()
             B.append(B_temp)
         filter_kernels = []
