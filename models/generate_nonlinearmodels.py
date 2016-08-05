@@ -40,16 +40,19 @@ class HammersteinGroupModel(object):
             self.__aliasingcompensation = nlsp.aliasing_compensation.NoAliasingCompensation()
         else:
             self.__aliasingcompensation = aliasing_compensation
+        self.__downsampling_position = self.__aliasingcompensation._downsampling_position
+
         aliasing_comp = []
         while len(aliasing_comp) != self.__branches:
-            classname = self.__aliasingcompensation.__class__
-            aliasing_comp.append(classname())
+            classname = self.__aliasingcompensation.__class__()
+            classname._SetDownsamplingPosition(self.__downsampling_position)
+            aliasing_comp.append(classname)
         self.__aliasingcompensations = aliasing_comp
 
         # construct HGM from given paramters
-        self.__constructHGM()
+        self._constructHGM()
 
-    def __constructHGM(self):
+    def _constructHGM(self):
         self.__hmodels = []
         for i,(nl,ir,alias) in enumerate(zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
             h = HammersteinModel(input_signal=self.__passsignal.GetSignal(), nonlinear_function=nl,
@@ -66,13 +69,16 @@ class HammersteinGroupModel(object):
     def GetNonlinearFunctions(self):
         return self.__nonlinear_functions
 
-    @sumpf.Input(data_type=sumpf.Signal,observers=["__constructHGM","GetOutput"])
+    @sumpf.Input(data_type=sumpf.Signal)
     def SetInput(self, input_signal=None):
         """
         Set the input to the model.
         @param input_signal: the input signal
         """
-        self.__passsignal.SetSignal(signal=input_signal)
+        inputs = []
+        for i in range(len(self.__hmodels)):
+            inputs.append((self.__hmodels[i].SetInput, input_signal))
+        sumpf.set_multiple_values(inputs)
 
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
@@ -90,7 +96,7 @@ class HammersteinGroupModel(object):
                 sumpf.connect(self.__hmodels[i+1].GetOutput, self.__a.SetValue2)
             else:
                 # print "connecting adder %i to adder %i" % (i+1, i)
-                sumpf.connect(self.__sums[i+1].GetOutput, self.__a.SetValue2)
+                sumpf.connect(self.__sums[i+1].GetResult, self.__a.SetValue2)
             self.__sums[i] = self.__a
         if len(self.__hmodels) == 1:
             self.__sums[0] = self.__hmodels[0]
@@ -128,7 +134,6 @@ class HammersteinModel(object):
             self.__signalaliascomp  = nlsp.aliasing_compensation.NoAliasingCompensation()
         else:
             self.__signalaliascomp  = aliasing_compensation
-
         # downsampling placement
         self.__downsampling_position = self.__signalaliascomp._GetDownsamplingPosition()
         if self.__downsampling_position == 1:

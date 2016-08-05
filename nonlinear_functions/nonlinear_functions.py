@@ -71,7 +71,7 @@ class Power(PolynomialNonlinearBlock):
         for c in self._passinput.GetSignal().GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 class Chebyshev(PolynomialNonlinearBlock):
@@ -89,7 +89,7 @@ class Chebyshev(PolynomialNonlinearBlock):
         for c in self._passinput.GetSignal().GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 class Hermite(PolynomialNonlinearBlock):
@@ -107,7 +107,7 @@ class Hermite(PolynomialNonlinearBlock):
         for c in self._passinput.GetSignal().GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 class Legendre(PolynomialNonlinearBlock):
@@ -125,7 +125,7 @@ class Legendre(PolynomialNonlinearBlock):
         for c in self._passinput.GetSignal().GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 class Clipping(NonlinearBlock):
@@ -168,7 +168,7 @@ class Clipping(NonlinearBlock):
         for c in self._passinput.GetSignal().GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
     @sumpf.Output(data_type=int)

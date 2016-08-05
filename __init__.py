@@ -2,6 +2,6 @@ import aliasing_compensation as aliasing_compensation
 import common as common
 import nonlinear_functions as nonlinear_functions
 
-from common import function_factory, Evaluation, AnalyzeModels, excitation_generators
+from common import Evaluation, AnalyzeModels, excitation_generators, math
 from models import *
 from model_generator import *

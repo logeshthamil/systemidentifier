@@ -48,12 +48,17 @@ class AliasingCompensation(object):
         """
         return self._postprocessing_input
 
+    @sumpf.Output(int)
     def _GetDownsamplingPosition(self):
         """
         Gets the downsampling position.
         @return: the downsampling position
         """
         return self._downsampling_position
+
+    @sumpf.Input(int)
+    def _SetDownsamplingPosition(self, downsampling_position):
+        self._downsampling_position = downsampling_position
 
 class FullUpsamplingAliasingCompensation(AliasingCompensation):
     """
