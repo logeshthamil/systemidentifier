@@ -1,6 +1,5 @@
 import numpy
 import sumpf
-import nlsp
 
 def cut_spectrum(inputspectrum,freq_range):
     """
@@ -24,7 +23,7 @@ def cut_spectrum(inputspectrum,freq_range):
                                   labels=inputspectrum.GetLabels())
     return input_spectrum
 
-def calculateenergy_time(input):
+def calculateenergy_timedomain(input):
     """
     Calculates the energy of the input in time domain.
     :param input: the input signal or spectrum whose energy has to be calculated
@@ -41,3 +40,36 @@ def calculateenergy_time(input):
             energy_singlechannel.append(abs(s)**2)
         energy_allchannels.append(numpy.sum(energy_singlechannel))
     return energy_allchannels
+
+def calculateenergy_freqdomain(input):
+    """
+    Calculates the energy of the input in frequency domain
+    :param input: the input signal or spectrum whose energy has to be calculated
+    :return: the tuple of the energy of the input spectrum of different channels
+    """
+    if isinstance(input,(sumpf.Signal)):
+        ip = sumpf.modules.FourierTransform(signal=input).GetSpectrum()
+    else:
+        ip = input
+    energy_allchannels = []
+    for c in ip.GetChannels():
+        energy_singlechannel = []
+        for s in c:
+            energy_singlechannel.append(abs(s)**2)
+        energy_allchannels.append(numpy.sum(energy_singlechannel))
+    return energy_allchannels
+
+def calculateenergy_betweenfreq_freqdomain(input,frequency_range):
+    """
+    Calculates the energy of input signal between certain frequencies of input signal
+    :param input: the input signal or spectrum whose energy has to be calculated
+    :param frequency_range: the range of frequencies over which the energy has to be calculated
+    :return: the tuple of the energy of input spectrum in frequency domain
+    """
+    if isinstance(input,(sumpf.Signal)):
+        ip = sumpf.modules.FourierTransform(signal=input).GetSpectrum()
+    else:
+        ip = input
+    spec = cut_spectrum(ip,frequency_range)
+    energy = calculateenergy_freqdomain(spec)
+    return energy

@@ -60,6 +60,11 @@ class AliasingCompensation(object):
     def _SetDownsamplingPosition(self, downsampling_position):
         self._downsampling_position = downsampling_position
 
+    @sumpf.Output(float)
+    def _GetAttenuation(self):
+        attenuation = self._input_signal.GetSamplingRate() / self.GetPreprocessingOutput().GetSamplingRate()
+        return attenuation
+
 class FullUpsamplingAliasingCompensation(AliasingCompensation):
     """
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the

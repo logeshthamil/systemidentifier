@@ -1,12 +1,14 @@
 import sumpf
 import nlsp
 
-def test_checkconnectors():
-    ip_signal = sumpf.modules.SweepGenerator(samplingrate=48000,length=2**14).GetSignal()
-    nl_system = nlsp.HammersteinGroupModel(input_signal=ip_signal,
-                                           nonlinear_functions=nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_functions.Power,branches=3),
-                                           filter_impulseresponses=nlsp.helper_functions.create_arrayof_bpfilter(sampling_rate=48000,branches=3),
-                                           aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1))
-    nlsp.common.plot.plot(nl_system.GetOutput())
+def test_hm():
+    input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2**16)
 
-test_checkconnectors()
+    aliasing_compensation = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(downsampling_position=2)
+    nonlinear_functions = nlsp.nonlinear_functions.Power(degree=2)
+
+    nl_system = nlsp.HammersteinModel(aliasing_compensation=aliasing_compensation, nonlinear_function=nonlinear_functions)
+    nl_system.SetInput(input_signal.GetSignal())
+    print nl_system.GetOutput()
+
+test_hm()

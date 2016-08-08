@@ -71,8 +71,8 @@ class Evaluation():
                     reference = nlsp.common.helper_functions_private.cut_spectrum(reference,frequency_range)
                     identified = nlsp.common.helper_functions_private.cut_spectrum(identified,frequency_range)
                     noise =  reference - identified
-                    div = identified / noise
-                    div_energy = nlsp.common.helper_functions_private.calculateenergy_time(div)
+                    div = sumpf.modules.Divide(value1=identified, value2=noise).GetResult()
+                    div_energy = nlsp.common.helper_functions_private.calculateenergy_betweenfreq_freqdomain(div,frequency_range)
                     snr.append(10*math.log10(div_energy[0]))
                 else:
                     print "The given arguments is not a sumpf.Signal or sumpf.Spectrum"
