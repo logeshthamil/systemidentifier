@@ -117,16 +117,20 @@ class HammersteinModel(object):
         :param aliasing_compensation: the aliasing compensation technique
         """
         # interpret the input parameters
+        self.__ir = filter_impulseresponse
         if input_signal is None:
             self.__input_signal = sumpf.Signal()
         else:
             self.__input_signal = input_signal
         self.__passsignal    = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
+
         if filter_impulseresponse is None:
-            self.__filterir     = sumpf.modules.ImpulseGenerator(length=len(self.__passsignal.GetSignal()),
-                                                                 samplingrate=self.__passsignal.GetSignal().GetSamplingRate()).GetSignal()
+            self.__filterir = sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
+                                                             length=len(self.__input_signal)).GetSignal()
         else:
-            self.__filterir     = filter_impulseresponse
+            self.__filterir = self.__ir
+        self.__passfilter    = sumpf.modules.PassThroughSignal(self.__filterir)
+
         if nonlinear_function is None:
             self.__nonlin_func  = nlsp.nonlinear_functions.Power(degree=1)
         else:
@@ -147,7 +151,6 @@ class HammersteinModel(object):
             self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation()
 
         # set up the signal processing objects
-        self.__passfilter    = sumpf.modules.PassThroughSignal(self.__filterir)
         self.__transform     = sumpf.modules.FourierTransform()
         self.__itransform    = sumpf.modules.InverseFourierTransform()
         self.__splitsignalspec   = sumpf.modules.SplitSpectrum(channels=[0])
@@ -157,11 +160,20 @@ class HammersteinModel(object):
         self.__attenuator = sumpf.modules.Multiply()
 
         # define input and output methods
-        self.SetInput  = self.__passsignal.SetSignal
         self.GetOutput = self.__signalaliascomp2.GetPostprocessingOutput
 
         # connect the signal processing objects
         self.__Connect()
+
+    @sumpf.Input(sumpf.Signal)
+    def SetInput(self, input_signal):
+        if self.__ir is None:
+            self.__passfilter.SetSignal(signal=sumpf.modules.ImpulseGenerator(samplingrate=input_signal.GetSamplingRate(),
+                                                                              length=len(input_signal)).GetSignal())
+        else:
+            self.__passfilter.SetSignal(self.__ir)
+        self.__input_signal = input_signal
+        self.__passsignal.SetSignal(signal=input_signal)
 
     def __Connect(self):
         sumpf.connect(self.__nonlin_func.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
@@ -189,4 +201,3 @@ class HammersteinModel(object):
     @sumpf.Output(float)
     def __getattenuation(self):
         return self.__attenuation
-
