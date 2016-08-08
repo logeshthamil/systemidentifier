@@ -1,3 +1,3 @@
-import system_identification_approaches as system_identification
-
-from model_generator import ModifyModel, PredefinedModelGeneration
+from modify_model import ModifyModel
+from predefined_model_generator import PredefinedModelGeneration
+import system_identification as system_identification
