@@ -157,7 +157,7 @@ class LowpassAliasingCompensation(AliasingCompensation):
     the lowpass filter is modified based on the attenuation needed at the stop band frequency.
     """
     def __init__(self, input_signal=None, maximum_harmonics=1,
-                 filter_function=sumpf.modules.FilterGenerator.BUTTERWORTH(order=10), attenuation=100):
+                 filter_function=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100), attenuation=100):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
