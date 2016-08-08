@@ -121,9 +121,10 @@ class HammersteinModel(object):
             self.__input_signal = sumpf.Signal()
         else:
             self.__input_signal = input_signal
+        self.__passsignal    = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
         if filter_impulseresponse is None:
-            self.__filterir     = sumpf.modules.ImpulseGenerator(length=len(self.__input_signal),
-                                                                 samplingrate=self.__input_signal.GetSamplingRate()).GetSignal()
+            self.__filterir     = sumpf.modules.ImpulseGenerator(length=len(self.__passsignal.GetSignal()),
+                                                                 samplingrate=self.__passsignal.GetSignal().GetSamplingRate()).GetSignal()
         else:
             self.__filterir     = filter_impulseresponse
         if nonlinear_function is None:
@@ -146,7 +147,6 @@ class HammersteinModel(object):
             self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation()
 
         # set up the signal processing objects
-        self.__passsignal    = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
         self.__passfilter    = sumpf.modules.PassThroughSignal(self.__filterir)
         self.__transform     = sumpf.modules.FourierTransform()
         self.__itransform    = sumpf.modules.InverseFourierTransform()
@@ -169,11 +169,9 @@ class HammersteinModel(object):
         sumpf.connect(self.__passfilter.GetSignal, self.__filteraliascomp.SetPreprocessingInput)
         sumpf.connect(self.__filteraliascomp._GetAttenuation, self.__attenuator.SetValue2)
         sumpf.connect(self.__filteraliascomp.GetPreprocessingOutput, self.__merger.AddInput)
-
         sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
         sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_func.SetInput)
         sumpf.connect(self.__nonlin_func.GetOutput, self.__attenuator.SetValue1)
-
         sumpf.connect(self.__attenuator.GetResult, self.__signalaliascomp1.SetPostprocessingInput)
         sumpf.connect(self.__signalaliascomp1.GetPostprocessingOutput, self.__merger.AddInput)
         sumpf.connect(self.__merger.GetOutput, self.__transform.SetSignal)
@@ -191,3 +189,4 @@ class HammersteinModel(object):
     @sumpf.Output(float)
     def __getattenuation(self):
         return self.__attenuation
+
