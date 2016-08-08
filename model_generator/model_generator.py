@@ -30,7 +30,8 @@ class HGMModelGenerator():
         self._output_model = model(nonlinear_functions=nl_functions,
                                    filter_impulseresponses=self._filter_impulseresponses,
                                    aliasing_compensation=self._aliasing_compensation)
-        return self._output_model
+        output_model = self._output_model
+        return output_model
 
 class ModifyModel(HGMModelGenerator):
     """

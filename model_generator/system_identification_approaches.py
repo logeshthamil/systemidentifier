@@ -7,7 +7,7 @@ class SystemIdentification(HGMModelGenerator):
     """
     A derived class of the ModelGenerator class and an abstract base class of all the system identification algorithms.
     """
-    def __init__(self, system_response=None, select_branches=None, length=2**16, sampling_rate=None):
+    def __init__(self, system_response=None, select_branches=None, length=2**16, sampling_rate=None, aliasing_compensation=None):
         """
         @param system_response: the response of the nonlinear system
         @param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
@@ -27,10 +27,11 @@ class SystemIdentification(HGMModelGenerator):
             self._sampling_rate = 48000
         else:
             self._sampling_rate = sampling_rate
+        if aliasing_compensation is None:
+            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=2)
+        else:
+            self._aliasing_compensation = aliasing_compensation
         self._input_model = nlsp.HammersteinGroupModel()
-        self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
-        self.GetExcitation()
-        self._nonlinear_functions = self.GetNonlinerFunctions()
 
     def GetExcitation(self):
         """
@@ -47,6 +48,7 @@ class SystemIdentification(HGMModelGenerator):
         """
         self._system_response = response
         self._filter_impulseresponses = self.GetFilterImpuleResponses()
+        self._nonlinear_functions = self.GetNonlinerFunctions()
 
     def GetFilterImpuleResponses(self):
         """
@@ -134,8 +136,6 @@ class SineSweep(SystemIdentification):
             for column in range(0,branches):
                 temp = sumpf.modules.Multiply(value1=harmonics_tf[column], value2=A_inverse[row][column]).GetResult()
                 A = A + temp
-                nlsp.common.plot.plot(A,show=False)
-            nlsp.common.plot.show()
             B_temp = sumpf.modules.InverseFourierTransform(A).GetSignal()
             B.append(B_temp)
         filter_kernels = []
