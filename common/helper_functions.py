@@ -2,7 +2,7 @@ import random
 import sumpf
 import nlsp
 
-def create_arrayof_bpfilter(start_freq=20.0,stop_freq=20000.0,branches=5,sampling_rate=48000,amplify=False):
+def create_arrayof_bpfilter(start_freq=20.0, stop_freq=20000.0, branches=5, sampling_rate=48000, amplify=False):
     """
     Generates logarithmically seperated band pass filters between start and stop frequencies.
     :param start_freq: the start frequency of the bandpass filter
