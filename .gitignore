@@ -1,0 +1,6 @@
+# ignore Python bytecode
+*.pyc
+__pycache__
+
+# ignore the cache from the tests
+tests/.cache
