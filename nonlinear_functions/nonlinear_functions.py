@@ -36,7 +36,6 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         @param signal: the input signal
         @param degree: the degree of the polynomial used in nonlinear block
         """
-        NonlinearBlock.__init__(self)
         if signal is None:
             self._input_signal = sumpf.Signal()
         else:
@@ -45,6 +44,7 @@ class PolynomialNonlinearBlock(NonlinearBlock):
             self._degree = 1
         else:
             self._degree = degree
+        NonlinearBlock.__init__(self)
 
     @sumpf.Input(data_type=int,observers=["GetMaximumHarmonics"])
     def SetDegree(self, degree=None):
