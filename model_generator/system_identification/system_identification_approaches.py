@@ -6,12 +6,14 @@ class SystemIdentification(HGMModelGenerator):
     """
     A derived class of the ModelGenerator class and an abstract base class of all the system identification algorithms.
     """
-    def __init__(self, system_response=None, select_branches=None, length=2**16, sampling_rate=None, aliasing_compensation=None):
+    def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None, excitation_length=2**16,
+                 excitation_sampling_rate=None):
         """
         @param system_response: the response of the nonlinear system
         @param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
-        @param length: the length of the excitation and response signals
-        @param sampling_rate: the sampling rate of the excitation and response signals
+        @param aliasing_compensation: the aliasing compensation parameter of the resulting model
+        @param excitation_length: the length of the excitation and response signals
+        @param excitation_sampling_rate: the sampling rate of the excitation and response signals
         """
         if system_response is None:
             self._system_response = sumpf.Signal()
@@ -21,13 +23,13 @@ class SystemIdentification(HGMModelGenerator):
             self._select_branches = [1,2,3,4,5]
         else:
             self._select_branches = select_branches
-        self._length = length
-        if sampling_rate is None:
+        self._length = excitation_length
+        if excitation_sampling_rate is None:
             self._sampling_rate = 48000
         else:
-            self._sampling_rate = sampling_rate
+            self._sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
-            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=2)
+            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
         else:
             self._aliasing_compensation = aliasing_compensation
         self._input_model = nlsp.HammersteinGroupModel()
