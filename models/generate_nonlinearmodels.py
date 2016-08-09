@@ -1,10 +1,12 @@
 import sumpf
 import nlsp
 
+
 class HammersteinGroupModel(object):
     """
     A class to construct a Hammerstein Group Model.
     """
+
     def __init__(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
                  aliasing_compensation=None):
         """
@@ -24,7 +26,9 @@ class HammersteinGroupModel(object):
         else:
             self.__nonlinear_functions = nonlinear_functions
         if filter_impulseresponses is None:
-            self.__filter_irs = (sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),length=len(self.__input_signal)).GetSignal(),)*len(self.__nonlinear_functions)
+            self.__filter_irs = (sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
+                                                                length=len(self.__input_signal)).GetSignal(),) * len(
+                self.__nonlinear_functions)
         else:
             self.__filter_irs = filter_impulseresponses
 
@@ -54,7 +58,8 @@ class HammersteinGroupModel(object):
 
     def _constructHGM(self):
         self.__hmodels = []
-        for i,(nl,ir,alias) in enumerate(zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
+        for i, (nl, ir, alias) in enumerate(
+                zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
             h = HammersteinModel(input_signal=self.__passsignal.GetSignal(), nonlinear_function=nl,
                                  filter_impulseresponse=ir, aliasing_compensation=alias)
             self.__hmodels.append(h)
@@ -87,16 +92,16 @@ class HammersteinGroupModel(object):
         @return: the output signal
         """
         self.__sums = [None] * self.__branches
-        for i in reversed(range(len(self.__hmodels)-1)):
+        for i in reversed(range(len(self.__hmodels) - 1)):
             self.__a = sumpf.modules.Add()
             # print "connecting hammerstein model %i to adder %i" % (i, i)
             sumpf.connect(self.__hmodels[i].GetOutput, self.__a.SetValue1)
-            if i == len(self.__hmodels)-2:
+            if i == len(self.__hmodels) - 2:
                 # print "connecting hammerstein model %i to adder %i" % (i+1, i)
-                sumpf.connect(self.__hmodels[i+1].GetOutput, self.__a.SetValue2)
+                sumpf.connect(self.__hmodels[i + 1].GetOutput, self.__a.SetValue2)
             else:
                 # print "connecting adder %i to adder %i" % (i+1, i)
-                sumpf.connect(self.__sums[i+1].GetResult, self.__a.SetValue2)
+                sumpf.connect(self.__sums[i + 1].GetResult, self.__a.SetValue2)
             self.__sums[i] = self.__a
         if len(self.__hmodels) == 1:
             self.__sums[0] = self.__hmodels[0]
@@ -104,10 +109,12 @@ class HammersteinGroupModel(object):
         else:
             return self.__sums[0].GetResult()
 
+
 class HammersteinModel(object):
     """
     A class to construct a Hammerstein model.
     """
+
     def __init__(self, input_signal=None, nonlinear_function=None, filter_impulseresponse=None,
                  aliasing_compensation=None):
         """
@@ -122,23 +129,23 @@ class HammersteinModel(object):
             self.__input_signal = sumpf.Signal()
         else:
             self.__input_signal = input_signal
-        self.__passsignal    = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
+        self.__passsignal = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
 
         if filter_impulseresponse is None:
             self.__filterir = sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
                                                              length=len(self.__input_signal)).GetSignal()
         else:
             self.__filterir = self.__ir
-        self.__passfilter    = sumpf.modules.PassThroughSignal(self.__filterir)
+        self.__passfilter = sumpf.modules.PassThroughSignal(self.__filterir)
 
         if nonlinear_function is None:
-            self.__nonlin_func  = nlsp.nonlinear_functions.Power(degree=1)
+            self.__nonlin_func = nlsp.nonlinear_functions.Power(degree=1)
         else:
-            self.__nonlin_func      = nonlinear_function
+            self.__nonlin_func = nonlinear_function
         if aliasing_compensation is None:
-            self.__signalaliascomp  = nlsp.aliasing_compensation.NoAliasingCompensation()
+            self.__signalaliascomp = nlsp.aliasing_compensation.NoAliasingCompensation()
         else:
-            self.__signalaliascomp  = aliasing_compensation
+            self.__signalaliascomp = aliasing_compensation
         # downsampling placement
         self.__downsampling_position = self.__signalaliascomp._GetDownsamplingPosition()
         if self.__downsampling_position == 1:
@@ -151,12 +158,12 @@ class HammersteinModel(object):
             self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation()
 
         # set up the signal processing objects
-        self.__transform     = sumpf.modules.FourierTransform()
-        self.__itransform    = sumpf.modules.InverseFourierTransform()
-        self.__splitsignalspec   = sumpf.modules.SplitSpectrum(channels=[0])
-        self.__splitfilterspec   = sumpf.modules.SplitSpectrum(channels=[1])
-        self.__merger  = sumpf.modules.MergeSignals(on_length_conflict=sumpf.modules.MergeSignals.FILL_WITH_ZEROS)
-        self.__multiplier    = sumpf.modules.Multiply()
+        self.__transform = sumpf.modules.FourierTransform()
+        self.__itransform = sumpf.modules.InverseFourierTransform()
+        self.__splitsignalspec = sumpf.modules.SplitSpectrum(channels=[0])
+        self.__splitfilterspec = sumpf.modules.SplitSpectrum(channels=[1])
+        self.__merger = sumpf.modules.MergeSignals(on_length_conflict=sumpf.modules.MergeSignals.FILL_WITH_ZEROS)
+        self.__multiplier = sumpf.modules.Multiply()
         self.__attenuator = sumpf.modules.Multiply()
 
         # define input and output methods
@@ -168,8 +175,9 @@ class HammersteinModel(object):
     @sumpf.Input(sumpf.Signal)
     def SetInput(self, input_signal):
         if self.__ir is None:
-            self.__passfilter.SetSignal(signal=sumpf.modules.ImpulseGenerator(samplingrate=input_signal.GetSamplingRate(),
-                                                                              length=len(input_signal)).GetSignal())
+            self.__passfilter.SetSignal(
+                signal=sumpf.modules.ImpulseGenerator(samplingrate=input_signal.GetSamplingRate(),
+                                                      length=len(input_signal)).GetSignal())
         else:
             self.__passfilter.SetSignal(self.__ir)
         self.__input_signal = input_signal
@@ -195,8 +203,8 @@ class HammersteinModel(object):
         sumpf.connect(self.__itransform.GetSignal, self.__signalaliascomp2.SetPostprocessingInput)
 
     @sumpf.Input(sumpf.Signal())
-    def __setattenuation(self,signal):
-        self.__attenuation = self.__input_signal.GetSamplingRate()/signal.GetSamplingRate()
+    def __setattenuation(self, signal):
+        self.__attenuation = self.__input_signal.GetSamplingRate() / signal.GetSamplingRate()
 
     @sumpf.Output(float)
     def __getattenuation(self):

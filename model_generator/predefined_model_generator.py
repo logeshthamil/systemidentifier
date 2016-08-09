@@ -1,9 +1,11 @@
 from .model_generator import HGMModelGenerator
 
+
 class PredefinedModelGeneration(HGMModelGenerator):
     """
     A class to generate a model based on predefined parameters.
     """
+
     @staticmethod
     def distortion_box():
         """

@@ -1,6 +1,7 @@
 import numpy
 import sumpf
 
+
 def cut_spectrum(inputspectrum, freq_range):
     # TODO: why is this function called "cut...", when it actually appends something
     """
@@ -25,8 +26,9 @@ def cut_spectrum(inputspectrum, freq_range):
                 channel_op.append(0.0)
         channels_ip.append(tuple(channel_ip))
     input_spectrum = sumpf.Spectrum(channels=tuple(channels_ip), resolution=inputspectrum.GetResolution(),
-                                  labels=inputspectrum.GetLabels())
+                                    labels=inputspectrum.GetLabels())
     return input_spectrum
+
 
 def calculateenergy_timedomain(input):
     # TODO: input is a builtin function of Python. Don't use this as a variable name
@@ -47,6 +49,7 @@ def calculateenergy_timedomain(input):
         energy_allchannels.append(numpy.sum(energy_singlechannel))
     return energy_allchannels
 
+
 def calculateenergy_freqdomain(input):
     # TODO: input is a builtin function of Python. Don't use this as a variable name
     """
@@ -65,6 +68,7 @@ def calculateenergy_freqdomain(input):
             energy_singlechannel.append(abs(s) ** 2)
         energy_allchannels.append(numpy.sum(energy_singlechannel))
     return energy_allchannels
+
 
 def calculateenergy_betweenfreq_freqdomain(input, frequency_range):
     # TODO: input is a builtin function of Python. Don't use this as a variable name

@@ -1,8 +1,8 @@
-
 class AnalyzeModels(object):
     """
     A class to analyze the model.
     """
+
     def __init__(self, model=None):
         """
         @param model: the instance of the nonlinear model

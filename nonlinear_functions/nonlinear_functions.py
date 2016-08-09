@@ -2,10 +2,12 @@ import sumpf
 import numpy
 import mpmath
 
+
 class NonlinearBlock(object):
     """
     An abstract base class to create a nonlinear block using nonlinear functions
     """
+
     def __init__(self):
         self._passinput = sumpf.modules.PassThroughSignal(signal=self._input_signal)
 
@@ -24,13 +26,15 @@ class NonlinearBlock(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
-    def CreateModified(self,*args, **kwargs):
+    def CreateModified(self, *args, **kwargs):
         raise NotImplementedError("This method should have been overridden in a derived class")
+
 
 class PolynomialNonlinearBlock(NonlinearBlock):
     """
     A base class to create nonlinear block using polynomials.
     """
+
     def __init__(self, signal=None, degree=None):
         """
         @param signal: the input signal
@@ -46,7 +50,7 @@ class PolynomialNonlinearBlock(NonlinearBlock):
             self._degree = degree
         NonlinearBlock.__init__(self)
 
-    @sumpf.Input(data_type=int,observers=["GetMaximumHarmonics"])
+    @sumpf.Input(data_type=int, observers=["GetMaximumHarmonics"])
     def SetDegree(self, degree=None):
         """
         Set the degree of the polynomial nonlinear block.
@@ -74,6 +78,7 @@ class Power(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using powers.
     """
+
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
@@ -88,10 +93,12 @@ class Power(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
 class Chebyshev(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using Chebyshev polynomials.
     """
+
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
@@ -106,10 +113,12 @@ class Chebyshev(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
 class Hermite(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using Hermite polynomials.
     """
+
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
@@ -124,10 +133,12 @@ class Hermite(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
 class Legendre(PolynomialNonlinearBlock):
     """
     A class to create a nonlinear block using Legendre polynomials.
     """
+
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
@@ -142,10 +153,12 @@ class Legendre(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
 class Clipping(NonlinearBlock):
     """
     A class to create a nonlinear block using hard clipping function.
     """
+
     def __init__(self, signal=None, thresholds=None, harmonics=5):
         """
         @param signal: the input signal
@@ -193,18 +206,22 @@ class Clipping(NonlinearBlock):
         """
         return self._harmonics
 
+
 def power(degree=None):
     """
     A function to generate power of an array of samples.
     @param degree: the degree
     @return: the power function
     """
+
     def func(channel):
         result = channel
         for i in range(1, degree):
             result = numpy.multiply(result, channel)
         return result
+
     return func
+
 
 def chebyshev_polynomial(degree=None):
     """
@@ -212,12 +229,15 @@ def chebyshev_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
+
     def func(channel):
         channell = []
-        for i in range(0,len(channel)):
-            channell.append(float(mpmath.chebyt(degree,channel[i])))
+        for i in range(0, len(channel)):
+            channell.append(float(mpmath.chebyt(degree, channel[i])))
         return numpy.asarray(channell)
+
     return func
+
 
 def hermite_polynomial(degree=None):
     """
@@ -225,12 +245,15 @@ def hermite_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
+
     def func(channel):
         channell = []
-        for i in range(0,len(channel)):
-            channell.append(float(mpmath.hermite(degree,channel[i])))
+        for i in range(0, len(channel)):
+            channell.append(float(mpmath.hermite(degree, channel[i])))
         return numpy.asarray(channell)
+
     return func
+
 
 def legendre_polynomial(degree=None):
     """
@@ -238,12 +261,15 @@ def legendre_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
+
     def func(channel):
         channell = []
-        for i in range(0,len(channel)):
-            channell.append(float(mpmath.laguerre(degree,0,channel[i])))
+        for i in range(0, len(channel)):
+            channell.append(float(mpmath.laguerre(degree, 0, channel[i])))
         return numpy.asarray(channell)
+
     return func
+
 
 def hard_clip(thresholds=None):
     """
@@ -251,8 +277,10 @@ def hard_clip(thresholds=None):
     @param thresholds: the thresholds of clipping
     @return: the clipping function
     """
+
     def func(channel):
         signal = sumpf.Signal(channels=(channel,), samplingrate=48000, labels=("nl",))
-        clipped = sumpf.modules.ClipSignal(signal=signal,thresholds=thresholds)
+        clipped = sumpf.modules.ClipSignal(signal=signal, thresholds=thresholds)
         return numpy.asarray(clipped.GetOutput().GetChannels()[0])
+
     return func

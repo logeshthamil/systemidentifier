@@ -4,11 +4,12 @@ import copy
 import sumpf
 import nlsp
 
-class Adaptive(SystemIdentification):
 
-    def __init__(self, system_excitation=None, system_response=None, select_branches=[1,2,3,4,5], multichannel_algorithm=nlsp.common.miso_nlms_multichannel,
-                 filter_length=2**10 ,initial_coefficients=None, nonlinear_function=nlsp.nonlinear_function.Power,
-                 excitation_length=2**16, excitation_sampling_rate=None, aliasing_compensation=None, iterations=1,
+class Adaptive(SystemIdentification):
+    def __init__(self, system_excitation=None, system_response=None, select_branches=[1, 2, 3, 4, 5],
+                 multichannel_algorithm=nlsp.common.miso_nlms_multichannel,
+                 filter_length=2 ** 10, initial_coefficients=None, nonlinear_function=nlsp.nonlinear_function.Power,
+                 excitation_length=2 ** 16, excitation_sampling_rate=None, aliasing_compensation=None, iterations=1,
                  step_size=0.1):
         """
         @param system_excitation: the excitation of the nonlinear system
@@ -29,7 +30,7 @@ class Adaptive(SystemIdentification):
         else:
             self._system_response = system_response
         if select_branches is None:
-            self._select_branches = [1,2,3,4,5]
+            self._select_branches = [1, 2, 3, 4, 5]
         else:
             self._select_branches = select_branches
         self.multichannel_algorithm = multichannel_algorithm
@@ -43,7 +44,8 @@ class Adaptive(SystemIdentification):
         else:
             self._sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
-            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
+            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(
+                downsampling_position=1)
         else:
             self._aliasing_compensation = aliasing_compensation
         self._initial_coefficients = initial_coefficients
@@ -57,8 +59,9 @@ class Adaptive(SystemIdentification):
         Get the excitation signal for system identification.
         @return: the excitation signal
         """
-        self._excitation_generator = sumpf.modules.NoiseGenerator(distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
-                                                  samplingrate=self._sampling_rate, length=self._length, seed="seed")
+        self._excitation_generator = sumpf.modules.NoiseGenerator(
+            distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
+            samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self._excitation_generator.GetSignal()
 
     def _GetFilterImpuleResponses(self):
@@ -70,16 +73,17 @@ class Adaptive(SystemIdentification):
         outputs = self._system_response
         aliasing_compensation = self._aliasing_compensation
 
-        impulse = sumpf.modules.ImpulseGenerator(samplingrate=outputs.GetSamplingRate(),length=len(input)).GetSignal()
+        impulse = sumpf.modules.ImpulseGenerator(samplingrate=outputs.GetSamplingRate(), length=len(input)).GetSignal()
         input_signal = []
         for nonlinear_function in self._nonlinear_functions:
             aliasing_comp = copy.deepcopy(aliasing_compensation)
-            model = nlsp.HammersteinModel(input_signal=input, nonlinear_function=nonlinear_function, filter_impulseresponse=impulse,
+            model = nlsp.HammersteinModel(input_signal=input, nonlinear_function=nonlinear_function,
+                                          filter_impulseresponse=impulse,
                                           aliasing_compensation=aliasing_comp)
             input_signal.append(model.GetOutput().GetChannels()[0])
         desired_signal = outputs.GetChannels()[0]
         if self._initial_coefficients is None:
-            w = numpy.zeros((len(input_signal),self._filter_length))
+            w = numpy.zeros((len(input_signal), self._filter_length))
         else:
             w = []
             for k in self._initial_coefficients:
@@ -88,7 +92,8 @@ class Adaptive(SystemIdentification):
         SNR = numpy.zeros(self._iterations)
         iteration = numpy.zeros(self._iterations)
         for i in range(self._iterations):
-            w = self.multichannel_algorithm(input_signals_array=input_signal, desired_output=desired_signal, filter_length=self._filter_length,
+            w = self.multichannel_algorithm(input_signals_array=input_signal, desired_output=desired_signal,
+                                            filter_length=self._filter_length,
                                             step_size=self._step_size, initCoeffs=w)
             kernel = []
             for k in w:

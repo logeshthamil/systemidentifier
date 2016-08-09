@@ -2,10 +2,12 @@ import copy
 import sumpf
 import nlsp
 
+
 class HGMModelGenerator():  # TODO: all classes should inherit from "object"
     """
     An abstract base class whose instances generate models.
     """
+
     # TODO: again no constructor, but the methods access attributes (see the AliasingCompensation class)
 
     @sumpf.Output(nlsp.HammersteinGroupModel)
@@ -18,7 +20,6 @@ class HGMModelGenerator():  # TODO: all classes should inherit from "object"
         downsampling_position = self._aliasing_compensation._downsampling_position
         self._aliasing_compensation = self._aliasing_compensation.__class__()
         self._aliasing_compensation._SetDownsamplingPosition(downsampling_position=downsampling_position)
-
 
         # nonlinear functions
         nl_functions = []

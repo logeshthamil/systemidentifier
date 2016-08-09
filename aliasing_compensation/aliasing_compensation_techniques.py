@@ -1,12 +1,14 @@
 import sumpf
 import math
 
+
 class AliasingCompensation(object):
     """
     An abstract base class for aliasing compensation techniques. The aliasing compensation consists of preprocessing and
     postprocessing units. Every derived aliasing compensation technique should implement the signal processing chain for
     aliasing compensation.
     """
+
     # TODO: there is no constructor here, that defines attributes, but you access
     #    those attributes in the methods.
 
@@ -71,6 +73,7 @@ class AliasingCompensation(object):
         attenuation = self._input_signal.GetSamplingRate() / self.GetPreprocessingOutput().GetSamplingRate()
         return attenuation
 
+
 class FullUpsamplingAliasingCompensation(AliasingCompensation):
     """
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
@@ -79,7 +82,8 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     AFTER_NONLINEAR_FUNCTION = 0
     AFTER_FILTER = 1
 
-    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None, downsampling_position=AFTER_NONLINEAR_FUNCTION):
+    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None,
+                 downsampling_position=AFTER_NONLINEAR_FUNCTION):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -117,11 +121,13 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
                                                  algorithm=self._resampling_algorithm)
         return resampler.GetOutput()
 
+
 class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     """
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the baseband spectrum of the input signal.
     """
+
     def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None, downsampling_position=1):
         """
         @param input_signal: the input signal
@@ -160,11 +166,13 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
                                                  algorithm=self._resampling_algorithm)
         return resampler.GetOutput()
 
+
 class LowpassAliasingCompensation(AliasingCompensation):
     """
     A class to compensate the aliasing introduced in a nonlinear model using a lowpass filter. The cutoff frequency of
     the lowpass filter is modified based on the attenuation needed at the stop band frequency.
     """
+
     def __init__(self, input_signal=None, maximum_harmonics=1,
                  filter_function=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100), attenuation=100):
         # TODO: Why don't you pass the order separately? e.g.:
@@ -195,13 +203,14 @@ class LowpassAliasingCompensation(AliasingCompensation):
         """
         property = sumpf.modules.ChannelDataProperties()
         property.SetSignal(signal=self._input_signal)
-        cutoff_frequency = ((self._input_signal.GetSamplingRate() / 2.0) / self._maximum_harmonics)\
-               / (2.0 ** (self._attenuation / (6.0 * self._filter_order)))
+        cutoff_frequency = ((self._input_signal.GetSamplingRate() / 2.0) / self._maximum_harmonics) \
+                           / (2.0 ** (self._attenuation / (6.0 * self._filter_order)))
         self._filter_function.SetFrequency(frequency=cutoff_frequency)
         self._filter_function.SetResolution(property.GetResolution())
         self._filter_function.SetLength(property.GetSpectrumLength())
-        result_spectrum = sumpf.modules.Multiply(value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
-                                                 value2=self._filter_function.GetSpectrum()).GetResult()
+        result_spectrum = sumpf.modules.Multiply(
+            value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
+            value2=self._filter_function.GetSpectrum()).GetResult()
         return sumpf.modules.InverseFourierTransform(spectrum=result_spectrum).GetSignal()
 
 
@@ -209,6 +218,7 @@ class NoAliasingCompensation(AliasingCompensation):
     """
     A class which acts as a pass through of signals.
     """
+
     def __init__(self, input_signal=None, maximum_harmonics=1):
         """
         @param input_signal: the input signal

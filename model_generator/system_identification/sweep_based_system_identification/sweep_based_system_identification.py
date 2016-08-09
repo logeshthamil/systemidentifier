@@ -3,18 +3,21 @@ import numpy
 import nlsp
 import sumpf
 
+
 class SineSweep(SystemIdentification):
     """
     A class which identifies a model of the system using a sine sweep signal.
     """
+
     @sumpf.Output(sumpf.Signal)
     def GetExcitation(self):
         """
         Get the excitation signal for system identification.
         @return: the excitation signal
         """
-        self._excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(sampling_rate=self._sampling_rate,
-                                                                                         approximate_numberofsamples=self._length)
+        self._excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
+            sampling_rate=self._sampling_rate,
+            approximate_numberofsamples=self._length)
         return self._excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -37,7 +40,8 @@ class SineSweep(SystemIdentification):
             split_harm = nlsp.common.FindHarmonicImpulseResponse_NovakSweep(impulse_response=ir_sweep,
                                                                             harmonic_order=i + 2,
                                                                             sweep_generator=self._excitation_generator).GetHarmonicImpulseResponse()
-            split_harm = sumpf.modules.CutSignal(signal=split_harm, stop=len(self._excitation_generator.GetOutput())).GetOutput()
+            split_harm = sumpf.modules.CutSignal(signal=split_harm,
+                                                 stop=len(self._excitation_generator.GetOutput())).GetOutput()
             ir_merger.AddInput(sumpf.Signal(channels=split_harm.GetChannels(),
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))
@@ -51,7 +55,8 @@ class SineSweep(SystemIdentification):
         for n in range(0, branches):
             for m in range(0, branches):
                 if ((n >= m) and ((n + m) % 2 == 0)):
-                    A_matrix[m][n] = (((-1 + 0j) ** (2 * (n + 1) - m / 2)) / (2 ** n)) * nlsp.math.binomial_expression((n + 1), (n - m) / 2)
+                    A_matrix[m][n] = (((-1 + 0j) ** (2 * (n + 1) - m / 2)) / (2 ** n)) * nlsp.math.binomial_expression(
+                            (n + 1), (n - m) / 2)
                 else:
                     A_matrix[m][n] = 0
         A_inverse = numpy.linalg.inv(A_matrix)
@@ -83,17 +88,20 @@ class SineSweep(SystemIdentification):
             nonlinear_functions.append(nonlinear_function)
         return nonlinear_functions
 
+
 class CosineSweep(SystemIdentification):
     """
     A class which identifies a model of the system using a cosine sweep signal.
     """
+
     def GetExcitation(self):
         """
         Get the excitation signal for system identification.
         @return: the excitation signal
         """
-        self._excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(sampling_rate=self._sampling_rate,
-                                                                                           approximate_numberofsamples=self._length)
+        self._excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
+            sampling_rate=self._sampling_rate,
+            approximate_numberofsamples=self._length)
         return self._excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -116,7 +124,8 @@ class CosineSweep(SystemIdentification):
             split_harm = nlsp.common.FindHarmonicImpulseResponse_NovakSweep(impulse_response=ir_sweep,
                                                                             harmonic_order=i + 2,
                                                                             sweep_generator=self._excitation_generator).GetHarmonicImpulseResponse()
-            split_harm = sumpf.modules.CutSignal(signal=split_harm, stop=len(self._excitation_generator.GetOutput())).GetOutput()
+            split_harm = sumpf.modules.CutSignal(signal=split_harm,
+                                                 stop=len(self._excitation_generator.GetOutput())).GetOutput()
             ir_merger.AddInput(sumpf.Signal(channels=split_harm.GetChannels(),
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))

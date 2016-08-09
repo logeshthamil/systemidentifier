@@ -1,6 +1,7 @@
 import random
 import sumpf
 
+
 def create_arrayof_bpfilter(start_freq=20.0, stop_freq=20000.0, branches=5, sampling_rate=48000, amplify=False):
     # TODO: In order to avoid confusing the user, I suggest, that you use the same parameter names as in SuMPF:
     #    start_frequency, stop_frequency and samplingrate    (as for example in the SweepGenerator)
@@ -30,11 +31,11 @@ def create_arrayof_bpfilter(start_freq=20.0, stop_freq=20000.0, branches=5, samp
                                               frequency=freq,
                                               resolution=ip_prp.GetResolution(),
                                               length=ip_prp.GetSpectrumLength()).GetSpectrum()) * \
-                (sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100),
-                                               frequency=freq / 2, transform=True,
-                                               resolution=ip_prp.GetResolution(),
-                                               length=ip_prp.GetSpectrumLength()).GetSpectrum())
-        if amplify is True: # TODO: "if amplify:", don't compare with booleans and especially, don't do that with "is"
+               (sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100),
+                                              frequency=freq / 2, transform=True,
+                                              resolution=ip_prp.GetResolution(),
+                                              length=ip_prp.GetSpectrumLength()).GetSpectrum())
+        if amplify is True:  # TODO: "if amplify:", don't compare with booleans and especially, don't do that with "is"
             spec = sumpf.modules.Multiply(value1=spec, value2=random.randint(10, 100)).GetResult()
             # TODO: the algebra classes (Multiply etc.) are mainly to create signal processing chains.
             #    If you are not creating signal processing chains, there is an easier way:
@@ -44,6 +45,7 @@ def create_arrayof_bpfilter(start_freq=20.0, stop_freq=20000.0, branches=5, samp
         filter_spec.append(sumpf.modules.InverseFourierTransform(spec).GetSignal())
     # filter_spec = [i for i in reversed(filter_spec)]
     return filter_spec
+
 
 def create_arrayof_nlfunctions(function, branches):
     # TODO: this function is not really necessary. it can be replaced by one-liners like:

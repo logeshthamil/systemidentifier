@@ -2,11 +2,14 @@ from nlsp.model_generator.model_generator import HGMModelGenerator
 import sumpf
 import nlsp
 
+
 class SystemIdentification(HGMModelGenerator):
     """
     A derived class of the ModelGenerator class and an abstract base class of all the system identification algorithms.
     """
-    def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None, excitation_length=2 ** 16,
+
+    def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None,
+                 excitation_length=2 ** 16,
                  excitation_sampling_rate=None):
         """
         @param system_response: the response of the nonlinear system
@@ -31,11 +34,12 @@ class SystemIdentification(HGMModelGenerator):
             self._select_branches = select_branches
         self._length = excitation_length
         if excitation_sampling_rate is None:
-            self._sampling_rate = 48000 # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
+            self._sampling_rate = 48000  # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
         else:
             self._sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
-            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
+            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(
+                downsampling_position=1)
         else:
             self._aliasing_compensation = aliasing_compensation
         self._input_model = nlsp.HammersteinGroupModel()

@@ -1,5 +1,6 @@
 import math
 
+
 def binomial_expression(x, y):
     """
     A math function to calculate the nCr.
