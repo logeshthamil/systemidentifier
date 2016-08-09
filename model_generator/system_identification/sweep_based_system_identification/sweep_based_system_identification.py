@@ -30,14 +30,14 @@ class SineSweep(SystemIdentification):
         out_spec = out_spec / self._system_response.GetSamplingRate()
         tf = rev_spec * out_spec
         ir_sweep = sumpf.modules.InverseFourierTransform(tf).GetSignal()
-        ir_sweep_direct = sumpf.modules.CutSignal(signal=ir_sweep,start=0,stop=int(sweep_length/4)).GetOutput()
+        ir_sweep_direct = sumpf.modules.CutSignal(signal=ir_sweep, start=0, stop=int(sweep_length / 4)).GetOutput()
         ir_merger = sumpf.modules.MergeSignals(on_length_conflict=sumpf.modules.MergeSignals.FILL_WITH_ZEROS)
         ir_merger.AddInput(ir_sweep_direct)
-        for i in range(branches-1):
+        for i in range(branches - 1):
             split_harm = nlsp.common.FindHarmonicImpulseResponse_NovakSweep(impulse_response=ir_sweep,
-                                                                            harmonic_order=i+2,
+                                                                            harmonic_order=i + 2,
                                                                             sweep_generator=self._excitation_generator).GetHarmonicImpulseResponse()
-            split_harm = sumpf.modules.CutSignal(signal=split_harm,stop=len(self._excitation_generator.GetOutput())).GetOutput()
+            split_harm = sumpf.modules.CutSignal(signal=split_harm, stop=len(self._excitation_generator.GetOutput())).GetOutput()
             ir_merger.AddInput(sumpf.Signal(channels=split_harm.GetChannels(),
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))
@@ -45,31 +45,31 @@ class SineSweep(SystemIdentification):
         tf_harmonics_all = sumpf.modules.FourierTransform(ir_merger).GetSpectrum()
         harmonics_tf = []
         for i in range(len(tf_harmonics_all.GetChannels())):
-            tf_harmonics =  sumpf.modules.SplitSpectrum(data=tf_harmonics_all, channels=[i]).GetOutput()
+            tf_harmonics = sumpf.modules.SplitSpectrum(data=tf_harmonics_all, channels=[i]).GetOutput()
             harmonics_tf.append(tf_harmonics)
-        A_matrix = numpy.zeros((branches,branches),dtype=numpy.complex128)
-        for n in range(0,branches):
-            for m in range(0,branches):
-                if ((n >=m) and ((n+m) % 2 == 0)):
-                    A_matrix[m][n] = (((-1 + 0j)**(2*(n+1)-m/2))/(2**n)) * nlsp.math.binomial_expression((n+1),(n-m)/2)
+        A_matrix = numpy.zeros((branches, branches), dtype=numpy.complex128)
+        for n in range(0, branches):
+            for m in range(0, branches):
+                if ((n >= m) and ((n + m) % 2 == 0)):
+                    A_matrix[m][n] = (((-1 + 0j) ** (2 * (n + 1) - m / 2)) / (2 ** n)) * nlsp.math.binomial_expression((n + 1), (n - m) / 2)
                 else:
                     A_matrix[m][n] = 0
         A_inverse = numpy.linalg.inv(A_matrix)
-        for row in range(0,len(A_inverse)):
+        for row in range(0, len(A_inverse)):
             if row % 2 != 0.0:
-                A_inverse[row] = A_inverse[row] * (0+1j)
+                A_inverse[row] = A_inverse[row] * (0 + 1j)
         B = []
-        for row in range(0,branches):
-            A = sumpf.modules.ConstantSpectrumGenerator(value=0.0,resolution=harmonics_tf[0].GetResolution(),
+        for row in range(0, branches):
+            A = sumpf.modules.ConstantSpectrumGenerator(value=0.0, resolution=harmonics_tf[0].GetResolution(),
                                                         length=len(harmonics_tf[0])).GetSpectrum()
-            for column in range(0,branches):
+            for column in range(0, branches):
                 temp = sumpf.modules.Multiply(value1=harmonics_tf[column], value2=A_inverse[row][column]).GetResult()
                 A = A + temp
             B_temp = sumpf.modules.InverseFourierTransform(A).GetSignal()
             B.append(B_temp)
         filter_kernels = []
         for branch in self._select_branches:
-            filter_kernels.append(B[branch-1])
+            filter_kernels.append(B[branch - 1])
         return filter_kernels
 
     def GetNonlinerFunctions(self):
@@ -93,7 +93,7 @@ class CosineSweep(SystemIdentification):
         @return: the excitation signal
         """
         self._excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(sampling_rate=self._sampling_rate,
-                                                                                         approximate_numberofsamples=self._length)
+                                                                                           approximate_numberofsamples=self._length)
         return self._excitation_generator.GetOutput()
 
     def GetFilterImpuleResponses(self):
@@ -109,14 +109,14 @@ class CosineSweep(SystemIdentification):
         out_spec = out_spec / self._system_response.GetSamplingRate()
         tf = rev_spec * out_spec
         ir_sweep = sumpf.modules.InverseFourierTransform(tf).GetSignal()
-        ir_sweep_direct = sumpf.modules.CutSignal(signal=ir_sweep,start=0,stop=int(sweep_length/4)).GetOutput()
+        ir_sweep_direct = sumpf.modules.CutSignal(signal=ir_sweep, start=0, stop=int(sweep_length / 4)).GetOutput()
         ir_merger = sumpf.modules.MergeSignals(on_length_conflict=sumpf.modules.MergeSignals.FILL_WITH_ZEROS)
         ir_merger.AddInput(ir_sweep_direct)
-        for i in range(branches-1):
+        for i in range(branches - 1):
             split_harm = nlsp.common.FindHarmonicImpulseResponse_NovakSweep(impulse_response=ir_sweep,
-                                                                            harmonic_order=i+2,
+                                                                            harmonic_order=i + 2,
                                                                             sweep_generator=self._excitation_generator).GetHarmonicImpulseResponse()
-            split_harm = sumpf.modules.CutSignal(signal=split_harm,stop=len(self._excitation_generator.GetOutput())).GetOutput()
+            split_harm = sumpf.modules.CutSignal(signal=split_harm, stop=len(self._excitation_generator.GetOutput())).GetOutput()
             ir_merger.AddInput(sumpf.Signal(channels=split_harm.GetChannels(),
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))

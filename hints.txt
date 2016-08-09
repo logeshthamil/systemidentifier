@@ -1,0 +1,7 @@
+enable the automated code formatter of your IDE and use a pep8-checker
+
+your tests take too long to run
+
+write short docstrings, what the tests are about to test
+
+don't put the tests in a subfolder of nlsp, because this way users can access them via nlsp.tests

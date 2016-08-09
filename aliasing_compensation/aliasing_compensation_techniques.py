@@ -7,6 +7,8 @@ class AliasingCompensation(object):
     postprocessing units. Every derived aliasing compensation technique should implement the signal processing chain for
     aliasing compensation.
     """
+    # TODO: there is no constructor here, that defines attributes, but you access
+    #    those attributes in the methods.
 
     @sumpf.Input(data_type=int)
     def SetMaximumHarmonics(self, maximum_harmonics=None):
@@ -16,7 +18,7 @@ class AliasingCompensation(object):
         """
         self._maximum_harmonics = maximum_harmonics
 
-    @sumpf.Input(data_type=sumpf.Signal,observers=["GetPreprocessingOutput"])
+    @sumpf.Input(data_type=sumpf.Signal, observers=["GetPreprocessingOutput"])
     def SetPreprocessingInput(self, preprocessing_input=None):
         """
         Sets the input signal of the preprocessing unit.
@@ -32,7 +34,7 @@ class AliasingCompensation(object):
         """
         return self._input_signal
 
-    @sumpf.Input(data_type=sumpf.Signal,observers=["GetPostprocessingOutput"])
+    @sumpf.Input(data_type=sumpf.Signal, observers=["GetPostprocessingOutput"])
     def SetPostprocessingInput(self, postprocessing_input=None):
         """
         Sets the input signal of the postprocessing aliasing compensation.
@@ -50,6 +52,10 @@ class AliasingCompensation(object):
 
     @sumpf.Output(int)
     def _GetDownsamplingPosition(self):
+        # TODO:
+        # As I already told you, don't do this! Really!
+        #    1) the position of the downsampling step is in the responsibility of the model, not the aliasing compensation
+        #    2) not all aliasing compensations require downsampling. Call this postprocessing.
         """
         Gets the downsampling position.
         @return: the downsampling position
@@ -135,7 +141,7 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
         Gets the output signal of the preprocessing aliasing compensation.
         @return: the output signal of the preprocessing aliasing compensation
         """
-        resampling_rate = self._input_signal.GetSamplingRate()*math.ceil((self._maximum_harmonics+1.0)/2.0)
+        resampling_rate = self._input_signal.GetSamplingRate() * math.ceil((self._maximum_harmonics + 1.0) / 2.0)
         resampler = sumpf.modules.ResampleSignal(signal=self._input_signal, samplingrate=resampling_rate,
                                                  algorithm=self._resampling_algorithm)
         return resampler.GetOutput()
@@ -158,12 +164,15 @@ class LowpassAliasingCompensation(AliasingCompensation):
     """
     def __init__(self, input_signal=None, maximum_harmonics=1,
                  filter_function=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100), attenuation=100):
+        # TODO: Why don't you pass the order separately? e.g.:
+        #    filter_function_class = sumpf.modules.FilterGenerator.BUTTERWORTH, order=16
+        # TODO: Don't use such high values as default values, as they will not be used in practice. Use a filter order of 16 and an attenuation of 60dB
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         @param filter_function: the filter function which can be chosen based on the choice of filter used for aliasing
         compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH()
-        @param attenuation: the required attenuation (in dB) at the cutoff frequency
+        @param attenuation: the required attenuation (in dB) at the cutoff frequency    # TODO: this is not the cutoff frequency, but the nyquist frequency
         """
         if input_signal is None:
             self._input_signal = sumpf.Signal()
@@ -183,8 +192,8 @@ class LowpassAliasingCompensation(AliasingCompensation):
         """
         property = sumpf.modules.ChannelDataProperties()
         property.SetSignal(signal=self._input_signal)
-        cutoff_frequency = ((self._input_signal.GetSamplingRate()/2.0)/self._maximum_harmonics)\
-               /(2.0**(self._attenuation/(6.0*self._filter_order)))
+        cutoff_frequency = ((self._input_signal.GetSamplingRate() / 2.0) / self._maximum_harmonics)\
+               / (2.0 ** (self._attenuation / (6.0 * self._filter_order)))
         self._filter_function.SetFrequency(frequency=cutoff_frequency)
         self._filter_function.SetResolution(property.GetResolution())
         self._filter_function.SetLength(property.GetSpectrumLength())

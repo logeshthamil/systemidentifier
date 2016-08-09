@@ -1,10 +1,11 @@
 import sumpf
 import nlsp
 
-class HGMModelGenerator():
+class HGMModelGenerator():  # TODO: all classes should inherit from "object"
     """
     An abstract base class whose instances generate models.
     """
+    # TODO: again no constructor, but the methods access attributes (see the AliasingCompensation class)
 
     @sumpf.Output(nlsp.HammersteinGroupModel)
     def GetOutputModel(self):

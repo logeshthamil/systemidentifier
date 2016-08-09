@@ -6,7 +6,7 @@ class SystemIdentification(HGMModelGenerator):
     """
     A derived class of the ModelGenerator class and an abstract base class of all the system identification algorithms.
     """
-    def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None, excitation_length=2**16,
+    def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None, excitation_length=2 ** 16,
                  excitation_sampling_rate=None):
         """
         @param system_response: the response of the nonlinear system
@@ -15,17 +15,23 @@ class SystemIdentification(HGMModelGenerator):
         @param excitation_length: the length of the excitation and response signals
         @param excitation_sampling_rate: the sampling rate of the excitation and response signals
         """
+        # TODO: why do you use only one underscore at the start of the attribute name?
+        #    Make private attributes private, by using two underscores.
+        #    One underscore indicates, that an attribute is "protected", which
+        #    means, that it is not part of the official API, but it can still be
+        #    accessed from outside the class. This encurages bad code, that depends
+        #    on internal implementation details of the class.
         if system_response is None:
             self._system_response = sumpf.Signal()
         else:
             self._system_response = system_response
         if select_branches is None:
-            self._select_branches = [1,2,3,4,5]
+            self._select_branches = [1, 2, 3, 4, 5]
         else:
             self._select_branches = select_branches
         self._length = excitation_length
         if excitation_sampling_rate is None:
-            self._sampling_rate = 48000
+            self._sampling_rate = 48000 # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
         else:
             self._sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
@@ -65,7 +71,7 @@ class SystemIdentification(HGMModelGenerator):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
-    @sumpf.Input(tuple,["GetFilterImpulseResponses","GetNonlinearFunctions"])
+    @sumpf.Input(tuple, ["GetFilterImpulseResponses", "GetNonlinearFunctions"])
     def SelectBranches(self, branches=None):
         """
         Set the branches of the model to which the filter kernels have to be found.
