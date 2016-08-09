@@ -8,10 +8,15 @@ def test_identify_an_HGM_Sinesweep():
     nonlinear_functions = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_functions.Power, branches=branches)
     black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
                                            aliasing_compensation=aliasing_compensation,
+<<<<<<< Updated upstream
                                            filter_impulseresponses=linear_filters)  # TODO: for maximum cleanliness, order the parameters the way, as they are ordered in the constructor's definition
+    identification_algorithm = nlsp.system_identification.SineSweep(select_branches=range(1, branches + 1), length=2 ** 16, sampling_rate=48000.0)
+=======
+                                           filter_impulseresponses=linear_filters)
     identification_algorithm = nlsp.system_identification.SineSweep(select_branches=range(1,branches+1),
                                                                     aliasing_compensation=aliasing_compensation,
                                                                     excitation_length=2**16, excitation_sampling_rate=48000)
+>>>>>>> Stashed changes
     excitation = identification_algorithm.GetExcitation()
     black_box.SetInput(excitation)
     identification_algorithm.SetResponse(black_box.GetOutput())
@@ -32,9 +37,13 @@ def test_identify_an_HGM_Cosinesweep():
     black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
                                            aliasing_compensation=aliasing_compensation,
                                            filter_impulseresponses=linear_filters)
+<<<<<<< Updated upstream
+    identification_algorithm = nlsp.system_identification.CosineSweep(select_branches=range(1, branches + 1), length=2 ** 16, sampling_rate=48000.0)
+=======
     identification_algorithm = nlsp.system_identification.CosineSweep(select_branches=range(1,branches+1),
                                                                     aliasing_compensation=aliasing_compensation,
                                                                     excitation_length=2**16, excitation_sampling_rate=48000)
+>>>>>>> Stashed changes
     excitation = identification_algorithm.GetExcitation()
     black_box.SetInput(excitation)
     identification_algorithm.SetResponse(black_box.GetOutput())

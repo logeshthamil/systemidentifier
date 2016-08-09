@@ -1,5 +1,6 @@
 from nlsp.model_generator.system_identification.system_identification_approaches import SystemIdentification
 import numpy
+import copy
 import sumpf
 import nlsp
 
@@ -60,20 +61,21 @@ class Adaptive(SystemIdentification):
                                                   samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self._excitation_generator.GetSignal()
 
-    def GetFilterImpuleResponses(self):
+    def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
         @return: the filter impulse responses
         """
         input = self.GetExcitation()
         outputs = self._system_response
+        aliasing_compensation = self._aliasing_compensation
+
         impulse = sumpf.modules.ImpulseGenerator(samplingrate=outputs.GetSamplingRate(),length=len(input)).GetSignal()
-        iden_nlsystem = self._input_model(input_signal=input, nonlinear_functions=self._nonlinear_functions,
-                                          filter_impulseresponses=[impulse,]*len(self._select_branches), aliasing_compensation=self._aliasing_compensation)
         input_signal = []
         for nonlinear_function in self._nonlinear_functions:
+            aliasing_comp = copy.deepcopy(aliasing_compensation)
             model = nlsp.HammersteinModel(input_signal=input, nonlinear_function=nonlinear_function, filter_impulseresponse=impulse,
-                                          aliasing_compensation=self._aliasing_compensation)
+                                          aliasing_compensation=aliasing_comp)
             input_signal.append(model.GetOutput().GetChannels()[0])
         desired_signal = outputs.GetChannels()[0]
         if self._initial_coefficients is None:
@@ -94,9 +96,9 @@ class Adaptive(SystemIdentification):
                 kernel.append(iden_filter)
         return kernel
 
-    def GetNonlinerFunctions(self):
+    def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return self._nonlinear_functions
+        return copy.deepcopy(self._nonlinear_functions)

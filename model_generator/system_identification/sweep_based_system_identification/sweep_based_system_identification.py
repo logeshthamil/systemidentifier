@@ -17,7 +17,7 @@ class SineSweep(SystemIdentification):
                                                                                          approximate_numberofsamples=self._length)
         return self._excitation_generator.GetOutput()
 
-    def GetFilterImpuleResponses(self):
+    def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
         @return: the filter impulse responses
@@ -72,7 +72,7 @@ class SineSweep(SystemIdentification):
             filter_kernels.append(B[branch - 1])
         return filter_kernels
 
-    def GetNonlinerFunctions(self):
+    def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
         @return: the nonlinear functions
@@ -96,7 +96,7 @@ class CosineSweep(SystemIdentification):
                                                                                            approximate_numberofsamples=self._length)
         return self._excitation_generator.GetOutput()
 
-    def GetFilterImpuleResponses(self):
+    def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
         @return: the filter impulse responses
@@ -126,7 +126,7 @@ class CosineSweep(SystemIdentification):
             ir_harmonics.append(sumpf.modules.SplitSignal(data=ir_merger, channels=[i]).GetOutput())
         return ir_harmonics
 
-    def GetNonlinerFunctions(self):
+    def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
         @return: the nonlinear functions

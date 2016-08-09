@@ -76,7 +76,10 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the whole spectrum of the nonlinearly processed signals.
     """
-    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None, downsampling_position=1):
+    AFTER_NONLINEAR_FUNCTION = 0
+    AFTER_FILTER = 1
+
+    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None, downsampling_position=AFTER_NONLINEAR_FUNCTION):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model

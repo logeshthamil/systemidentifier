@@ -54,17 +54,17 @@ class SystemIdentification(HGMModelGenerator):
         @param response: the response
         """
         self._system_response = response
-        self._filter_impulseresponses = self.GetFilterImpuleResponses()
-        self._nonlinear_functions = self.GetNonlinerFunctions()
+        self._filter_impulseresponses = self._GetFilterImpuleResponses()
+        self._nonlinear_functions = self._GetNonlinerFunctions()
 
-    def GetFilterImpuleResponses(self):
+    def _GetFilterImpuleResponses(self):
         """
         This method should be overridden in the derived classes. Get the identified filter impulse responses.
         @return: the filter impulse responses
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
-    def GetNonlinerFunctions(self):
+    def _GetNonlinerFunctions(self):
         """
         This method should be overridden in the derived classes. Get the nonlinear functions.
         @return: the nonlinear functions

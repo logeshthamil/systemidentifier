@@ -6,6 +6,9 @@ class NonlinearBlock(object):
     """
     An abstract base class to create a nonlinear block using nonlinear functions
     """
+    def __init__(self):
+        self._passinput = sumpf.modules.PassThroughSignal(signal=self._input_signal)
+
     @sumpf.Input(data_type=sumpf.Signal, observers=["GetOutput"])
     def SetInput(self, input_signal=None):
         """
@@ -21,6 +24,9 @@ class NonlinearBlock(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
+    def CreateModified(self,*args, **kwargs):
+        raise NotImplementedError("This method should have been overridden in a derived class")
+
 class PolynomialNonlinearBlock(NonlinearBlock):
     """
     A base class to create nonlinear block using polynomials.
@@ -30,6 +36,7 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         @param signal: the input signal
         @param degree: the degree of the polynomial used in nonlinear block
         """
+        NonlinearBlock.__init__(self)
         if signal is None:
             self._input_signal = sumpf.Signal()
         else:
@@ -38,7 +45,6 @@ class PolynomialNonlinearBlock(NonlinearBlock):
             self._degree = 1
         else:
             self._degree = degree
-        self._passinput = sumpf.modules.PassThroughSignal(signal=signal)
 
     @sumpf.Input(data_type=int,observers=["GetMaximumHarmonics"])
     def SetDegree(self, degree=None):
@@ -55,6 +61,14 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         @return: the maximum harmonics
         """
         return self._degree
+
+    def CreateModified(self, signal=None, degree=None):
+        if signal is None:
+            signal = self._input_signal
+        if degree is None:
+            degree = self._degree
+        return self.__class__(signal=signal, degree=degree)
+
 
 class Power(PolynomialNonlinearBlock):
     """

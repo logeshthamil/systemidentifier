@@ -1,6 +1,5 @@
 from nlsp.model_generator.system_identification.system_identification_approaches import SystemIdentification
 import numpy
-import math
 import itertools
 import sumpf
 import nlsp
@@ -16,7 +15,7 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
                                                   samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self._excitation_generator.GetSignal()
 
-class MISOapproach(SystemIdentification):
+class MISOapproach(WhiteGaussianNoiseIdentification):
     """
     A class which identifies a model of a system using a
     """
@@ -28,6 +27,7 @@ class MISOapproach(SystemIdentification):
         :param total_branches: the total number of branches
         :return: the k matrix
         """
+        input = input_signal
         total_branches = max(self._select_branches)
         row_array = range(0,total_branches)
         column_array = range(0,total_branches)
@@ -39,8 +39,10 @@ class MISOapproach(SystemIdentification):
             if n < m:
                 k = 0
                 for i in range(n,m):
-                    num = nlsp.nonlinear_function.Power(degree=i+m,signal=input).GetOutput()
-                    den = nlsp.nonlinear_function.Power(degree=2*i,signal=input).GetOutput()
+                    num = nlsp.nonlinear_function.Power(degree=i+m,signal=input)
+                    den = nlsp.nonlinear_function.Power(degree=2*i,signal=input)
+                    num = num.GetOutput()
+                    den = den.GetOutput()
                     num = round(sumpf.modules.SignalMean(num).GetMean()[0],3)
                     den = round(sumpf.modules.SignalMean(den).GetMean()[0],3)
                     k = k + (k_matrix[n-1][i-1]*(num/den))
@@ -96,7 +98,7 @@ class MISOapproach(SystemIdentification):
             signal_matrix.append(core)
         return signal_matrix,k_matrix,mu_matrix
 
-    def GetFilterImpuleResponses(self):
+    def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
         @return: the filter impulse responses
@@ -127,7 +129,7 @@ class MISOapproach(SystemIdentification):
             G.append(sumpf.modules.InverseFourierTransform(A + mu_matrix[row]).GetSignal())
         return G
 
-    def GetNonlinerFunctions(self):
+    def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
         @return: the nonlinear functions
@@ -135,42 +137,5 @@ class MISOapproach(SystemIdentification):
         nonlinear_functions = []
         for branch in self._select_branches:
             nonlinear_function = nlsp.nonlinear_functions.Power(degree=branch)
-            nonlinear_functions.append(nonlinear_function)
-        return nonlinear_functions
-
-class WienerGapproach(SystemIdentification):
-
-    def GetFilterImpuleResponses(self):
-        """
-        Get the identified filter impulse responses.
-        @return: the filter impulse responses
-        """
-        branches = max(self._select_branches)
-        kernel_length = len(self._system_response)/2
-        excitation = self.GetExcitation()
-        response = self._system_response
-        variance = sumpf.modules.SignalMean(excitation * excitation).GetMean()[0]
-        kernels = []
-        for branch in range(1, branches + 1):
-            k = []
-            for i in range(0, kernel_length):
-                shifted = sumpf.modules.ShiftSignal(signal=excitation,shift=-i,circular=False).GetOutput()
-                power = nlsp.nonlinear_function.Hermite(signal=shifted, degree=branch)
-                product = response * power.GetOutput()
-                mean = sumpf.modules.SignalMean(signal=product).GetMean()[0]
-                factor = 1.0 / (math.factorial(branch) * (variance ** branch))
-                k.append(mean * factor)
-            k = sumpf.Signal(channels=(k,),samplingrate=response.GetSamplingRate(),labels=())
-            kernels.append(k)
-        return kernels
-
-    def GetNonlinerFunctions(self):
-        """
-        Get the nonlinear functions.
-        @return: the nonlinear functions
-        """
-        nonlinear_functions = []
-        for branch in self._select_branches:
-            nonlinear_function = nlsp.nonlinear_functions.Hermite(degree=branch)
             nonlinear_functions.append(nonlinear_function)
         return nonlinear_functions
