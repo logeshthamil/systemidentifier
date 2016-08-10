@@ -4,22 +4,45 @@ import nlsp
 
 def test_mergerproblem():
     """
-    Test the merger problem with set input signal with different sampling rate.
+    Test the HGM with different sampling rate signals..
     """
-    # TODO: at which point is merging happening in this test?
-    #    can it be the case, that you test for an internal implementation detail
-    #    of the HammersteinModel?
-    input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2 ** 15).GetSignal()
+    input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2 ** 10).GetSignal()
 
     aliasing_compensation = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
-    nonlinear_functions = nlsp.nonlinear_function.Power(degree=2)
+    nonlinear_functions = nlsp.nonlinear_function.Power(degree=5)
 
     nl_system = nlsp.HammersteinModel(aliasing_compensation=aliasing_compensation,
-                                      nonlinear_function=nonlinear_functions)
-    nl_system.SetInput(input_signal)
-    nl_system.GetOutput()
+                                      nonlinear_function=nonlinear_functions,
+                                      downsampling_position=nlsp.HammersteinModel.AFTER_LINEAR_BLOCK,
+                                      input_signal=input_signal)
+    input_signal = sumpf.modules.SineWaveGenerator(samplingrate=48000, length=2 ** 11)
+    nl_system.SetInput(input_signal.GetSignal())
+    print nl_system.GetOutput()
 
-test_mergerproblem()
+    # print nl_system.SetInput
+    # print nl_system.SetInput
+
+#     pi = sumpf.progressindicators.ProgressIndicator_Outputs()
+#     pi.AddMethod(nl_system.SetInput)
+#     class Printer(object):
+#         @sumpf.Input(tuple)
+#         def PrintProgress(self, progress):
+#             print (progress)
+#         @sumpf.Input(None)
+#         def NOP(self, *args, **kwargs):
+#             pass
+#     pr = Printer()
+#     sumpf.connect(pi.GetProgressAsTuple, pr.PrintProgress)
+#     sumpf.connect(nl_system.GetOutput, pr.NOP)
+#     print "Here"
+#
+# #    nl_system.SetInput(input_signal)
+# #    print nl_system.GetOutput()
+#     input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2 ** 15).GetSignal()
+#     nl_system.SetInput(input_signal)
+#     sumpf.set_multiple_values([(nl_system.SetInput, input_signal)], progress_indicator=pi)
+#     print "Here"
+# #    print nl_system.GetOutput()
 
 test_mergerproblem()
 

@@ -66,12 +66,12 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         """
         return self._degree
 
-    def CreateModified(self, signal=None, degree=None):
-        if signal is None:
-            signal = self._input_signal
-        if degree is None:
-            degree = self._degree
-        return self.__class__(signal=signal, degree=degree)
+    # def CreateModified(self, signal=None, degree=None):
+    #     if signal is None:
+    #         signal = self._input_signal
+    #     if degree is None:
+    #         degree = self._degree
+    #     return self.__class__(signal=signal, degree=degree)
 
 
 class Power(PolynomialNonlinearBlock):

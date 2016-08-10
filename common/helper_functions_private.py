@@ -1,4 +1,5 @@
 import numpy
+import math
 import sumpf
 
 
@@ -85,3 +86,68 @@ def calculateenergy_betweenfreq_freqdomain(input, frequency_range):
     spec = cut_spectrum(ip, frequency_range)
     energy = calculateenergy_freqdomain(spec)
     return energy
+
+def append_zeros(input_signal, length=None):
+    """
+    Appends zeros until the signal has the given length. If no length is given,
+    zeros will be appended until the length is a power of 2.
+    @param input_signal: the input signal
+    @param length: the desired length
+    """
+    if length is None:
+        length = 2 ** int(math.ceil(math.log(len(input_signal), 2)))
+    zeros = length - len(input_signal)
+    result = sumpf.Signal(channels=tuple([c + (0.0,) * zeros for c in input_signal.GetChannels()]),
+                          samplingrate=input_signal.GetSamplingRate(),
+                          labels=input_signal.GetLabels())
+    return result
+
+class CheckEqualLength(object):
+    """
+    Check the length of two signals. In case of mismatch it will append zeros to make it equal.
+    """
+    def __init__(self, input_signal1=None, input_signal2=None):
+        """
+        @param input_signal1: the first input signal
+        @param input_signal2: the second input signal
+        """
+        # Get the input parameters
+        if input_signal1 is None:
+            self.__input_signal1 = sumpf.Signal()
+        else:
+            self.__input_signal1 = input_signal1
+
+        if input_signal2 is None:
+            self.__input_signal2 = sumpf.Signal()
+        else:
+            self.__input_signal2 = input_signal2
+
+        self.__output_signal1 = self.__input_signal1
+        self.__output_signal2 = self.__input_signal2
+        self._changelength()
+
+    def _changelength(self):
+        if len(self.__input_signal1) > len(self.__input_signal2):
+            self.__output_signal2 = append_zeros(input_signal=self.__input_signal2,length=len(self.__input_signal1))
+            self.__output_signal1 = self.__input_signal1
+        elif len(self.__input_signal2) > len(self.__input_signal1):
+            self.__output_signal1 = append_zeros(self.__input_signal1, len(self.__input_signal2))
+            self.__output_signal2 = self.__input_signal2
+
+    @sumpf.Output(sumpf.Signal)
+    def GetFirstOutput(self):
+        return self.__output_signal1
+
+    @sumpf.Output(sumpf.Signal)
+    def GetSecondOutput(self):
+        return self.__output_signal2
+
+    @sumpf.Input(sumpf.Signal, ["GetFirstOutput", "GetSecondOutput"])
+    def SetFirstInput(self, input_signal1):
+        self.__input_signal1 = input_signal1
+        self._changelength()
+
+    @sumpf.Input(sumpf.Signal, ["GetFirstOutput", "GetSecondOutput"])
+    def SetSecondInput(self, input_signal2):
+        self.__input_signal2 = input_signal2
+        self._changelength()
