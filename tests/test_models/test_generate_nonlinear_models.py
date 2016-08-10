@@ -2,9 +2,9 @@ import sumpf
 import nlsp
 
 
-def test_mergerproblem():
+def test_samplingrate():
     """
-    Test the HGM with different sampling rate signals..
+    Test the HGM with different sampling rate signals.
     """
     input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2 ** 10).GetSignal()
 
@@ -19,33 +19,6 @@ def test_mergerproblem():
     nl_system.SetInput(input_signal.GetSignal())
     print nl_system.GetOutput()
 
-    # print nl_system.SetInput
-    # print nl_system.SetInput
-
-#     pi = sumpf.progressindicators.ProgressIndicator_Outputs()
-#     pi.AddMethod(nl_system.SetInput)
-#     class Printer(object):
-#         @sumpf.Input(tuple)
-#         def PrintProgress(self, progress):
-#             print (progress)
-#         @sumpf.Input(None)
-#         def NOP(self, *args, **kwargs):
-#             pass
-#     pr = Printer()
-#     sumpf.connect(pi.GetProgressAsTuple, pr.PrintProgress)
-#     sumpf.connect(nl_system.GetOutput, pr.NOP)
-#     print "Here"
-#
-# #    nl_system.SetInput(input_signal)
-# #    print nl_system.GetOutput()
-#     input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2 ** 15).GetSignal()
-#     nl_system.SetInput(input_signal)
-#     sumpf.set_multiple_values([(nl_system.SetInput, input_signal)], progress_indicator=pi)
-#     print "Here"
-# #    print nl_system.GetOutput()
-
-test_mergerproblem()
-
 def test_linearity_of_model():
     """
     Test the Hammerstein model for linearity using first order nonlinear function and all pass filter.
@@ -56,33 +29,35 @@ def test_linearity_of_model():
                                                length=48000).GetSignal()
 
     model = nlsp.HammersteinModel(input_signal=gen_sine, nonlinear_function=nlsp.nonlinear_function.Power(degree=1),
-                                  aliasing_compensation=nlsp.aliasing_compensation.LowpassAliasingCompensation())
+                                  aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     energy_ip = nlsp.common.helper_functions_private.calculateenergy_freqdomain(gen_sine)
     energy_op = nlsp.common.helper_functions_private.calculateenergy_freqdomain(model.GetOutput())
     assert int(energy_ip[0]) == int(energy_op[0])
 
-
 def test_attenuatorofHM():
     """
-    Test the attenuation factor of the Hammerstein model.
+    Test the full and reduced upsampling aliasing compensation technique for uniformity.
     """
-    # TODO: what is the attenuation factor?
     sweep = sumpf.modules.SweepGenerator(start_frequency=20.0, stop_frequency=20000.0, samplingrate=48000.0,
-                                         length=2 ** 15).GetSignal()
+                                         length=2 ** 14).GetSignal()
     model1 = nlsp.HammersteinModel(input_signal=sweep, nonlinear_function=nlsp.nonlinear_function.Power(degree=2),
-                                   aliasing_compensation=nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(
-                                       downsampling_position=2))
+                                   aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                   downsampling_position=nlsp.HammersteinModel.AFTER_NONLINEAR_BLOCK)
     model2 = nlsp.HammersteinModel(input_signal=sweep, nonlinear_function=nlsp.nonlinear_function.Power(degree=2),
-                                   aliasing_compensation=nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(
-                                       downsampling_position=1))
+                                   aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                   downsampling_position=nlsp.HammersteinModel.AFTER_LINEAR_BLOCK)
     model3 = nlsp.HammersteinModel(input_signal=sweep, nonlinear_function=nlsp.nonlinear_function.Power(degree=2),
-                                   aliasing_compensation=nlsp.aliasing_compensation.LowpassAliasingCompensation())
+                                   aliasing_compensation=nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(),
+                                   downsampling_position=nlsp.HammersteinModel.AFTER_LINEAR_BLOCK)
+    model4 = nlsp.HammersteinModel(input_signal=sweep, nonlinear_function=nlsp.nonlinear_function.Power(degree=2),
+                                   aliasing_compensation=nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(),
+                                   downsampling_position=nlsp.HammersteinModel.AFTER_NONLINEAR_BLOCK)
     model1_outputenergy = nlsp.common.helper_functions_private.calculateenergy_timedomain(model1.GetOutput())[0]
     model2_outputenergy = nlsp.common.helper_functions_private.calculateenergy_timedomain(model2.GetOutput())[0]
     model3_outputenergy = nlsp.common.helper_functions_private.calculateenergy_timedomain(model3.GetOutput())[0]
-    assert int(model1_outputenergy) == int(model2_outputenergy)
-    assert int(model3_outputenergy) <= int(model2_outputenergy)
-
+    model4_outputenergy = nlsp.common.helper_functions_private.calculateenergy_timedomain(model4.GetOutput())[0]
+    assert int(model1_outputenergy) == int(model4_outputenergy)
+    assert int(model2_outputenergy) == int(model3_outputenergy)
 
 def test_additioninHGM():
     """
@@ -95,10 +70,10 @@ def test_additioninHGM():
                            nlsp.nonlinear_function.Power(degree=3)]
     nonlinear_functions1 = [nlsp.nonlinear_function.Power(degree=1), nlsp.nonlinear_function.Power(degree=2),
                             nlsp.nonlinear_function.Power(degree=3)]
-    aliasing_compensation1 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(downsampling_position=1)
-    aliasing_compensation2 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(downsampling_position=1)
-    aliasing_compensation3 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(downsampling_position=1)
-    aliasing_compensation4 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(downsampling_position=1)
+    aliasing_compensation1 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+    aliasing_compensation2 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+    aliasing_compensation3 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+    aliasing_compensation4 = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
     model1 = nlsp.HammersteinModel(input_signal=sweep, nonlinear_function=nonlinear_functions[0],
                                    aliasing_compensation=aliasing_compensation1)
     model2 = nlsp.HammersteinModel(input_signal=sweep, nonlinear_function=nonlinear_functions[1],
@@ -109,5 +84,9 @@ def test_additioninHGM():
     HGM = nlsp.HammersteinGroupModel(input_signal=sweep, nonlinear_functions=nonlinear_functions1,
                                      aliasing_compensation=aliasing_compensation4)
     HGM_output = HGM.GetOutput()
+    print nlsp.common.helper_functions_private.calculateenergy_timedomain(total_output)
+    print nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM_output)
     assert nlsp.common.helper_functions_private.calculateenergy_timedomain(total_output) == \
            nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM_output)
+
+test_additioninHGM()

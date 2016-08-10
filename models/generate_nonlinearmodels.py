@@ -6,15 +6,18 @@ class HammersteinGroupModel(object):
     """
     A class to construct a Hammerstein Group Model.
     """
+    AFTER_NONLINEAR_BLOCK = 1
+    AFTER_LINEAR_BLOCK = 2
 
     def __init__(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
-                 aliasing_compensation=None):
+                 aliasing_compensation=None, downsampling_position=AFTER_NONLINEAR_BLOCK):
         """
         @param input_signal: the input signal
         @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]
         @param filter_impulseresponse: the filter impulse responses Eg. [impulse_response1, impulse_response2, ...]
         @param aliasing_compensation: the aliasin compensation technique
         Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
         """
         # interpret the input parameters
         if input_signal is None:
@@ -31,6 +34,7 @@ class HammersteinGroupModel(object):
                 self.__nonlinear_functions)
         else:
             self.__filter_irs = filter_impulseresponses
+        self.__downsampling_position = downsampling_position
 
         # check if the filter ir length and the nonlinear functions length is same
         if len(self.__nonlinear_functions) == len(self.__filter_irs):
@@ -44,12 +48,10 @@ class HammersteinGroupModel(object):
             self.__aliasingcompensation = nlsp.aliasing_compensation.NoAliasingCompensation()
         else:
             self.__aliasingcompensation = aliasing_compensation
-        self.__downsampling_position = self.__aliasingcompensation._downsampling_position
 
         aliasing_comp = []
         while len(aliasing_comp) != self.__branches:
             classname = self.__aliasingcompensation.__class__()
-            classname._SetDownsamplingPosition(self.__downsampling_position)
             aliasing_comp.append(classname)
         self.__aliasingcompensations = aliasing_comp
 
@@ -61,7 +63,8 @@ class HammersteinGroupModel(object):
         for i, (nl, ir, alias) in enumerate(
                 zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
             h = HammersteinModel(input_signal=self.__passsignal.GetSignal(), nonlinear_function=nl,
-                                 filter_impulseresponse=ir, aliasing_compensation=alias)
+                                 filter_impulseresponse=ir, aliasing_compensation=alias,
+                                 downsampling_position=self.__downsampling_position)
             self.__hmodels.append(h)
 
     def _get_aliasing_compensation(self):
@@ -160,6 +163,7 @@ class HammersteinModel(object):
         self.__merger = sumpf.modules.MergeSignals(on_length_conflict=sumpf.modules.MergeSignals.FILL_WITH_ZEROS)
         self.__splitsignal = sumpf.modules.SplitSignal(channels=[0])
         self.__splitfilter = sumpf.modules.SplitSignal(channels=[1])
+        self.__attenuator = sumpf.modules.Multiply()
 
         self._ConnectHGM()
         self.SetInput = self.__passsignal.SetSignal
@@ -187,8 +191,10 @@ class HammersteinModel(object):
             sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
             sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
             sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_function.SetInput)
-            sumpf.connect(self.__nonlin_function.GetOutput, self.__prop_signal.SetSignal)
-            sumpf.connect(self.__nonlin_function.GetOutput, self.__change_length.SetFirstInput)
+            sumpf.connect(self.__signalaliascomp._GetAttenuation, self.__attenuator.SetValue1)
+            sumpf.connect(self.__nonlin_function.GetOutput, self.__attenuator.SetValue2)
+            sumpf.connect(self.__attenuator.GetResult, self.__prop_signal.SetSignal)
+            sumpf.connect(self.__attenuator.GetResult, self.__change_length.SetFirstInput)
             sumpf.connect(self.__prop_signal.GetSamplingRate, self.__resampler.SetSamplingRate)
             sumpf.connect(self.__passfilter.GetSignal, self.__resampler.SetInput)
             sumpf.connect(self.__resampler.GetOutput, self.__change_length.SetSecondInput)
