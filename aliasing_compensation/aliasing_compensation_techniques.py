@@ -8,9 +8,20 @@ class AliasingCompensation(object):
     postprocessing units. Every derived aliasing compensation technique should implement the signal processing chain for
     aliasing compensation.
     """
-
-    # TODO: there is no constructor here, that defines attributes, but you access
-    #    those attributes in the methods.
+    def __init__(self, input_signal=None, maximum_harmonics=None):
+        """
+        @param input_signal: the input signal
+        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        @return:
+        """
+        if input_signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = input_signal
+        if maximum_harmonics is None:
+            self._maximum_harmonics = 1
+        else:
+            self._maximum_harmonics = maximum_harmonics
 
     @sumpf.Input(data_type=int)
     def SetMaximumHarmonics(self, maximum_harmonics=None):
@@ -52,22 +63,6 @@ class AliasingCompensation(object):
         """
         return self._postprocessing_input
 
-    @sumpf.Output(int)
-    def _GetDownsamplingPosition(self):
-        # TODO:
-        # As I already told you, don't do this! Really!
-        #    1) the position of the downsampling step is in the responsibility of the model, not the aliasing compensation
-        #    2) not all aliasing compensations require downsampling. Call this postprocessing.
-        """
-        Gets the downsampling position.
-        @return: the downsampling position
-        """
-        return self._downsampling_position
-
-    @sumpf.Input(int)
-    def _SetDownsamplingPosition(self, downsampling_position):
-        self._downsampling_position = downsampling_position
-
     @sumpf.Output(float)
     def _GetAttenuation(self):
         attenuation = self._input_signal.GetSamplingRate() / self.GetPreprocessingOutput().GetSamplingRate()
@@ -79,11 +74,8 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     A class to compensate the aliasing introduced in a nonlinear model using an upsampler. The upsampling factor of the
     upsampler is chosen such that aliasing is prevented in the whole spectrum of the nonlinearly processed signals.
     """
-    AFTER_NONLINEAR_FUNCTION = 0
-    AFTER_FILTER = 1
 
-    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None,
-                 downsampling_position=AFTER_NONLINEAR_FUNCTION):
+    def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -91,13 +83,11 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
         @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
         for downsampling after the linear filter block
         """
-        if input_signal is None:
-            self._input_signal = sumpf.Signal()
+        AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
+        if resampling_algorithm is None:
+            self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
         else:
-            self._input_signal = input_signal
-        self._maximum_harmonics = maximum_harmonics
-        self._downsampling_position = downsampling_position
-        self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
+            self._resampling_algorithm = resampling_algorithm
 
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
@@ -128,7 +118,7 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     upsampler is chosen such that aliasing is prevented in the baseband spectrum of the input signal.
     """
 
-    def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None, downsampling_position=1):
+    def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -136,13 +126,11 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
         @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
         for downsampling after the linear filter block
         """
-        if input_signal is None:
-            self._input_signal = sumpf.Signal()
+        AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
+        if resampling_algorithm is None:
+            self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
         else:
-            self._input_signal = input_signal
-        self._maximum_harmonics = maximum_harmonics
-        self._downsampling_position = downsampling_position
-        self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
+            self._resampling_algorithm = resampling_algorithm
 
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
@@ -173,27 +161,19 @@ class LowpassAliasingCompensation(AliasingCompensation):
     the lowpass filter is modified based on the attenuation needed at the stop band frequency.
     """
 
-    def __init__(self, input_signal=None, maximum_harmonics=1,
-                 filter_function=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100), attenuation=100):
-        # TODO: Why don't you pass the order separately? e.g.:
-        #    filter_function_class = sumpf.modules.FilterGenerator.BUTTERWORTH, order=16
-        # TODO: Don't use such high values as default values, as they will not be used in practice. Use a filter order of 16 and an attenuation of 60dB
+    def __init__(self, input_signal=None, maximum_harmonics=1, filter_function_class=sumpf.modules.FilterGenerator.BUTTERWORTH,
+                 filter_order=16, attenuation=60):
         """
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param filter_function: the filter function which can be chosen based on the choice of filter used for aliasing
-        compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH()
-        @param attenuation: the required attenuation (in dB) at the cutoff frequency    # TODO: this is not the cutoff frequency, but the nyquist frequency
+        @param filter_function_class: the filter function which can be chosen based on the choice of filter used for
+        aliasing compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH
+        @param attenuation: the required attenuation (in dB) at the stopband frequency of the filter
         """
-        if input_signal is None:
-            self._input_signal = sumpf.Signal()
-        else:
-            self._input_signal = input_signal
-        self._maximum_harmonics = maximum_harmonics
-        self._filter_function = sumpf.modules.FilterGenerator(filterfunction=filter_function)
+        AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
+        self._filter_function = sumpf.modules.FilterGenerator(filterfunction=filter_function_class(order=filter_order))
         self._attenuation = attenuation
-        self._filter_order = filter_function.GetOrder()
-        self._downsampling_position = 1
+        self._filter_order = filter_order
 
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
@@ -224,9 +204,4 @@ class NoAliasingCompensation(AliasingCompensation):
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         """
-        if input_signal is None:
-            self._input_signal = sumpf.Signal()
-        else:
-            self._input_signal = input_signal
-        self._maximum_harmonics = maximum_harmonics
-        self._downsampling_position = 1
+        AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)

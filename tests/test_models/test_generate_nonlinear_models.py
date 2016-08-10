@@ -11,19 +11,17 @@ def test_mergerproblem():
     #    of the HammersteinModel?
     input_signal = sumpf.modules.SweepGenerator(samplingrate=96000.0, length=2 ** 15).GetSignal()
 
-    aliasing_compensation = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation(downsampling_position=1)
+    aliasing_compensation = nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
     nonlinear_functions = nlsp.nonlinear_function.Power(degree=2)
 
     nl_system = nlsp.HammersteinModel(aliasing_compensation=aliasing_compensation,
                                       nonlinear_function=nonlinear_functions)
-    try:
-        nl_system.SetInput(input_signal)
-        nl_system.GetOutput()
-    except Exception as e:
-        # TODO: to catch all exceptions, use the base class "BaseException"
-        # TODO: this is a test. It shall crash, if something goes wrong. Why do you catch this exception?
-        print "Error: %s" % e
+    nl_system.SetInput(input_signal)
+    nl_system.GetOutput()
 
+test_mergerproblem()
+
+test_mergerproblem()
 
 def test_linearity_of_model():
     """

@@ -114,98 +114,118 @@ class HammersteinModel(object):
     """
     A class to construct a Hammerstein model.
     """
+    AFTER_NONLINEAR_BLOCK = 1
+    AFTER_LINEAR_BLOCK = 2
 
     def __init__(self, input_signal=None, nonlinear_function=None, filter_impulseresponse=None,
-                 aliasing_compensation=None):
+                 aliasing_compensation=None, downsampling_position=AFTER_NONLINEAR_BLOCK):
         """
         :param input_signal: the input signal
         :param nonlinear_function: the nonlinear function
         :param filter_impulseresponse: the impulse response
         :param aliasing_compensation: the aliasing compensation technique
+        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
         """
         # interpret the input parameters
         self.__ir = filter_impulseresponse
         if input_signal is None:
-            self.__input_signal = sumpf.Signal()
+            self.__input_signal = sumpf.modules.ConstantSignalGenerator(value=0.0, length=2**16).GetSignal()
         else:
             self.__input_signal = input_signal
         self.__passsignal = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
 
         if filter_impulseresponse is None:
             self.__filterir = sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
-                                                             length=len(self.__input_signal)).GetSignal()
+                                                             length=int(len(self.__input_signal)/2.0)).GetSignal()
         else:
             self.__filterir = self.__ir
         self.__passfilter = sumpf.modules.PassThroughSignal(self.__filterir)
 
         if nonlinear_function is None:
-            self.__nonlin_func = nlsp.nonlinear_functions.Power(degree=1)
+            self.__nonlin_function = nlsp.nonlinear_functions.Power(degree=1)
         else:
-            self.__nonlin_func = nonlinear_function
+            self.__nonlin_function = nonlinear_function
         if aliasing_compensation is None:
             self.__signalaliascomp = nlsp.aliasing_compensation.NoAliasingCompensation()
         else:
             self.__signalaliascomp = aliasing_compensation
-        # downsampling placement
-        self.__downsampling_position = self.__signalaliascomp._GetDownsamplingPosition()
-        if self.__downsampling_position == 1:
-            self.__filteraliascomp = nlsp.aliasing_compensation.NoAliasingCompensation()
-            self.__signalaliascomp1 = self.__signalaliascomp
-            self.__signalaliascomp2 = nlsp.aliasing_compensation.NoAliasingCompensation()
-        elif self.__downsampling_position == 2:
-            self.__filteraliascomp = self.__signalaliascomp.__class__()
-            self.__signalaliascomp2 = self.__signalaliascomp
-            self.__signalaliascomp1 = nlsp.aliasing_compensation.NoAliasingCompensation()
+        self.__downsampling_position = downsampling_position
 
-        # set up the signal processing objects
-        self.__transform = sumpf.modules.FourierTransform()
-        self.__itransform = sumpf.modules.InverseFourierTransform()
-        self.__splitsignalspec = sumpf.modules.SplitSpectrum(channels=[0])
-        self.__splitfilterspec = sumpf.modules.SplitSpectrum(channels=[1])
-        self.__merger = sumpf.modules.MergeSignals(on_length_conflict=sumpf.modules.MergeSignals.FILL_WITH_ZEROS)
-        self.__multiplier = sumpf.modules.Multiply()
-        self.__attenuator = sumpf.modules.Multiply()
+        # connect different signal processing blocks based on downsampling position
+        if self.__downsampling_position == 1:
+            # set up the signal processing objects
+            self.__prop_signal = sumpf.modules.ChannelDataProperties()
+            self.__prop_filter = sumpf.modules.ChannelDataProperties()
+            self.__subtract = sumpf.modules.Subtract()
+            self.__generatezeros = sumpf.modules.ConstantSignalGenerator(value=0.0, samplingrate=self.__prop_signal.GetSamplingRate())
+            self.__concatenate = sumpf.modules.ConcatenateSignals()
+            self.__resampler = sumpf.modules.ResampleSignal()
+            self.__transform_signal = sumpf.modules.FourierTransform()
+            self.__transform_filter = sumpf.modules.FourierTransform()
+            self.__multiplier = sumpf.modules.Multiply()
+            self.__itransform = sumpf.modules.InverseFourierTransform()
+            self.__passoutput = sumpf.modules.PassThroughSignal()
+            self.__connect1()
+
+        elif self.__downsampling_position == 2:
+            # set up the signal processing objects
+            self.__prop_signal = sumpf.modules.ChannelDataProperties()
+            self.__prop_filter = sumpf.modules.ChannelDataProperties()
+            self.__subtract = sumpf.modules.Subtract()
+            self.__generatezeros = sumpf.modules.ConstantSignalGenerator(value=0.0, samplingrate=self.__prop_signal.GetSamplingRate())
+            self.__concatenate = sumpf.modules.ConcatenateSignals()
+            self.__resampler = sumpf.modules.ResampleSignal()
+            self.__transform_signal = sumpf.modules.FourierTransform()
+            self.__transform_filter = sumpf.modules.FourierTransform()
+            self.__multiplier = sumpf.modules.Multiply()
+            self.__itransform = sumpf.modules.InverseFourierTransform()
+            self.__passoutput = sumpf.modules.PassThroughSignal()
+            self.__connect2()
 
         # define input and output methods
-        self.GetOutput = self.__signalaliascomp2.GetPostprocessingOutput
+        self.SetInput = self.__passsignal.SetSignal
+        self.GetOutput = self.__passoutput.GetSignal
 
-        # connect the signal processing objects
-        self.__Connect()
-
-    @sumpf.Input(sumpf.Signal)
-    def SetInput(self, input_signal):
-        if self.__ir is None:
-            self.__passfilter.SetSignal(
-                signal=sumpf.modules.ImpulseGenerator(samplingrate=input_signal.GetSamplingRate(),
-                                                      length=len(input_signal)).GetSignal())
-        else:
-            self.__passfilter.SetSignal(self.__ir)
-        self.__input_signal = input_signal
-        self.__passsignal.SetSignal(signal=input_signal)
-
-    def __Connect(self):
-        sumpf.connect(self.__nonlin_func.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
-        sumpf.connect(self.__nonlin_func.GetMaximumHarmonics, self.__filteraliascomp.SetMaximumHarmonics)
-        sumpf.connect(self.__passfilter.GetSignal, self.__filteraliascomp.SetPreprocessingInput)
-        sumpf.connect(self.__filteraliascomp._GetAttenuation, self.__attenuator.SetValue2)
-        sumpf.connect(self.__filteraliascomp.GetPreprocessingOutput, self.__merger.AddInput)
+    def __connect1(self):
+        sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
         sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
-        sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_func.SetInput)
-        sumpf.connect(self.__nonlin_func.GetOutput, self.__attenuator.SetValue1)
-        sumpf.connect(self.__attenuator.GetResult, self.__signalaliascomp1.SetPostprocessingInput)
-        sumpf.connect(self.__signalaliascomp1.GetPostprocessingOutput, self.__merger.AddInput)
-        sumpf.connect(self.__merger.GetOutput, self.__transform.SetSignal)
-        sumpf.connect(self.__transform.GetSpectrum, self.__splitsignalspec.SetInput)
-        sumpf.connect(self.__transform.GetSpectrum, self.__splitfilterspec.SetInput)
-        sumpf.connect(self.__splitsignalspec.GetOutput, self.__multiplier.SetValue1)
-        sumpf.connect(self.__splitfilterspec.GetOutput, self.__multiplier.SetValue2)
+        sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_function.SetInput)
+        sumpf.connect(self.__nonlin_function.GetOutput, self.__signalaliascomp.SetPostprocessingInput)
+        sumpf.connect(self.__signalaliascomp.GetPostprocessingOutput, self.__prop_signal.SetSignal)
+        sumpf.connect(self.__prop_signal.GetSignalLength, self.__subtract.SetValue1)
+        sumpf.connect(self.__prop_signal.GetSamplingRate, self.__resampler.SetSamplingRate)
+        sumpf.connect(self.__passfilter.GetSignal, self.__resampler.SetInput)
+        sumpf.connect(self.__resampler.GetOutput, self.__prop_filter.SetSignal)
+        sumpf.connect(self.__prop_filter.GetSignalLength, self.__subtract.SetValue2)
+        sumpf.connect(self.__prop_filter.GetSamplingRate, self.__generatezeros.SetSamplingRate)
+        sumpf.connect(self.__subtract.GetResult, self.__generatezeros.SetLength)
+        sumpf.connect(self.__resampler.GetOutput, self.__concatenate.SetInput1)
+        sumpf.connect(self.__generatezeros.GetSignal, self.__concatenate.SetInput2)
+        sumpf.connect(self.__concatenate.GetOutput, self.__transform_filter.SetSignal)
+        sumpf.connect(self.__signalaliascomp.GetPostprocessingOutput, self.__transform_signal.SetSignal)
+        sumpf.connect(self.__transform_signal.GetSpectrum, self.__multiplier.SetValue1)
+        sumpf.connect(self.__transform_filter.GetSpectrum, self.__multiplier.SetValue2)
         sumpf.connect(self.__multiplier.GetResult, self.__itransform.SetSpectrum)
-        sumpf.connect(self.__itransform.GetSignal, self.__signalaliascomp2.SetPostprocessingInput)
+        sumpf.connect(self.__itransform.GetSignal, self.__passoutput.SetSignal)
 
-    @sumpf.Input(sumpf.Signal())
-    def __setattenuation(self, signal):
-        self.__attenuation = self.__input_signal.GetSamplingRate() / signal.GetSamplingRate()
-
-    @sumpf.Output(float)
-    def __getattenuation(self):
-        return self.__attenuation
+    def __connect2(self):
+        sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
+        sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
+        sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_function.SetInput)
+        sumpf.connect(self.__nonlin_function.GetOutput, self.__prop_signal.SetSignal)
+        sumpf.connect(self.__prop_signal.GetSignalLength, self.__subtract.SetValue1)
+        sumpf.connect(self.__prop_signal.GetSamplingRate, self.__resampler.SetSamplingRate)
+        sumpf.connect(self.__passfilter.GetSignal, self.__resampler.SetInput)
+        sumpf.connect(self.__resampler.GetOutput, self.__prop_filter.SetSignal)
+        sumpf.connect(self.__prop_filter.GetSignalLength, self.__subtract.SetValue2)
+        sumpf.connect(self.__prop_filter.GetSamplingRate, self.__generatezeros.SetSamplingRate)
+        sumpf.connect(self.__subtract.GetResult, self.__generatezeros.SetLength)
+        sumpf.connect(self.__resampler.GetOutput, self.__concatenate.SetInput1)
+        sumpf.connect(self.__generatezeros.GetSignal, self.__concatenate.SetInput2)
+        sumpf.connect(self.__concatenate.GetOutput, self.__transform_filter.SetSignal)
+        sumpf.connect(self.__nonlin_function.GetOutput, self.__transform_signal.SetSignal)
+        sumpf.connect(self.__transform_signal.GetSpectrum, self.__multiplier.SetValue1)
+        sumpf.connect(self.__transform_filter.GetSpectrum, self.__multiplier.SetValue2)
+        sumpf.connect(self.__multiplier.GetResult, self.__itransform.SetSpectrum)
+        sumpf.connect(self.__itransform.GetSignal, self.__signalaliascomp.SetPostprocessingInput)
+        sumpf.connect(self.__signalaliascomp.GetPostprocessingOutput, self.__passoutput.SetSignal)

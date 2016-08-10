@@ -8,7 +8,11 @@ class NonlinearBlock(object):
     An abstract base class to create a nonlinear block using nonlinear functions
     """
 
-    def __init__(self):
+    def __init__(self, input_signal):
+        if input_signal is None:
+            self._input_signal = sumpf.Signal()
+        else:
+            self._input_signal = input_signal
         self._passinput = sumpf.modules.PassThroughSignal(signal=self._input_signal)
 
     @sumpf.Input(data_type=sumpf.Signal, observers=["GetOutput"])
@@ -35,20 +39,16 @@ class PolynomialNonlinearBlock(NonlinearBlock):
     A base class to create nonlinear block using polynomials.
     """
 
-    def __init__(self, signal=None, degree=None):
+    def __init__(self, input_signal=None, degree=None):
         """
-        @param signal: the input signal
+        @param input_signal: the input signal
         @param degree: the degree of the polynomial used in nonlinear block
         """
-        if signal is None:
-            self._input_signal = sumpf.Signal()
-        else:
-            self._input_signal = signal
+        NonlinearBlock.__init__(self, input_signal=input_signal)
         if degree is None:
             self._degree = 1
         else:
             self._degree = degree
-        NonlinearBlock.__init__(self)
 
     @sumpf.Input(data_type=int, observers=["GetMaximumHarmonics"])
     def SetDegree(self, degree=None):
@@ -159,21 +159,17 @@ class Clipping(NonlinearBlock):
     A class to create a nonlinear block using hard clipping function.
     """
 
-    def __init__(self, signal=None, thresholds=None, harmonics=5):
+    def __init__(self, input_signal=None, thresholds=None, harmonics=5):
         """
-        @param signal: the input signal
+        @param input_signal: the input signal
         @param thresholds: the thresholds of the hard clipping function
         @param harmonics: the harmonics introduced by the clipping function
         """
-        if signal is None:
-            self._input_signal = sumpf.Signal()
-        else:
-            self._input_signal = signal
+        NonlinearBlock.__init__(self, input_signal=input_signal)
         if thresholds is None:
             self._thresholds = [-1.0, 1.0]
         else:
             self._thresholds = thresholds
-        self._passinput = sumpf.modules.PassThroughSignal(signal=signal)
         self._harmonics = harmonics
 
     @sumpf.Input(data_type=tuple, observers=["GetOutput"])
