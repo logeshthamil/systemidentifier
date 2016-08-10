@@ -30,8 +30,7 @@ class HammersteinGroupModel(object):
             self.__nonlinear_functions = nonlinear_functions
         if filter_impulseresponses is None:
             self.__filter_irs = (sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
-                                                                length=len(self.__input_signal)).GetSignal(),) * len(
-                self.__nonlinear_functions)
+                                                                length=2**10).GetSignal(),) * len(self.__nonlinear_functions)
         else:
             self.__filter_irs = filter_impulseresponses
         self.__downsampling_position = downsampling_position
@@ -74,21 +73,11 @@ class HammersteinGroupModel(object):
     def GetFilterImpulseResponses(self):
         return self.__filter_irs
 
+    @sumpf.Output(tuple)
     def GetNonlinearFunctions(self):
         return self.__nonlinear_functions
 
-    @sumpf.Input(data_type=sumpf.Signal)
-    def SetInput(self, input_signal=None):
-        """
-        Set the input to the model.
-        @param input_signal: the input signal
-        """
-        inputs = []
-        for i in range(len(self.__hmodels)):
-            inputs.append((self.__hmodels[i].SetInput, input_signal))
-        sumpf.set_multiple_values(inputs)
-
-    @sumpf.Output(data_type=sumpf.Signal)
+    @sumpf.Output(sumpf.Signal)
     def GetOutput(self):
         """
         Get the output signal of the model.
@@ -112,6 +101,16 @@ class HammersteinGroupModel(object):
         else:
             return self.__sums[0].GetResult()
 
+    @sumpf.Input(sumpf.Signal,"GetOutput")
+    def SetInput(self, input_signal=None):
+        """
+        Set the input to the model.
+        @param input_signal: the input signal
+        """
+        inputs = []
+        for i in range(len(self.__hmodels)):
+            inputs.append((self.__hmodels[i].SetInput, input_signal))
+        sumpf.set_multiple_values(inputs)
 
 class HammersteinModel(object):
     """

@@ -59,13 +59,32 @@ def test_attenuatorofHM():
     assert int(model1_outputenergy) == int(model4_outputenergy)
     assert int(model2_outputenergy) == int(model3_outputenergy)
 
+def test_HGM():
+    """
+    Test the SetInput method of HammersteinGroupModel.
+    """
+    branches = 5
+    input_signal = sumpf.modules.SweepGenerator(samplingrate=48000.0, length=2**14).GetSignal()
+    nonlinear_functions = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches)
+    HGM = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions, filter_impulseresponses=filter_irs,
+                                     aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
+    energy1 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
+    HGM.SetInput(input_signal)
+    energy2 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
+    input_signal = sumpf.modules.SineWaveGenerator(frequency=2000.0, samplingrate=48000.0, length=2**18).GetSignal()
+    HGM.SetInput(input_signal)
+    energy3 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
+    assert energy1[0] == 0.0
+    assert energy2[0] != energy3[0]
+
 def test_additioninHGM():
     """
     Construct different HM's and construct a HGM with the same parameters of the HM's. The output of the sum of HM's and
     the output of the HGM should be equal.
     """
     sweep = sumpf.modules.SweepGenerator(start_frequency=20.0, stop_frequency=20000.0, samplingrate=48000.0,
-                                         length=2 ** 15).GetSignal()
+                                         length=2 ** 14).GetSignal()
     nonlinear_functions = [nlsp.nonlinear_function.Power(degree=1), nlsp.nonlinear_function.Power(degree=2),
                            nlsp.nonlinear_function.Power(degree=3)]
     nonlinear_functions1 = [nlsp.nonlinear_function.Power(degree=1), nlsp.nonlinear_function.Power(degree=2),
@@ -84,9 +103,5 @@ def test_additioninHGM():
     HGM = nlsp.HammersteinGroupModel(input_signal=sweep, nonlinear_functions=nonlinear_functions1,
                                      aliasing_compensation=aliasing_compensation4)
     HGM_output = HGM.GetOutput()
-    print nlsp.common.helper_functions_private.calculateenergy_timedomain(total_output)
-    print nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM_output)
     assert nlsp.common.helper_functions_private.calculateenergy_timedomain(total_output) == \
            nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM_output)
-
-test_additioninHGM()
