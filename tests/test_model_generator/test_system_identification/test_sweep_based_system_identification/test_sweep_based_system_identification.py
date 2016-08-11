@@ -4,13 +4,14 @@ import nlsp
 def test_identify_an_HGM_Sinesweep():
     # TODO: this test does not run
     branches = 3
-    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=2)
-    linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000.0)
-    nonlinear_functions = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_functions.Power,
-                                                                           branches=branches)
+    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000.0)
+    nonlinear_functions = [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
     black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
                                            aliasing_compensation=aliasing_compensation,
-                                           filter_impulseresponses=linear_filters)  # TODO: for maximum cleanliness, order the parameters the way, as they are ordered in the constructor's definition
+                                           filter_impulseresponses=linear_filters)
+    black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions, filter_impulseresponses=linear_filters,
+                                           aliasing_compensation=aliasing_compensation)
     identification_algorithm = nlsp.system_identification.SineSweep(select_branches=range(1, branches + 1),
                                                                     aliasing_compensation=aliasing_compensation,
                                                                     excitation_length=2 ** 16,
@@ -31,8 +32,8 @@ def test_identify_an_HGM_Sinesweep():
 def test_identify_an_HGM_Cosinesweep():
     # TODO: this test does not run
     branches = 3
-    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=2)
-    linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000.0)
+    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000.0)
     nonlinear_functions = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_functions.Power,
                                                                            branches=branches)
     black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,

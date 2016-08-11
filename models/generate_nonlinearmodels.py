@@ -33,7 +33,7 @@ class HammersteinGroupModel(object):
                                                                 length=2**10).GetSignal(),) * len(self.__nonlinear_functions)
         else:
             self.__filter_irs = filter_impulseresponses
-        self.__downsampling_position = downsampling_position
+        self._downsampling_position = downsampling_position
 
         # check if the filter ir length and the nonlinear functions length is same
         if len(self.__nonlinear_functions) == len(self.__filter_irs):
@@ -63,7 +63,7 @@ class HammersteinGroupModel(object):
                 zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
             h = HammersteinModel(input_signal=self.__passsignal.GetSignal(), nonlinear_function=nl,
                                  filter_impulseresponse=ir, aliasing_compensation=alias,
-                                 downsampling_position=self.__downsampling_position)
+                                 downsampling_position=self._downsampling_position)
             self.__hmodels.append(h)
 
     def _get_aliasing_compensation(self):
@@ -146,7 +146,7 @@ class HammersteinModel(object):
             self.__signalaliascomp = nlsp.aliasing_compensation.NoAliasingCompensation()
         else:
             self.__signalaliascomp = aliasing_compensation
-        self.__downsampling_position = downsampling_position
+        self._downsampling_position = downsampling_position
 
         self.__passsignal = sumpf.modules.PassThroughSignal(signal=self.__input_signal)
         self.__passfilter = sumpf.modules.PassThroughSignal(signal=self.__filterir)
@@ -169,7 +169,7 @@ class HammersteinModel(object):
         self.GetOutput = self.__passoutput.GetSignal
 
     def _ConnectHGM(self):
-        if self.__downsampling_position == 1:
+        if self._downsampling_position == 1:
             sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
             sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
             sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_function.SetInput)
@@ -186,7 +186,7 @@ class HammersteinModel(object):
             sumpf.connect(self.__multiplier.GetResult, self.__itransform.SetSpectrum)
             sumpf.connect(self.__itransform.GetSignal, self.__passoutput.SetSignal)
 
-        elif self.__downsampling_position == 2:
+        elif self._downsampling_position == 2:
             sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
             sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)
             sumpf.connect(self.__signalaliascomp.GetPreprocessingOutput, self.__nonlin_function.SetInput)

@@ -11,10 +11,10 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
         Get the excitation signal for system identification.
         @return: the excitation signal
         """
-        self._excitation_generator = sumpf.modules.NoiseGenerator(
+        self.__excitation_generator = sumpf.modules.NoiseGenerator(
             distribution=sumpf.modules.NoiseGenerator.GaussianDistribution(),
-            samplingrate=self._sampling_rate, length=self._length, seed="seed")
-        return self._excitation_generator.GetSignal()
+            samplingrate=self.__sampling_rate, length=self.__length, seed="seed")
+        return self.__excitation_generator.GetSignal()
 
 
 class MISOapproach(WhiteGaussianNoiseIdentification):
@@ -41,8 +41,8 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
             if n < m:
                 k = 0
                 for i in range(n, m):
-                    num = nlsp.nonlinear_function.Power(degree=i + m, signal=input)
-                    den = nlsp.nonlinear_function.Power(degree=2 * i, signal=input)
+                    num = nlsp.nonlinear_function.Power(degree=i + m, input_signal=input)
+                    den = nlsp.nonlinear_function.Power(degree=2 * i, input_signal=input)
                     num = num.GetOutput()
                     den = den.GetOutput()
                     num = round(sumpf.modules.SignalMean(num).GetMean()[0], 3)
@@ -74,7 +74,7 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
                                                       length=len(input)).GetSignal()
         signal_powers = []
         for i in range(1, total_branches + 1, 1):
-            power = nlsp.nonlinear_function.Power(signal=input, degree=i)
+            power = nlsp.nonlinear_function.Power(input_signal=input, degree=i)
             signal_powers.append(power.GetOutput())
         signal_powers_k = []
         k_matrix_t = numpy.transpose(k_matrix)
@@ -144,7 +144,7 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
         @return: the nonlinear functions
         """
         nonlinear_functions = []
-        for branch in self._select_branches:
+        for branch in self.__select_branches:
             nonlinear_function = nlsp.nonlinear_functions.Power(degree=branch)
             nonlinear_functions.append(nonlinear_function)
         return nonlinear_functions

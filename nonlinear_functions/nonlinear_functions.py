@@ -31,6 +31,10 @@ class NonlinearBlock(object):
         raise NotImplementedError("This method should have been overridden in a derived class")
 
     def CreateModified(self, *args, **kwargs):
+        """
+        This method should be overridden in the derived classes. Get a new instance of the class with or without modified
+        parameters.
+        """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
 
@@ -66,12 +70,18 @@ class PolynomialNonlinearBlock(NonlinearBlock):
         """
         return self._degree
 
-    # def CreateModified(self, signal=None, degree=None):
-    #     if signal is None:
-    #         signal = self._input_signal
-    #     if degree is None:
-    #         degree = self._degree
-    #     return self.__class__(signal=signal, degree=degree)
+    def CreateModified(self, input_signal=None, degree=None):
+        """
+        Create a new instance of the class with or without modified parameters.
+        @param signal: the input signal
+        @param degree: the nonlinear degree
+        @return:
+        """
+        if input_signal is None:
+            input_signal = self._input_signal
+        if degree is None:
+            degree = self._degree
+        return self.__class__(input_signal=input_signal, degree=degree)
 
 
 class Power(PolynomialNonlinearBlock):
@@ -170,6 +180,7 @@ class Clipping(NonlinearBlock):
             self._thresholds = [-1.0, 1.0]
         else:
             self._thresholds = thresholds
+        self._thresholds = harmonics
         self._harmonics = harmonics
 
     @sumpf.Input(data_type=tuple, observers=["GetOutput"])

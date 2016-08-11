@@ -11,7 +11,7 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
         @return: the filter impulse responses
         """
         excitation = self.GetExcitation()
-        response = self._system_response
+        response = self.__system_response
         variance = sumpf.modules.SignalMean(excitation * excitation).GetMean()[0]
         kernels = []
         for branch in self._select_branches:
@@ -35,7 +35,7 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
         @return: the nonlinear functions
         """
         nonlinear_functions = []
-        for branch in self._select_branches:
+        for branch in self.__select_branches:
             nonlinear_function = nlsp.nonlinear_functions.Hermite(degree=branch)
             nonlinear_functions.append(nonlinear_function)
         return nonlinear_functions

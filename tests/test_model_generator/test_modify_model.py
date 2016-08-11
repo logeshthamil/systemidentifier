@@ -6,11 +6,11 @@ import nlsp.common.helper_functions_private as nlsp_private
 def test_modify_model_constructors():  # TODO: what does this function name mean?
     branches = 3
     signal = sumpf.modules.SweepGenerator(samplingrate=48000, length=2 ** 15).GetSignal()
-    ref_nlfunctions1 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_nlfunctions2 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000)
-    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
-    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
+    ref_nlfunctions1 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_nlfunctions2 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000)
+    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     ref_HGM = nlsp.HammersteinGroupModel(nonlinear_functions=ref_nlfunctions1, filter_impulseresponses=ref_bpfilters,
                                          aliasing_compensation=ref_aliasingcomp1)
     test_HGM = nlsp.HammersteinGroupModel()
@@ -29,11 +29,11 @@ def test_modify_model_constructors():  # TODO: what does this function name mean
 def test_modify_model_SetAliasingCompensation():
     branches = 3
     signal = sumpf.modules.SweepGenerator(samplingrate=48000, length=2 ** 15).GetSignal()
-    ref_nlfunctions1 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_nlfunctions2 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000)
-    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
-    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
+    ref_nlfunctions1 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_nlfunctions2 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000)
+    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     ref_HGM = nlsp.HammersteinGroupModel(nonlinear_functions=ref_nlfunctions1, filter_impulseresponses=ref_bpfilters,
                                          aliasing_compensation=ref_aliasingcomp1)
     test_HGM = nlsp.HammersteinGroupModel()
@@ -57,12 +57,12 @@ def test_modify_model_SetAliasingCompensation():
 def test_modify_model_SetNonlinearFunctions():
     branches = 3
     signal = sumpf.modules.SweepGenerator(samplingrate=48000, length=2 ** 15).GetSignal()
-    ref_nlfunctions1 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_nlfunctions2 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_nlfunctions3 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000)
-    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
-    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
+    ref_nlfunctions1 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_nlfunctions2 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_nlfunctions3 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000)
+    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     ref_HGM = nlsp.HammersteinGroupModel(nonlinear_functions=ref_nlfunctions1, filter_impulseresponses=ref_bpfilters,
                                          aliasing_compensation=ref_aliasingcomp1)
     test_HGM = nlsp.HammersteinGroupModel()
@@ -87,11 +87,11 @@ def test_modify_model_SetNonlinearFunctions():
 def test_modify_model_SetFilterImpulseResponses():
     branches = 3
     signal = sumpf.modules.SweepGenerator(samplingrate=48000, length=2 ** 15).GetSignal()
-    ref_nlfunctions1 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_nlfunctions2 = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_function.Power, branches)
-    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000)
-    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
-    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
+    ref_nlfunctions1 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_nlfunctions2 = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    ref_bpfilters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000)
+    ref_aliasingcomp1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    ref_aliasingcomp2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     ref_HGM = nlsp.HammersteinGroupModel(nonlinear_functions=ref_nlfunctions1, filter_impulseresponses=ref_bpfilters,
                                          aliasing_compensation=ref_aliasingcomp1)
     test_HGM = nlsp.HammersteinGroupModel()
@@ -112,3 +112,8 @@ def test_modify_model_SetFilterImpulseResponses():
     modified_HGM.SetInput(signal)
     assert nlsp_private.calculateenergy_timedomain(ref_HGM.GetOutput()) == \
            nlsp_private.calculateenergy_timedomain(modified_HGM.GetOutput())
+
+test_modify_model_constructors()
+test_modify_model_SetAliasingCompensation()
+test_modify_model_SetFilterImpulseResponses()
+test_modify_model_SetNonlinearFunctions()

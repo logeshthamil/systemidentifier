@@ -20,22 +20,8 @@ class ModifyModel(HGMModelGenerator):
         @param aliasing_compensation: the aliasing compensation technique
         Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
         """
-        if input_model is None:
-            self._input_model = nlsp.HammersteinGroupModel()
-        else:
-            self._input_model = input_model
-        if filter_impulseresponses is None:
-            self._filter_impulseresponses = self._input_model.GetFilterImpulseResponses()
-        else:
-            self._filter_impulseresponses = filter_impulseresponses
-        if nonlinear_functions is None:
-            self._nonlinear_functions = self._input_model.GetNonlinearFunctions()
-        else:
-            self._nonlinear_functions = nonlinear_functions
-        if aliasing_compensation is None:
-            self._aliasing_compensation = self._input_model._get_aliasing_compensation()
-        else:
-            self._aliasing_compensation = aliasing_compensation
+        HGMModelGenerator.__init__(self, input_model=None, filter_impulseresponses=None, nonlinear_functions=None,
+                 aliasing_compensation=None)
 
     @sumpf.Input(nlsp.HammersteinGroupModel, "GetOutputModel")
     def SetInputModel(self, input_model=None):
@@ -43,7 +29,7 @@ class ModifyModel(HGMModelGenerator):
         Set the input model.
         @param input_model: the input model
         """
-        self._input_model = input_model
+        self.__input_model = input_model
 
     @sumpf.Input(tuple, "GetOutputModel")
     def SetFilterImpulseResponses(self, filter_impulseresponses=None):
@@ -51,7 +37,7 @@ class ModifyModel(HGMModelGenerator):
         Set the filter impulse responses of the model.
         @param filter_impulseresponses: the filter impulse responses
         """
-        self._filter_impulseresponses = filter_impulseresponses
+        self.__filter_impulseresponses = filter_impulseresponses
 
     @sumpf.Input(tuple, "GetOutputModel")
     def SetNonlinearFunctions(self, nonlinear_functions=None):
@@ -59,7 +45,7 @@ class ModifyModel(HGMModelGenerator):
         Set the nonlinear functions of the model.
         @param: nonlinear_functions: the nonlinear functions
         """
-        self._nonlinear_functions = nonlinear_functions
+        self.__nonlinear_functions = nonlinear_functions
 
     @sumpf.Input(nlsp.aliasing_compensation, "GetOutputModel")
     def SetAliasingCompensation(self, aliasing_compensation=None):
@@ -67,4 +53,4 @@ class ModifyModel(HGMModelGenerator):
         Set the aliasing compensation technique.
         @param aliasing_compensation: the aliasing compensation technique
         """
-        self._aliasing_compensation = aliasing_compensation
+        self.__aliasing_compensation = aliasing_compensation

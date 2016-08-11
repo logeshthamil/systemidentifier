@@ -15,10 +15,10 @@ class SineSweep(SystemIdentification):
         Get the excitation signal for system identification.
         @return: the excitation signal
         """
-        self._excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
-            sampling_rate=self._sampling_rate,
-            approximate_numberofsamples=self._length)
-        return self._excitation_generator.GetOutput()
+        self.__excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
+            sampling_rate=self.__sampling_rate,
+            approximate_numberofsamples=self.__length)
+        return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
         """
@@ -26,11 +26,11 @@ class SineSweep(SystemIdentification):
         @return: the filter impulse responses
         """
         branches = max(self._select_branches)
-        sweep_length = self._excitation_generator.GetLength()
-        rev = self._excitation_generator.GetReversedOutput()
+        sweep_length = self.__excitation_generator.GetLength()
+        rev = self.__excitation_generator.GetReversedOutput()
         rev_spec = sumpf.modules.FourierTransform(rev).GetSpectrum()
         out_spec = sumpf.modules.FourierTransform(self._system_response).GetSpectrum()
-        out_spec = out_spec / self._system_response.GetSamplingRate()
+        out_spec = out_spec / self.__system_response.GetSamplingRate()
         tf = rev_spec * out_spec
         ir_sweep = sumpf.modules.InverseFourierTransform(tf).GetSignal()
         ir_sweep_direct = sumpf.modules.CutSignal(signal=ir_sweep, start=0, stop=int(sweep_length / 4)).GetOutput()
@@ -39,9 +39,9 @@ class SineSweep(SystemIdentification):
         for i in range(branches - 1):
             split_harm = nlsp.common.FindHarmonicImpulseResponse_NovakSweep(impulse_response=ir_sweep,
                                                                             harmonic_order=i + 2,
-                                                                            sweep_generator=self._excitation_generator).GetHarmonicImpulseResponse()
+                                                                            sweep_generator=self.__excitation_generator).GetHarmonicImpulseResponse()
             split_harm = sumpf.modules.CutSignal(signal=split_harm,
-                                                 stop=len(self._excitation_generator.GetOutput())).GetOutput()
+                                                 stop=len(self.__excitation_generator.GetOutput())).GetOutput()
             ir_merger.AddInput(sumpf.Signal(channels=split_harm.GetChannels(),
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))
@@ -99,19 +99,19 @@ class CosineSweep(SystemIdentification):
         Get the excitation signal for system identification.
         @return: the excitation signal
         """
-        self._excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
-            sampling_rate=self._sampling_rate,
-            approximate_numberofsamples=self._length)
-        return self._excitation_generator.GetOutput()
+        self.__excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
+            sampling_rate=self.__sampling_rate,
+            approximate_numberofsamples=self.__length)
+        return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
         @return: the filter impulse responses
         """
-        branches = max(self._select_branches)
-        sweep_length = self._excitation_generator.GetLength()
-        rev = self._excitation_generator.GetReversedOutput()
+        branches = max(self.__select_branches)
+        sweep_length = self.__excitation_generator.GetLength()
+        rev = self.__excitation_generator.GetReversedOutput()
         rev_spec = sumpf.modules.FourierTransform(rev).GetSpectrum()
         out_spec = sumpf.modules.FourierTransform(self._system_response).GetSpectrum()
         out_spec = out_spec / self._system_response.GetSamplingRate()
@@ -123,9 +123,9 @@ class CosineSweep(SystemIdentification):
         for i in range(branches - 1):
             split_harm = nlsp.common.FindHarmonicImpulseResponse_NovakSweep(impulse_response=ir_sweep,
                                                                             harmonic_order=i + 2,
-                                                                            sweep_generator=self._excitation_generator).GetHarmonicImpulseResponse()
+                                                                            sweep_generator=self.__excitation_generator).GetHarmonicImpulseResponse()
             split_harm = sumpf.modules.CutSignal(signal=split_harm,
-                                                 stop=len(self._excitation_generator.GetOutput())).GetOutput()
+                                                 stop=len(self.__excitation_generator.GetOutput())).GetOutput()
             ir_merger.AddInput(sumpf.Signal(channels=split_harm.GetChannels(),
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))
@@ -141,7 +141,7 @@ class CosineSweep(SystemIdentification):
         @return: the nonlinear functions
         """
         nonlinear_functions = []
-        for branch in self._select_branches:
+        for branch in self.__select_branches:
             nonlinear_function = nlsp.nonlinear_functions.Chebyshev(degree=branch)
             nonlinear_functions.append(nonlinear_function)
         return nonlinear_functions

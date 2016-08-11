@@ -80,14 +80,24 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
-        @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
-        for downsampling after the linear filter block
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
         if resampling_algorithm is None:
             self._resampling_algorithm = sumpf.modules.ResampleSignal.SPECTRUM
         else:
             self._resampling_algorithm = resampling_algorithm
+
+    def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
+        """
+        @param input_signal: the input signal
+        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        """
+        if input_signal is None:
+            input_signal = self._input_signal
+        if maximum_harmonics is None:
+            maximum_harmonics = self._maximum_harmonics
+        return self.__class__(input_signal=input_signal, degree=degree)
 
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
@@ -123,8 +133,6 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
-        @param downsampling_position: the downsampling position Eg. 1 for downsampling after the nonlinear block and 2
-        for downsampling after the linear filter block
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
         if resampling_algorithm is None:

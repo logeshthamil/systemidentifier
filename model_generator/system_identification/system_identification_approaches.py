@@ -18,31 +18,25 @@ class SystemIdentification(HGMModelGenerator):
         @param excitation_length: the length of the excitation and response signals
         @param excitation_sampling_rate: the sampling rate of the excitation and response signals
         """
-        # TODO: why do you use only one underscore at the start of the attribute name?
-        #    Make private attributes private, by using two underscores.
-        #    One underscore indicates, that an attribute is "protected", which
-        #    means, that it is not part of the official API, but it can still be
-        #    accessed from outside the class. This encurages bad code, that depends
-        #    on internal implementation details of the class.
         if system_response is None:
-            self._system_response = sumpf.Signal()
+            self.__system_response = sumpf.Signal()
         else:
-            self._system_response = system_response
+            self.__system_response = system_response
         if select_branches is None:
-            self._select_branches = [1, 2, 3, 4, 5]
+            self.__select_branches = [1, 2, 3, 4, 5]
         else:
-            self._select_branches = select_branches
-        self._length = excitation_length
+            self.__select_branches = select_branches
+        self.__length = excitation_length
         if excitation_sampling_rate is None:
-            self._sampling_rate = 48000  # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
+            self.__sampling_rate = 48000  # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
         else:
-            self._sampling_rate = excitation_sampling_rate
+            self.__sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
-            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(
-                downsampling_position=1)
+            self.__aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
         else:
-            self._aliasing_compensation = aliasing_compensation
-        self._input_model = nlsp.HammersteinGroupModel()
+            self.__aliasing_compensation = aliasing_compensation
+        self.__input_model = nlsp.HammersteinGroupModel()
+        HGMModelGenerator.__init__(self, input_model=self.__input_model)
 
     def GetExcitation(self):
         """

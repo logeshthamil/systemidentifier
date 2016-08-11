@@ -19,7 +19,7 @@ class PredefinedModelGeneration(HGMModelGenerator):
         @param predefined_model: the predefined model Eg. nlsp.PredefinedModelGeneration.distortion_box()
         @param number_of_branches: the total number of branches
         """
-        pass
+        HGMModelGenerator.__init__(self)
 
     def SelectPredefinedModel(self, predefined_model=None):
         """
