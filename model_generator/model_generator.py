@@ -1,4 +1,3 @@
-import copy
 import sumpf
 import nlsp
 
@@ -7,27 +6,42 @@ class HGMModelGenerator():  # TODO: all classes should inherit from "object"
     """
     An abstract base class whose instances generate models.
     """
-    def __init__(self, input_model, nonlinear_functions, filter_impulseresponses, aliasing_compensation, downsampling_position):
+    def __init__(self, input_model=None, nonlinear_functions=None, filter_impulseresponses=None, aliasing_compensation=None,
+                 downsampling_position=None):
+        """
+        @param input_model: the input model
+        @param filter_impulseresponses: the filter impulse responses
+        Eg. [filter_impulseresponse1, filter_impulseresponse2, ...]
+        @param nonlinear_function: the nonlinear functions
+        Eg. [nonlinear_function1, nonlinear_function2, ...]
+        @param aliasing_compensation: the aliasing compensation technique
+        Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+        @param downsampling_position: the downsampling position in the HGM
+        """
         if input_model is None:
-            self.__input_model = nlsp.HammersteinGroupModel()
+            self._input_model = nlsp.HammersteinGroupModel()
         else:
-            self.__input_model = input_model
-        if filter_impulseresponses is None:
-            self.__filter_impulseresponses = self.__input_model.GetFilterImpulseResponses()
-        else:
-            self.__filter_impulseresponses = filter_impulseresponses
+            self._input_model = input_model
+
         if nonlinear_functions is None:
-            self.__nonlinear_functions = self.__input_model.GetNonlinearFunctions()
+            self._nonlinear_functions = self._input_model.GetNonlinearFunctions()
         else:
-            self.__nonlinear_functions = nonlinear_functions
+            self._nonlinear_functions = nonlinear_functions
+
+        if filter_impulseresponses is None:
+            self._filter_impulseresponses = self._input_model.GetFilterImpulseResponses()
+        else:
+            self._filter_impulseresponses = filter_impulseresponses
+
         if aliasing_compensation is None:
-            self.__aliasing_compensation = self.__input_model._get_aliasing_compensation()
+            self._aliasing_compensation = self._input_model._get_aliasing_compensation()
         else:
-            self.__aliasing_compensation = aliasing_compensation
+            self._aliasing_compensation = aliasing_compensation
+
         if downsampling_position is None:
-            self.__downsampling_position = nlsp.HammersteinGroupModel.AFTER_NONLINEAR_BLOCK
+            self._downsampling_position = self._input_model._downsampling_position
         else:
-            self.__downsampling_position = downsampling_position
+            self._downsampling_position = downsampling_position
 
     @sumpf.Output(nlsp.HammersteinGroupModel)
     def GetOutputModel(self):
@@ -36,20 +50,19 @@ class HGMModelGenerator():  # TODO: all classes should inherit from "object"
         @return: the output model
         """
         # aliasing compensation
-        self.__aliasing_compensation = self.__aliasing_compensation.__class__()
+        self._aliasing_compensation = self._aliasing_compensation.CreateModified()
 
         # nonlinear functions
         nl_functions = []
-        for nl in self.__nonlinear_functions:
-            degree = nl.GetMaximumHarmonics()
-            nl_function = nl.__class__(degree=degree)
+        for nl in self._nonlinear_functions:
+            nl_function = nl.CreateModified()
             nl_functions.append(nl_function)
 
         # model
-        model = self.__input_model.__class__
+        model = self._input_model.__class__
         self.__output_model = model(nonlinear_functions=nl_functions,
-                                   filter_impulseresponses=self.__filter_impulseresponses,
-                                   aliasing_compensation=self.__aliasing_compensation,
-                                   downsampling_position=self.__downsampling_position)
+                                    filter_impulseresponses=self._filter_impulseresponses,
+                                    aliasing_compensation=self._aliasing_compensation,
+                                    downsampling_position=self._downsampling_position)
         output_model = self.__output_model
         return output_model

@@ -63,15 +63,16 @@ def test_HGM():
     """
     Test the SetInput method of HammersteinGroupModel.
     """
-    branches = 5
+    branches = 3
     input_signal = sumpf.modules.SweepGenerator(samplingrate=48000.0, length=2**14).GetSignal()
     nonlinear_functions = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
-    filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches)
+    filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches,samplingrate=48000)
     HGM = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions, filter_impulseresponses=filter_irs,
                                      aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     energy1 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
     HGM.SetInput(input_signal)
     energy2 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
+    nlsp.plots.plot(HGM.GetOutput())
     input_signal = sumpf.modules.SineWaveGenerator(frequency=2000.0, samplingrate=48000.0, length=2**18).GetSignal()
     HGM.SetInput(input_signal)
     energy3 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
@@ -105,3 +106,5 @@ def test_additioninHGM():
     HGM_output = HGM.GetOutput()
     assert nlsp.common.helper_functions_private.calculateenergy_timedomain(total_output) == \
            nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM_output)
+
+test_HGM()
