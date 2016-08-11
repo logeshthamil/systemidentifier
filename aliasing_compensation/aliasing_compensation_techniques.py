@@ -89,15 +89,20 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
 
     def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
+        This method creates a new instance of the class with or without parameter modification.
         @param input_signal: the input signal
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        @return: the modified instance of the class
         """
         if input_signal is None:
             input_signal = self._input_signal
         if maximum_harmonics is None:
             maximum_harmonics = self._maximum_harmonics
-        return self.__class__(input_signal=input_signal, degree=degree)
+        if resampling_algorithm is None:
+            resampling_algorithm = self._resampling_algorithm
+        return self.__class__(input_signal=input_signal, maximum_harmonics=maximum_harmonics,
+                              resampling_algorithm=resampling_algorithm)
 
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
@@ -162,6 +167,23 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
                                                  algorithm=self._resampling_algorithm)
         return resampler.GetOutput()
 
+    def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
+        """
+        This method creates a new instance of the class with or without parameter modification.
+        @param input_signal: the input signal
+        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        @return: the modified instance of the class
+        """
+        if input_signal is None:
+            input_signal = self._input_signal
+        if maximum_harmonics is None:
+            maximum_harmonics = self._maximum_harmonics
+        if resampling_algorithm is None:
+            resampling_algorithm = self._resampling_algorithm
+        return self.__class__(input_signal=input_signal, maximum_harmonics=maximum_harmonics,
+                              resampling_algorithm=resampling_algorithm)
+
 
 class LowpassAliasingCompensation(AliasingCompensation):
     """
@@ -201,6 +223,29 @@ class LowpassAliasingCompensation(AliasingCompensation):
             value2=self._filter_function.GetSpectrum()).GetResult()
         return sumpf.modules.InverseFourierTransform(spectrum=result_spectrum).GetSignal()
 
+    def CreateModified(self, input_signal=None, maximum_harmonics=None, filter_function_class=None,
+                 filter_order=None, attenuation=None):
+        """
+        This method creates a new instance of the class with or without parameter modification.
+        @param input_signal: the input signal
+        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        @param filter_function_class: the filter function which can be chosen based on the choice of filter used for
+        aliasing compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH
+        @param attenuation: the required attenuation (in dB) at the stopband frequency of the filter
+        @return: the modified instance of the class
+        """
+        if input_signal is None:
+            input_signal = self._input_signal
+        if maximum_harmonics is None:
+            maximum_harmonics = self._maximum_harmonics
+        if filter_function_class is None:
+            filter_function_class = self._filter_function
+        if filter_order is None:
+            filter_order = self._filter_order
+        if attenuation is None:
+            attenuation = self._attenuation
+        return self.__class__(input_signal=input_signal, maximum_harmonics=maximum_harmonics, filter_function_class=filter_function_class,
+                              filter_order=filter_order, attenuation=attenuation)
 
 class NoAliasingCompensation(AliasingCompensation):
     """
@@ -213,3 +258,16 @@ class NoAliasingCompensation(AliasingCompensation):
         @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
+
+    def CreateModified(self, input_signal=None, maximum_harmonics=None):
+        """
+        This method creates a new instance of the class with or without modification.
+        @param input_signal: the input signal
+        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        @return: the modified instance of the class
+        """
+        if input_signal is None:
+            input_signal = self._input_signal
+        if maximum_harmonics is None:
+            maximum_harmonics = self._maximum_harmonics
+        return self.__class__(input_signal=input_signal, maximum_harmonics=maximum_harmonics)
