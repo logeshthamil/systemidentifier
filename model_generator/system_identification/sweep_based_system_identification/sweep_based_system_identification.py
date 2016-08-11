@@ -16,8 +16,8 @@ class SineSweep(SystemIdentification):
         @return: the excitation signal
         """
         self.__excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
-            sampling_rate=self.__sampling_rate,
-            approximate_numberofsamples=self.__length)
+            sampling_rate=self._sampling_rate,
+            approximate_numberofsamples=self._length)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -30,7 +30,7 @@ class SineSweep(SystemIdentification):
         rev = self.__excitation_generator.GetReversedOutput()
         rev_spec = sumpf.modules.FourierTransform(rev).GetSpectrum()
         out_spec = sumpf.modules.FourierTransform(self._system_response).GetSpectrum()
-        out_spec = out_spec / self.__system_response.GetSamplingRate()
+        out_spec = out_spec / self._system_response.GetSamplingRate()
         tf = rev_spec * out_spec
         ir_sweep = sumpf.modules.InverseFourierTransform(tf).GetSignal()
         ir_sweep_direct = sumpf.modules.CutSignal(signal=ir_sweep, start=0, stop=int(sweep_length / 4)).GetOutput()
@@ -82,11 +82,7 @@ class SineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        nonlinear_functions = []
-        for branch in self._select_branches:
-            nonlinear_function = nlsp.nonlinear_functions.Power(degree=branch)
-            nonlinear_functions.append(nonlinear_function)
-        return nonlinear_functions
+        return [nlsp.nonlinear_function.Power(i+1) for i in self._select_branches]
 
 
 class CosineSweep(SystemIdentification):
@@ -100,8 +96,8 @@ class CosineSweep(SystemIdentification):
         @return: the excitation signal
         """
         self.__excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
-            sampling_rate=self.__sampling_rate,
-            approximate_numberofsamples=self.__length)
+            sampling_rate=self._sampling_rate,
+            approximate_numberofsamples=self._length)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -109,7 +105,7 @@ class CosineSweep(SystemIdentification):
         Get the identified filter impulse responses.
         @return: the filter impulse responses
         """
-        branches = max(self.__select_branches)
+        branches = max(self._select_branches)
         sweep_length = self.__excitation_generator.GetLength()
         rev = self.__excitation_generator.GetReversedOutput()
         rev_spec = sumpf.modules.FourierTransform(rev).GetSpectrum()
@@ -140,8 +136,4 @@ class CosineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        nonlinear_functions = []
-        for branch in self.__select_branches:
-            nonlinear_function = nlsp.nonlinear_functions.Chebyshev(degree=branch)
-            nonlinear_functions.append(nonlinear_function)
-        return nonlinear_functions
+        return [nlsp.nonlinear_function.Chebyshev(i+1) for i in self._select_branches]

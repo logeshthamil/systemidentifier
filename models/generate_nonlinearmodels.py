@@ -101,7 +101,7 @@ class HammersteinGroupModel(object):
         else:
             return self.__sums[0].GetResult()
 
-    @sumpf.Input(sumpf.Signal,"GetOutput")
+    @sumpf.Input(sumpf.Signal)
     def SetInput(self, input_signal=None):
         """
         Set the input to the model.
@@ -109,8 +109,9 @@ class HammersteinGroupModel(object):
         """
         inputs = []
         for i in range(len(self.__hmodels)):
-            inputs.append((self.__hmodels[i].SetInput, input_signal))
-        sumpf.set_multiple_values(inputs)
+            self.__hmodels[i].SetInput(input_signal)
+        #     inputs.append((self.__hmodels[i].SetInput, input_signal))
+        # sumpf.set_multiple_values(inputs)
 
     def CreateModified(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
                  aliasing_compensation=None, downsampling_position=None):

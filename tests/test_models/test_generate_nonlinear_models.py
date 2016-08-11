@@ -107,4 +107,14 @@ def test_additioninHGM():
     assert nlsp.common.helper_functions_private.calculateenergy_timedomain(total_output) == \
            nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM_output)
 
-test_HGM()
+def test_HGM_InputandOutputMethods():
+    branches = 3
+    input_signal = sumpf.modules.SweepGenerator(samplingrate=48000.0, length=2**14).GetSignal()
+    nonlinear_functions = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]
+    filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches,samplingrate=48000)
+    HGM = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
+                                     aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
+    HGM.SetInput(input_signal)
+    nlsp.plots.plot(HGM.GetOutput())
+
+test_HGM_InputandOutputMethods()

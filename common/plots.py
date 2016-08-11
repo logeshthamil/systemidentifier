@@ -176,7 +176,7 @@ def relabelandplot(input, label=None, show=True, save=False, name=None, line="-"
     :param show: True or False
     :return: plots the given input with label
     """
-    relabelled = nlsp.relabel(input, label)
+    relabelled = input
     if isinstance(relabelled, sumpf.Spectrum):
         log()
     plot(relabelled, show=show, save=save, name=name, line=line)
@@ -204,7 +204,7 @@ def plot_array(input_array, label_array=None, save=False, name=None, Show=True):
     :return: the plot of the input array with labels
     """
     if label_array is None:
-        label_array = [None, ] * len(input_array)
+        label_array = ["none", ] * len(input_array)
     for input, label in zip(input_array, label_array):
         relabelandplot(input, label, False, save, name)
     if Show is True:

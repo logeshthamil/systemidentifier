@@ -13,7 +13,6 @@ class NonlinearBlock(object):
             self._input_signal = sumpf.Signal()
         else:
             self._input_signal = input_signal
-        self._passinput = sumpf.modules.PassThroughSignal(signal=self._input_signal)
 
     @sumpf.Input(data_type=sumpf.Signal, observers=["GetOutput"])
     def SetInput(self, input_signal=None):
@@ -21,7 +20,7 @@ class NonlinearBlock(object):
         Set the input signal to the nonlinear block
         @param input_signal: the input signal
         """
-        self._passinput.SetSignal(signal=input_signal)
+        self._input_signal = input_signal
 
     def GetOutput(self):
         """
@@ -97,10 +96,10 @@ class Power(PolynomialNonlinearBlock):
         """
         nl_function = power(degree=self._degree)
         new_channels = []
-        for c in self._passinput.GetSignal().GetChannels():
+        for c in self._input_signal.GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 
@@ -117,10 +116,10 @@ class Chebyshev(PolynomialNonlinearBlock):
         """
         nl_function = chebyshev_polynomial(degree=self._degree)
         new_channels = []
-        for c in self._passinput.GetSignal().GetChannels():
+        for c in self._input_signal.GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 
@@ -137,10 +136,10 @@ class Hermite(PolynomialNonlinearBlock):
         """
         nl_function = hermite_polynomial(degree=self._degree)
         new_channels = []
-        for c in self._passinput.GetSignal().GetChannels():
+        for c in self._input_signal.GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 
@@ -157,10 +156,10 @@ class Legendre(PolynomialNonlinearBlock):
         """
         nl_function = legendre_polynomial(degree=self._degree)
         new_channels = []
-        for c in self._passinput.GetSignal().GetChannels():
+        for c in self._input_signal.GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
 
@@ -199,10 +198,10 @@ class Clipping(NonlinearBlock):
         """
         nl_function = hard_clip(thresholds=self._thresholds)
         new_channels = []
-        for c in self._passinput.GetSignal().GetChannels():
+        for c in self._input_signal.GetChannels():
             self.__dummy = c
             new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._passinput.GetSignal().GetSamplingRate(),
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
     @sumpf.Output(data_type=int)

@@ -3,11 +3,10 @@ import nlsp
 
 
 def test_identify_an_HGM_MISO():
-    branches = 3
-    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(downsampling_position=1)
-    linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000.0)
-    nonlinear_functions = nlsp.helper_functions.create_arrayof_nlfunctions(nlsp.nonlinear_functions.Power,
-                                                                           branches=branches)
+    branches = 5
+    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000.0)
+    nonlinear_functions = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
     black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
                                            aliasing_compensation=aliasing_compensation,
                                            filter_impulseresponses=linear_filters)

@@ -19,24 +19,24 @@ class SystemIdentification(HGMModelGenerator):
         @param excitation_sampling_rate: the sampling rate of the excitation and response signals
         """
         if system_response is None:
-            self.__system_response = sumpf.Signal()
+            self._system_response = sumpf.Signal()
         else:
-            self.__system_response = system_response
+            self._system_response = system_response
         if select_branches is None:
-            self.__select_branches = [1, 2, 3, 4, 5]
+            self._select_branches = [1, 2, 3, 4, 5]
         else:
-            self.__select_branches = select_branches
-        self.__length = excitation_length
+            self._select_branches = select_branches
+        self._length = excitation_length
         if excitation_sampling_rate is None:
-            self.__sampling_rate = 48000  # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
+            self._sampling_rate = 48000  # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
         else:
-            self.__sampling_rate = excitation_sampling_rate
+            self._sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
-            self.__aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+            self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
         else:
-            self.__aliasing_compensation = aliasing_compensation
-        self.__input_model = nlsp.HammersteinGroupModel()
-        HGMModelGenerator.__init__(self, input_model=self.__input_model)
+            self._aliasing_compensation = aliasing_compensation
+        self._input_model = nlsp.HammersteinGroupModel()
+        HGMModelGenerator.__init__(self, input_model=self._input_model)
 
     def GetExcitation(self):
         """

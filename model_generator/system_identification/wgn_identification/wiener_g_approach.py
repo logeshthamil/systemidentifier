@@ -11,9 +11,10 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
         @return: the filter impulse responses
         """
         excitation = self.GetExcitation()
-        response = self.__system_response
+        response = self._system_response
         variance = sumpf.modules.SignalMean(excitation * excitation).GetMean()[0]
         kernels = []
+        cross_corr = None
         for branch in self._select_branches:
             input = nlsp.nonlinear_function.Power(excitation, branch)
             cross_corr = sumpf.modules.CorrelateSignals(signal1=input.GetOutput(), signal2=response,
@@ -34,8 +35,4 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        nonlinear_functions = []
-        for branch in self.__select_branches:
-            nonlinear_function = nlsp.nonlinear_functions.Hermite(degree=branch)
-            nonlinear_functions.append(nonlinear_function)
-        return nonlinear_functions
+        return [nlsp.nonlinear_function.Hermite(i+1) for i in self._select_branches]
