@@ -1,4 +1,4 @@
-from evaluation import Evaluation
+import evaluations as evaluations
 from analyze_models import AnalyzeModels
 import helper_functions_private
 import helper_functions
