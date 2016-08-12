@@ -11,10 +11,6 @@ def cut_spectrum(input_spectrum, desired_frequency_range):
     :return: the modified spectrum
     """
     channels_ip = []
-    # TODO: you can rely on the fact, that all channels have the same length
-    # Python hints:
-    #    [0.0] * 3 = [0.0, 0.0, 0.0]
-    #    a = [1.0]; a.extend([2.0, 3.0]) => a = [1.0, 2.0, 3.0]
     for ip in input_spectrum.GetChannels():
         channel_ip = []
         channel_op = []
