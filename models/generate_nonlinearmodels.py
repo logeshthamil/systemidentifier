@@ -53,11 +53,6 @@ class HammersteinGroupModel(object):
             classname = self.__aliasingcompensation.__class__()
             aliasing_comp.append(classname)
         self.__aliasingcompensations = aliasing_comp
-
-        # construct HGM from given paramters
-        self._constructHGM()
-
-    def _constructHGM(self):
         self.__hmodels = []
         for i, (nl, ir, alias) in enumerate(
                 zip(self.__nonlinear_functions, self.__filter_irs, self.__aliasingcompensations)):
@@ -66,23 +61,6 @@ class HammersteinGroupModel(object):
                                  downsampling_position=self._downsampling_position)
             self.__hmodels.append(h)
 
-    def _get_aliasing_compensation(self):
-        return self.__aliasingcompensation
-
-    @sumpf.Output(tuple)
-    def GetFilterImpulseResponses(self):
-        return self.__filter_irs
-
-    @sumpf.Output(tuple)
-    def GetNonlinearFunctions(self):
-        return self.__nonlinear_functions
-
-    @sumpf.Output(sumpf.Signal)
-    def GetOutput(self):
-        """
-        Get the output signal of the model.
-        @return: the output signal
-        """
         self.__sums = [None] * self.__branches
         for i in reversed(range(len(self.__hmodels) - 1)):
             self.__a = sumpf.modules.Add()
@@ -97,9 +75,20 @@ class HammersteinGroupModel(object):
             self.__sums[i] = self.__a
         if len(self.__hmodels) == 1:
             self.__sums[0] = self.__hmodels[0]
-            return self.__sums[0].GetOutput()
+            self.GetOutput = self.__sums[0].GetOutput
         else:
-            return self.__sums[0].GetResult()
+            self.GetOutput = self.__sums[0].GetResult
+
+    def _get_aliasing_compensation(self):
+        return self.__aliasingcompensation
+
+    @sumpf.Output(tuple)
+    def GetFilterImpulseResponses(self):
+        return self.__filter_irs
+
+    @sumpf.Output(tuple)
+    def GetNonlinearFunctions(self):
+        return self.__nonlinear_functions
 
     @sumpf.Input(sumpf.Signal)
     def SetInput(self, input_signal=None):
@@ -109,9 +98,8 @@ class HammersteinGroupModel(object):
         """
         inputs = []
         for i in range(len(self.__hmodels)):
-            self.__hmodels[i].SetInput(input_signal)
-        #     inputs.append((self.__hmodels[i].SetInput, input_signal))
-        # sumpf.set_multiple_values(inputs)
+            inputs.append((self.__hmodels[i].SetInput, input_signal))
+        sumpf.set_multiple_values(inputs)
 
     def CreateModified(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
                  aliasing_compensation=None, downsampling_position=None):
