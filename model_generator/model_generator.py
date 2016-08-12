@@ -2,7 +2,7 @@ import sumpf
 import nlsp
 
 
-class HGMModelGenerator():  # TODO: all classes should inherit from "object"
+class HGMModelGenerator(object):
     """
     An abstract base class whose instances generate models.
     """

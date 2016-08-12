@@ -3,7 +3,7 @@ import nlsp
 import nlsp.common.helper_functions_private as nlsp_private
 
 
-def test_modify_model_constructors():  # TODO: what does this function name mean?
+def test_inputparameters_of_modifymodel():
     branches = 3
     signal = sumpf.modules.SweepGenerator(samplingrate=48000, length=2 ** 14).GetSignal()
     ref_nlfunctions = [nlsp.nonlinear_functions.Power(degree=i+1) for i in range(branches)]

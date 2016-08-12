@@ -1,7 +1,6 @@
 import nlsp
 
 def test_identify_an_HGM_Sinesweep():
-    # TODO: this test does not run
     branches = 3
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000.0)
@@ -21,12 +20,11 @@ def test_identify_an_HGM_Sinesweep():
                                                               approximate_numberofsamples=2 ** 16)
     model_black_box.SetInput(exc.GetOutput())
     black_box.SetInput(exc.GetOutput())
-    evaluation = nlsp.Evaluation(reference_output=black_box.GetOutput(), identified_output=model_black_box.GetOutput())
+    evaluation = nlsp.evaluations.CompareWithReference(black_box.GetOutput(), model_black_box.GetOutput())
     assert evaluation.GetSignaltoErrorRatio()[0] >= 100
 
 
 def test_identify_an_HGM_Cosinesweep():
-    # TODO: this test does not run
     branches = 3
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000.0)
@@ -46,5 +44,5 @@ def test_identify_an_HGM_Cosinesweep():
                                                               approximate_numberofsamples=2 ** 16)
     model_black_box.SetInput(exc.GetOutput())
     black_box.SetInput(exc.GetOutput())
-    evaluation = nlsp.Evaluation(reference_output=black_box.GetOutput(), identified_output=model_black_box.GetOutput())
+    evaluation = nlsp.evaluations.CompareWithReference(black_box.GetOutput(), model_black_box.GetOutput())
     assert evaluation.GetSignaltoErrorRatio()[0] >= 100
