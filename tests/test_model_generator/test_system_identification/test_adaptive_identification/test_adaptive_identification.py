@@ -1,7 +1,6 @@
 import sumpf
 import nlsp
 
-
 def test_identify_an_HGM_Adaptive():
     branches = 3
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
@@ -20,7 +19,7 @@ def test_identify_an_HGM_Adaptive():
                                        samplingrate=48000, length=2 ** 16)
     model_black_box.SetInput(exc.GetSignal())
     black_box.SetInput(exc.GetSignal())
-    nlsp.plots.plot(black_box.GetOutput(), show=False)
-    nlsp.plots.plot(model_black_box.GetOutput())
-    evaluation = nlsp.Evaluation(reference_output=black_box.GetOutput(), identified_output=model_black_box.GetOutput())
+    evaluation = nlsp.evaluations.CompareWithReference(black_box.GetOutput(), model_black_box.GetOutput())
     print evaluation.GetSignaltoErrorRatio()
+
+test_identify_an_HGM_Adaptive()

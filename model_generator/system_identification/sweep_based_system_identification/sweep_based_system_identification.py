@@ -82,7 +82,8 @@ class SineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Power(i + 1) for i in self._select_branches]
+        branches = max(self._select_branches)
+        return [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
 
 
 class CosineSweep(SystemIdentification):
@@ -136,4 +137,5 @@ class CosineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Chebyshev(i + 1) for i in self._select_branches]
+        branches = max(self._select_branches)
+        return [nlsp.nonlinear_function.Chebyshev(degree=i+1) for i in range(branches)]

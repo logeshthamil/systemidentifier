@@ -29,3 +29,32 @@ def test_create_modified_method():
     energy1 = nlsp.common.helper_functions_private.calculateenergy_timedomain(model1.GetOutput())
     energy2 = nlsp.common.helper_functions_private.calculateenergy_timedomain(model2.GetOutput())
     assert energy1 == energy2
+
+def test_nonlinearfunction_degree_parameter():
+    sampling_rate = 48000
+    branches = 3
+    input_signal = sumpf.modules.SweepGenerator(samplingrate=sampling_rate,length=2**18).GetSignal()
+    aliasing_compensation1 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    aliasing_compensation2 = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    nonlinear_functions1 = [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
+    nonlinear_functions2 = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
+    # filter_spec_tofind = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=sampling_rate)
+    # ref_nlsystem1 = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions1,
+    #                                           filter_impulseresponses=filter_spec_tofind,
+    #                                           aliasing_compensation=aliasing_compensation1)
+    # ref_nlsystem2 = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions2,
+    #                                           filter_impulseresponses=filter_spec_tofind,
+    #                                           aliasing_compensation=aliasing_compensation2)
+    # ref_nlsystem1.SetInput(input_signal)
+    # ref_nlsystem2.SetInput(input_signal)
+    # nlsp.plots.plot(ref_nlsystem1.GetOutput(),show=False)
+    # nlsp.plots.plot(ref_nlsystem2.GetOutput())
+    nonlinear_function1 = nlsp.nonlinear_function.Power(2)
+    nonlinear_function2 = nlsp.nonlinear_function.Power(degree=2)
+    nonlinear_function1.SetInput(input_signal)
+    nonlinear_function2.SetInput(input_signal)
+    nlsp.plots.plot(nonlinear_function1.GetOutput(), show=False)
+    nlsp.plots.plot(nonlinear_function2.GetOutput())
+
+
+test_nonlinearfunction_degree_parameter()
