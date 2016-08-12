@@ -4,10 +4,12 @@ import copy
 import sumpf
 import nlsp
 
+
 class Adaptive(SystemIdentification):
     """
     A class to identify a nonlinear system using adaptation algorithm.
     """
+
     def __init__(self, system_excitation=None, system_response=None, select_branches=None,
                  multichannel_algorithm=nlsp.common.miso_nlms_multichannel,
                  filter_length=2 ** 10, initial_coefficients=None, nonlinear_function=nlsp.nonlinear_function.Power,
@@ -48,8 +50,8 @@ class Adaptive(SystemIdentification):
         @return: the excitation signal
         """
         self._excitation_generator = sumpf.modules.NoiseGenerator(
-            distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
-            samplingrate=self._sampling_rate, length=self._length, seed="seed")
+                distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
+                samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self._excitation_generator.GetSignal()
 
     def _GetFilterImpuleResponses(self):

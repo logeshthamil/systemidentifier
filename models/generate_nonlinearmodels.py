@@ -30,7 +30,8 @@ class HammersteinGroupModel(object):
             self.__nonlinear_functions = nonlinear_functions
         if filter_impulseresponses is None:
             self.__filter_irs = (sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
-                                                                length=2**10).GetSignal(),) * len(self.__nonlinear_functions)
+                                                                length=2 ** 10).GetSignal(),) * len(
+                self.__nonlinear_functions)
         else:
             self.__filter_irs = filter_impulseresponses
         self._downsampling_position = downsampling_position
@@ -102,7 +103,7 @@ class HammersteinGroupModel(object):
         sumpf.set_multiple_values(inputs)
 
     def CreateModified(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
-                 aliasing_compensation=None, downsampling_position=None):
+                       aliasing_compensation=None, downsampling_position=None):
         """
         This method creates a new instance of the class with or without modification.
         @param input_signal: the input signal
@@ -123,8 +124,10 @@ class HammersteinGroupModel(object):
             aliasing_compensation = self.__aliasingcompensation
         if downsampling_position is None:
             downsampling_position = self._downsampling_position
-        return self.__class__(input_signal=input_signal, nonlinear_functions=nonlinear_functions, filter_impulseresponses=filter_impulseresponses,
+        return self.__class__(input_signal=input_signal, nonlinear_functions=nonlinear_functions,
+                              filter_impulseresponses=filter_impulseresponses,
                               aliasing_compensation=aliasing_compensation, downsampling_position=downsampling_position)
+
 
 class HammersteinModel(object):
     """
@@ -149,7 +152,7 @@ class HammersteinModel(object):
             self.__input_signal = input_signal
         if filter_impulseresponse is None:
             self.__filterir = sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
-                                                             length=2**8).GetSignal()
+                                                             length=2 ** 8).GetSignal()
         else:
             self.__filterir = self.__ir
         if nonlinear_function is None:

@@ -35,4 +35,4 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Hermite(i+1) for i in self._select_branches]
+        return [nlsp.nonlinear_function.Hermite(i + 1) for i in self._select_branches]

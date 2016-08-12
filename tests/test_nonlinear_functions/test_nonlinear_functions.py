@@ -14,11 +14,12 @@ def test_inputandoutputmethods():
     energy2 = nlsp.common.helper_functions_private.calculateenergy_timedomain(nl_function.GetOutput())
     assert energy1 == energy2
 
+
 def test_create_modified_method():
     """
     Test the Create_Modified method of the polynomial nonlinear functions class.
     """
-    input_signal = sumpf.modules.SweepGenerator(length=2**14).GetSignal()
+    input_signal = sumpf.modules.SweepGenerator(length=2 ** 14).GetSignal()
     nl_function1 = nlsp.nonlinear_function.Power(degree=2)
     nl_function2 = nl_function1.CreateModified()
     model1 = nlsp.HammersteinModel(nonlinear_function=nl_function1)

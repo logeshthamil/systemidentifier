@@ -8,6 +8,7 @@ class AliasingCompensation(object):
     postprocessing units. Every derived aliasing compensation technique should implement the signal processing chain for
     aliasing compensation.
     """
+
     def __init__(self, input_signal=None, maximum_harmonics=None):
         """
         @param input_signal: the input signal
@@ -191,7 +192,8 @@ class LowpassAliasingCompensation(AliasingCompensation):
     the lowpass filter is modified based on the attenuation needed at the stop band frequency.
     """
 
-    def __init__(self, input_signal=None, maximum_harmonics=1, filter_function_class=sumpf.modules.FilterGenerator.BUTTERWORTH,
+    def __init__(self, input_signal=None, maximum_harmonics=1,
+                 filter_function_class=sumpf.modules.FilterGenerator.BUTTERWORTH,
                  filter_order=16, attenuation=60):
         """
         @param input_signal: the input signal
@@ -219,12 +221,12 @@ class LowpassAliasingCompensation(AliasingCompensation):
         self._filter_function.SetResolution(property.GetResolution())
         self._filter_function.SetLength(property.GetSpectrumLength())
         result_spectrum = sumpf.modules.Multiply(
-            value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
-            value2=self._filter_function.GetSpectrum()).GetResult()
+                value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
+                value2=self._filter_function.GetSpectrum()).GetResult()
         return sumpf.modules.InverseFourierTransform(spectrum=result_spectrum).GetSignal()
 
     def CreateModified(self, input_signal=None, maximum_harmonics=None, filter_function_class=None,
-                 filter_order=None, attenuation=None):
+                       filter_order=None, attenuation=None):
         """
         This method creates a new instance of the class with or without parameter modification.
         @param input_signal: the input signal
@@ -244,8 +246,10 @@ class LowpassAliasingCompensation(AliasingCompensation):
             filter_order = self._filter_order
         if attenuation is None:
             attenuation = self._attenuation
-        return self.__class__(input_signal=input_signal, maximum_harmonics=maximum_harmonics, filter_function_class=filter_function_class,
+        return self.__class__(input_signal=input_signal, maximum_harmonics=maximum_harmonics,
+                              filter_function_class=filter_function_class,
                               filter_order=filter_order, attenuation=attenuation)
+
 
 class NoAliasingCompensation(AliasingCompensation):
     """

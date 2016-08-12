@@ -51,13 +51,13 @@ class Sinesweepgenerator_Novak(object):
         """
         t = numpy.arange(0, self.GetLength() / self.__sampling_rate, 1 / self.__sampling_rate)
         s = numpy.sin(2 * numpy.pi * self.__start_frequency * self.GetSweepExcitationRate() * (
-        numpy.exp(t / self.GetSweepExcitationRate()) - 1))
+            numpy.exp(t / self.GetSweepExcitationRate()) - 1))
         if self.__fade_in > 0:
             s[0:self.__fade_in] = s[0:self.__fade_in] * (
-            (-numpy.cos(numpy.arange(self.__fade_in) / self.__fade_in * numpy.pi) + 1) / 2)
+                (-numpy.cos(numpy.arange(self.__fade_in) / self.__fade_in * numpy.pi) + 1) / 2)
         if self.__fade_out > 0:
             s[-self.__fade_out:] = s[-self.__fade_out:] * (
-            (numpy.cos(numpy.arange(self.__fade_out) / self.__fade_out * numpy.pi) + 1) / 2)
+                (numpy.cos(numpy.arange(self.__fade_out) / self.__fade_out * numpy.pi) + 1) / 2)
         signal = sumpf.Signal(channels=(s,), samplingrate=self.__sampling_rate, labels=("Sweep signal",))
         if len(signal) % 2 != 0:
             signal = sumpf.modules.CutSignal(signal, start=0, stop=-1).GetOutput()
@@ -81,9 +81,9 @@ class Sinesweepgenerator_Novak(object):
         fft_len = int(length)
         interval = numpy.linspace(0, sampling_rate / 2.0, num=fft_len / 2 + 1.0)
         inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(
-            1j * (2 * numpy.pi * sweep_parameter * interval * (self.GetStartFrequency() / interval +
-                                                               numpy.log(
-                                                                   interval / self.GetStartFrequency()) - 1) + numpy.pi / 4))
+                1j * (2 * numpy.pi * sweep_parameter * interval * (self.GetStartFrequency() / interval +
+                                                                   numpy.log(
+                                                                           interval / self.GetStartFrequency()) - 1) + numpy.pi / 4))
         inverse_sweep[0] = 0j
         rev_sweep = numpy.fft.irfft(inverse_sweep)
         rev_sweep = sumpf.Signal(channels=(rev_sweep,), samplingrate=sampling_rate, labels=("Reversed Sweep signal",))
@@ -98,7 +98,7 @@ class Sinesweepgenerator_Novak(object):
         """
         L = 1 / self.__start_frequency * round((self.__approx_length / self.__sampling_rate) *
                                                self.__start_frequency / numpy.log(
-            self.__stop_frequency / self.__start_frequency))
+                self.__stop_frequency / self.__start_frequency))
         return L
 
     @sumpf.Output(float)
@@ -193,13 +193,13 @@ class Cosinesweepgenerator_Novak(object):
         """
         t = numpy.arange(0, self.GetLength() / self.__sampling_rate, 1 / self.__sampling_rate)
         s = numpy.cos(2 * numpy.pi * self.__start_frequency * self.GetSweepExcitationRate() * (
-        numpy.exp(t / self.GetSweepExcitationRate()) - 1))
+            numpy.exp(t / self.GetSweepExcitationRate()) - 1))
         if self.__fade_in > 0:
             s[0:self.__fade_in] = s[0:self.__fade_in] * (
-            (-numpy.cos(numpy.arange(self.__fade_in) / self.__fade_in * numpy.pi) + 1) / 2)
+                (-numpy.cos(numpy.arange(self.__fade_in) / self.__fade_in * numpy.pi) + 1) / 2)
         if self.__fade_out > 0:
             s[-self.__fade_out:] = s[-self.__fade_out:] * (
-            (numpy.cos(numpy.arange(self.__fade_out) / self.__fade_out * numpy.pi) + 1) / 2)
+                (numpy.cos(numpy.arange(self.__fade_out) / self.__fade_out * numpy.pi) + 1) / 2)
         signal = sumpf.Signal(channels=(s,), samplingrate=self.__sampling_rate, labels=("Sweep signal",))
         if len(signal) % 2 != 0:
             signal = sumpf.modules.CutSignal(signal, start=0, stop=-1).GetOutput()
@@ -220,7 +220,9 @@ class Cosinesweepgenerator_Novak(object):
         # fft_len = int(2**numpy.ceil(numpy.log2(length)))
         fft_len = int(length)
         interval = numpy.linspace(0, sampling_rate / 2, num=fft_len / 2 + 1)
-        inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(1j * (2 * numpy.pi * sweep_parameter * interval * (self.GetStartFrequency() / interval + numpy.log(interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
+        inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(1j * (
+        2 * numpy.pi * sweep_parameter * interval * (
+        self.GetStartFrequency() / interval + numpy.log(interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
         inverse_sweep[0] = 0j
         rev_sweep = numpy.fft.irfft(inverse_sweep)
         rev_sweep = sumpf.Signal(channels=(rev_sweep,), samplingrate=sampling_rate, labels=("Reversed Sweep signal",))
@@ -235,7 +237,7 @@ class Cosinesweepgenerator_Novak(object):
         """
         L = 1 / self.__start_frequency * round((self.__approx_length / self.__sampling_rate) *
                                                self.__start_frequency / numpy.log(
-            self.__stop_frequency / self.__start_frequency))
+                self.__stop_frequency / self.__start_frequency))
         return L
 
     @sumpf.Output(float)

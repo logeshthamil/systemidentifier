@@ -23,7 +23,7 @@ def cut_spectrum(input_spectrum, desired_frequency_range):
                 channel_op.append(0.0)
         channels_ip.append(tuple(channel_ip))
     input_spectrum_modified = sumpf.Spectrum(channels=tuple(channels_ip), resolution=input_spectrum.GetResolution(),
-                                    labels=input_spectrum.GetLabels())
+                                             labels=input_spectrum.GetLabels())
     return input_spectrum_modified
 
 
@@ -80,6 +80,7 @@ def calculateenergy_betweenfreq_freqdomain(input_signal_or_spectrum, desired_fre
     energy = calculateenergy_freqdomain(spec)
     return energy
 
+
 def append_zeros(input_signal, length=None):
     """
     Appends zeros until the signal has the given length. If no length is given,
@@ -95,10 +96,12 @@ def append_zeros(input_signal, length=None):
                           labels=input_signal.GetLabels())
     return result
 
+
 class CheckEqualLength(object):
     """
     Check the length of two signals. In case of mismatch it will append zeros to make it equal.
     """
+
     def __init__(self, input_signal1=None, input_signal2=None):
         """
         @param input_signal1: the first input signal
@@ -121,7 +124,7 @@ class CheckEqualLength(object):
 
     def _changelength(self):
         if len(self.__input_signal1) > len(self.__input_signal2):
-            self.__output_signal2 = append_zeros(input_signal=self.__input_signal2,length=len(self.__input_signal1))
+            self.__output_signal2 = append_zeros(input_signal=self.__input_signal2, length=len(self.__input_signal1))
             self.__output_signal1 = self.__input_signal1
         elif len(self.__input_signal2) > len(self.__input_signal1):
             self.__output_signal1 = append_zeros(self.__input_signal1, len(self.__input_signal2))

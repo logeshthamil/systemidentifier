@@ -6,7 +6,7 @@ def test_identify_an_HGM_WienerG():
     branches = 3
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000.0)
-    nonlinear_functions = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
+    nonlinear_functions = [nlsp.nonlinear_function.Power(i + 1) for i in range(branches)]
     black_box = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
                                            aliasing_compensation=aliasing_compensation,
                                            filter_impulseresponses=linear_filters)

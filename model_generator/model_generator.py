@@ -6,7 +6,9 @@ class HGMModelGenerator(object):
     """
     An abstract base class whose instances generate models.
     """
-    def __init__(self, input_model=None, nonlinear_functions=None, filter_impulseresponses=None, aliasing_compensation=None,
+
+    def __init__(self, input_model=None, nonlinear_functions=None, filter_impulseresponses=None,
+                 aliasing_compensation=None,
                  downsampling_position=None):
         """
         @param input_model: the input model

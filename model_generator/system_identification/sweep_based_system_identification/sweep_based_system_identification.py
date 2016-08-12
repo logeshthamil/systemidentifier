@@ -16,8 +16,8 @@ class SineSweep(SystemIdentification):
         @return: the excitation signal
         """
         self.__excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
-            sampling_rate=self._sampling_rate,
-            approximate_numberofsamples=self._length)
+                sampling_rate=self._sampling_rate,
+                approximate_numberofsamples=self._length)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -82,7 +82,7 @@ class SineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Power(i+1) for i in self._select_branches]
+        return [nlsp.nonlinear_function.Power(i + 1) for i in self._select_branches]
 
 
 class CosineSweep(SystemIdentification):
@@ -96,8 +96,8 @@ class CosineSweep(SystemIdentification):
         @return: the excitation signal
         """
         self.__excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
-            sampling_rate=self._sampling_rate,
-            approximate_numberofsamples=self._length)
+                sampling_rate=self._sampling_rate,
+                approximate_numberofsamples=self._length)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -136,4 +136,4 @@ class CosineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Chebyshev(i+1) for i in self._select_branches]
+        return [nlsp.nonlinear_function.Chebyshev(i + 1) for i in self._select_branches]

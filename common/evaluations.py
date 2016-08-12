@@ -2,6 +2,7 @@ import math
 import nlsp
 import sumpf
 
+
 class CompareWithReference(object):
     """
     The class to evaluate the model based on the output of the nonlinear system (reference output) and the output of the
@@ -76,11 +77,14 @@ class CompareWithReference(object):
                         observed = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[0]).GetOutput()
                         identified = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[1]).GetOutput()
                     reference = observed
-                    reference = nlsp.common.helper_functions_private.cut_spectrum(reference, self.__desired_frequency_range)
-                    identified = nlsp.common.helper_functions_private.cut_spectrum(identified, self.__desired_frequency_range)
+                    reference = nlsp.common.helper_functions_private.cut_spectrum(reference,
+                                                                                  self.__desired_frequency_range)
+                    identified = nlsp.common.helper_functions_private.cut_spectrum(identified,
+                                                                                   self.__desired_frequency_range)
                     noise = reference - identified
                     div = sumpf.modules.Divide(value1=identified, value2=noise).GetResult()
-                    div_energy = nlsp.common.helper_functions_private.calculateenergy_betweenfreq_freqdomain(div, self.__desired_frequency_range)
+                    div_energy = nlsp.common.helper_functions_private.calculateenergy_betweenfreq_freqdomain(div,
+                                                                                                             self.__desired_frequency_range)
                     snr.append(10 * math.log10(div_energy[0]))
                 else:
                     print "The given arguments is not a sumpf.Signal or sumpf.Spectrum"
@@ -108,21 +112,23 @@ class CompareWithReference(object):
         else:
             identified_l = iden_signalorspectrum
         servsfreq = None
-        for observed,identified in zip(observed_l,identified_l):
-            if isinstance(observed,(sumpf.Signal,sumpf.Spectrum)) and isinstance(observed,(sumpf.Signal,sumpf.Spectrum)):
-                if isinstance(observed,sumpf.Signal):
+        for observed, identified in zip(observed_l, identified_l):
+            if isinstance(observed, (sumpf.Signal, sumpf.Spectrum)) and isinstance(observed,
+                                                                                   (sumpf.Signal, sumpf.Spectrum)):
+                if isinstance(observed, sumpf.Signal):
                     observed = sumpf.modules.FourierTransform(observed).GetSpectrum()
-                if isinstance(identified,sumpf.Signal):
+                if isinstance(identified, sumpf.Signal):
                     identified = sumpf.modules.FourierTransform(identified).GetSpectrum()
                 if len(observed) != len(identified):
-                    merged_spectrum = sumpf.modules.MergeSpectrums(spectrums=[observed,identified],
-                                                       on_length_conflict=sumpf.modules.MergeSpectrums.FILL_WITH_ZEROS).GetOutput()
-                    observed = sumpf.modules.SplitSpectrum(data=merged_spectrum,channels=[0]).GetOutput()
-                    identified = sumpf.modules.SplitSpectrum(data=merged_spectrum,channels=[1]).GetOutput()
+                    merged_spectrum = sumpf.modules.MergeSpectrums(spectrums=[observed, identified],
+                                                                   on_length_conflict=sumpf.modules.MergeSpectrums.FILL_WITH_ZEROS).GetOutput()
+                    observed = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[0]).GetOutput()
+                    identified = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[1]).GetOutput()
                 reference = observed
                 reference = nlsp.common.helper_functions_private.cut_spectrum(reference, self.__desired_frequency_range)
-                identified = nlsp.common.helper_functions_private.cut_spectrum(identified, self.__desired_frequency_range)
-                noise =  reference - identified
+                identified = nlsp.common.helper_functions_private.cut_spectrum(identified,
+                                                                               self.__desired_frequency_range)
+                noise = reference - identified
                 servsfreq = identified / noise
             else:
                 print "The given arguments is not a sumpf.Signal or sumpf.Spectrum"

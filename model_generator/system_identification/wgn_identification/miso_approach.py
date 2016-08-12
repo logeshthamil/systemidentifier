@@ -12,8 +12,8 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
         @return: the excitation signal
         """
         self.__excitation_generator = sumpf.modules.NoiseGenerator(
-            distribution=sumpf.modules.NoiseGenerator.GaussianDistribution(),
-            samplingrate=self._sampling_rate, length=self._length, seed="seed")
+                distribution=sumpf.modules.NoiseGenerator.GaussianDistribution(),
+                samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self.__excitation_generator.GetSignal()
 
 
@@ -143,4 +143,4 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Power(i+1) for i in self._select_branches]
+        return [nlsp.nonlinear_function.Power(i + 1) for i in self._select_branches]

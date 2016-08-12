@@ -21,8 +21,10 @@ class ModifyModel(HGMModelGenerator):
         Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
         @param downsampling_position: the downsamplli
         """
-        HGMModelGenerator.__init__(self, input_model=input_model, filter_impulseresponses=filter_impulseresponses, nonlinear_functions=nonlinear_functions,
-                 aliasing_compensation=aliasing_compensation, downsampling_position=downsampling_position)
+        HGMModelGenerator.__init__(self, input_model=input_model, filter_impulseresponses=filter_impulseresponses,
+                                   nonlinear_functions=nonlinear_functions,
+                                   aliasing_compensation=aliasing_compensation,
+                                   downsampling_position=downsampling_position)
 
     @sumpf.Input(nlsp.HammersteinGroupModel, "GetOutputModel")
     def SetInputModel(self, input_model=None):
