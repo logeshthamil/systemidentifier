@@ -7,7 +7,7 @@ class Sinesweepgenerator_Novak(object):
     A class to generate the sine sweep signal which compensates the phase shift of higher order harmonics.
     """
 
-    def __init__(self, sampling_rate=None, approximate_numberofsamples=2 ** 16, start_frequency=20.0,
+    def __init__(self, sampling_rate=None, approximate_numberofsamples=None, start_frequency=20.0,
                  stop_frequency=20000.0, fade_out=0.02, fade_in=0.02, amplitude_range=1.0):
         """
         @param sampling_rate: the sampling rate
@@ -20,9 +20,13 @@ class Sinesweepgenerator_Novak(object):
         @param factor: the amplitude range of the sweep signal
         """
         if sampling_rate is None:
-            self.__sampling_rate = 48000
+            self.__sampling_rate = sumpf.config.get("default_samplingrate")
         else:
             self.__sampling_rate = float(sampling_rate)
+        if approximate_numberofsamples is None:
+            self.__approx_length = sumpf.config.get("default_signal_length")
+        else:
+            self.__approx_length = approximate_numberofsamples
         self.__approx_length = float(approximate_numberofsamples)
         self.__start_frequency = float(start_frequency)
         self.__stop_frequency = float(stop_frequency)
@@ -69,6 +73,8 @@ class Sinesweepgenerator_Novak(object):
         """
         if numberofsamples is None:
             length = self.GetLength()
+        else:
+            length = numberofsamples
         sampling_rate = self.GetOutput().GetSamplingRate()
         sweep_parameter = self.GetSweepExcitationRate()
         # fft_len = int(2**numpy.ceil(numpy.log2(length)))
@@ -144,7 +150,7 @@ class Cosinesweepgenerator_Novak(object):
     A class to generate the cosine sweep signal which compensates the phase shift of higher order harmonics.
     """
 
-    def __init__(self, sampling_rate=None, approximate_numberofsamples=2 ** 16, start_frequency=20.0,
+    def __init__(self, sampling_rate=None, approximate_numberofsamples=None, start_frequency=20.0,
                  stop_frequency=20000.0, fade_out=0.02, fade_in=0.02, amplitude_range=1.0):
         """
         @param sampling_rate: the sampling rate
@@ -157,10 +163,13 @@ class Cosinesweepgenerator_Novak(object):
         @param factor: the amplitude range of the sweep signal
         """
         if sampling_rate is None:
-            self.__sampling_rate = 48000
+            self.__sampling_rate = sumpf.config.get("default_samplingrate")
         else:
             self.__sampling_rate = float(sampling_rate)
-        self.__approx_length = float(approximate_numberofsamples)
+        if approximate_numberofsamples is None:
+            self.__approx_length = sumpf.config.get("default_signal_length")
+        else:
+            self.__approx_length = float(approximate_numberofsamples)
         self.__start_frequency = float(start_frequency)
         self.__stop_frequency = float(stop_frequency)
         self.__fade_out = float(fade_out * self.__sampling_rate)
@@ -211,10 +220,7 @@ class Cosinesweepgenerator_Novak(object):
         # fft_len = int(2**numpy.ceil(numpy.log2(length)))
         fft_len = int(length)
         interval = numpy.linspace(0, sampling_rate / 2, num=fft_len / 2 + 1)
-        inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(
-            1j * (2 * numpy.pi * sweep_parameter * interval * (self.GetStartFrequency() / interval +
-                                                               numpy.log(
-                                                                   interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
+        inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(1j * (2 * numpy.pi * sweep_parameter * interval * (self.GetStartFrequency() / interval + numpy.log(interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
         inverse_sweep[0] = 0j
         rev_sweep = numpy.fft.irfft(inverse_sweep)
         rev_sweep = sumpf.Signal(channels=(rev_sweep,), samplingrate=sampling_rate, labels=("Reversed Sweep signal",))

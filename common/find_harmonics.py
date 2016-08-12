@@ -1,7 +1,6 @@
 import sumpf
 import math
 
-
 class FindHarmonicImpulseResponse_NovakSweep(object):
     def __init__(self,
                  impulse_response=None,

@@ -9,8 +9,7 @@ class SystemIdentification(HGMModelGenerator):
     """
 
     def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None,
-                 excitation_length=2 ** 16,
-                 excitation_sampling_rate=None):
+                 excitation_length=None, excitation_sampling_rate=None):
         """
         @param system_response: the response of the nonlinear system
         @param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
@@ -26,9 +25,12 @@ class SystemIdentification(HGMModelGenerator):
             self._select_branches = [1, 2, 3, 4, 5]
         else:
             self._select_branches = select_branches
-        self._length = excitation_length
+        if excitation_length is None:
+            self._length = sumpf.config.get("default_signal_length")
+        else:
+            self._length = excitation_length
         if excitation_sampling_rate is None:
-            self._sampling_rate = 48000  # TODO: do not hardcode values like the sampling rate. I suggest, you use SuMPF's config feature for this
+            self._sampling_rate = sumpf.config.get("default_samplingrate")
         else:
             self._sampling_rate = excitation_sampling_rate
         if aliasing_compensation is None:
