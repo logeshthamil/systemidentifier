@@ -82,8 +82,11 @@ class SineSweep(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        branches = max(self._select_branches)
-        return [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
+        nonlinear_functions = []
+        for branch in self._select_branches:
+            nonlinear_func = nlsp.nonlinear_function.Power(degree=branch)
+            nonlinear_functions.append(nonlinear_func)
+        return nonlinear_functions
 
 
 class CosineSweep(SystemIdentification):
@@ -130,12 +133,18 @@ class CosineSweep(SystemIdentification):
         ir_harmonics = []
         for i in range(len(ir_merger.GetChannels())):
             ir_harmonics.append(sumpf.modules.SplitSignal(data=ir_merger, channels=[i]).GetOutput())
-        return ir_harmonics
+        filter_kernels = []
+        for branch in self._select_branches:
+            filter_kernels.append(ir_harmonics[branch - 1])
+        return filter_kernels
 
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        branches = max(self._select_branches)
-        return [nlsp.nonlinear_function.Chebyshev(degree=i+1) for i in range(branches)]
+        nonlinear_functions = []
+        for branch in self._select_branches:
+            nonlinear_func = nlsp.nonlinear_function.Chebyshev(degree=branch)
+            nonlinear_functions.append(nonlinear_func)
+        return nonlinear_functions
