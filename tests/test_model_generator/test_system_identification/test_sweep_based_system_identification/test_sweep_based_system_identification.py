@@ -1,4 +1,3 @@
-import sumpf
 import nlsp
 
 def test_identify_an_HGM_Cosinesweep():

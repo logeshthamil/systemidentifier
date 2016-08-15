@@ -98,7 +98,7 @@ def test_HGM():
     branches = 3
     input_signal = sumpf.modules.SweepGenerator(samplingrate=48000.0, length=2 ** 14).GetSignal()
     nonlinear_functions = [nlsp.nonlinear_functions.Power(degree=i + 1) for i in range(branches)]
-    filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, samplingrate=48000)
+    filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000)
     HGM = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions, filter_impulseresponses=filter_irs,
                                      aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     energy1 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
@@ -135,5 +135,4 @@ def test_inputandoutputmethods_HMandHGM():
     assert energy1 == energy3
     HGM.SetInput(input_signal_sine)
     energy4 = nlsp.common.helper_functions_private.calculateenergy_timedomain(HGM.GetOutput())
-    nlsp.plots.plot(HGM.GetOutput())
     assert energy2 == energy4

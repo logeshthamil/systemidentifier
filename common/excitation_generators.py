@@ -1,6 +1,6 @@
 import numpy
 import sumpf
-
+import math
 
 class Sinesweepgenerator_Novak(object):
     """
@@ -71,6 +71,7 @@ class Sinesweepgenerator_Novak(object):
         @param numberofsamples: number of samples of the reversed sine sweep signal
         @return:
         """
+        numpy.seterr(all='ignore')
         if numberofsamples is None:
             length = self.GetLength()
         else:
@@ -88,6 +89,7 @@ class Sinesweepgenerator_Novak(object):
         rev_sweep = numpy.fft.irfft(inverse_sweep)
         rev_sweep = sumpf.Signal(channels=(rev_sweep,), samplingrate=sampling_rate, labels=("Reversed Sweep signal",))
         rev_sweep = sumpf.modules.Multiply(value1=rev_sweep, value2=1.0 / self.GetAmplitudeRange()).GetResult()
+        numpy.seterr(all='warn')
         return rev_sweep
 
     @sumpf.Output(float)
@@ -213,6 +215,7 @@ class Cosinesweepgenerator_Novak(object):
         @param numberofsamples: number of samples of the reversed cosine sweep signal
         @return:
         """
+        numpy.seterr(all='ignore')
         if numberofsamples is None:
             length = self.GetLength()
         sampling_rate = self.GetOutput().GetSamplingRate()
@@ -220,13 +223,12 @@ class Cosinesweepgenerator_Novak(object):
         # fft_len = int(2**numpy.ceil(numpy.log2(length)))
         fft_len = int(length)
         interval = numpy.linspace(0, sampling_rate / 2, num=fft_len / 2 + 1)
-        inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(1j * (
-        2 * numpy.pi * sweep_parameter * interval * (
-        self.GetStartFrequency() / interval + numpy.log(interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
+        inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(1j * (2 * numpy.pi * sweep_parameter * interval * (self.GetStartFrequency() / interval + numpy.log(interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
         inverse_sweep[0] = 0j
         rev_sweep = numpy.fft.irfft(inverse_sweep)
         rev_sweep = sumpf.Signal(channels=(rev_sweep,), samplingrate=sampling_rate, labels=("Reversed Sweep signal",))
         rev_sweep = sumpf.modules.Multiply(value1=rev_sweep, value2=self.GetAmplitudeRange()).GetResult()
+        numpy.seterr(all='warn')
         return rev_sweep
 
     @sumpf.Output(float)

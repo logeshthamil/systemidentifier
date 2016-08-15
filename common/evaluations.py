@@ -77,12 +77,9 @@ class CompareWithReference(object):
                         observed = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[0]).GetOutput()
                         identified = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[1]).GetOutput()
                     reference = observed
-                    reference = nlsp.common.helper_functions_private.cut_spectrum(reference,
-                                                                                  self.__desired_frequency_range)
-                    identified = nlsp.common.helper_functions_private.cut_spectrum(identified,
-                                                                                   self.__desired_frequency_range)
                     noise = reference - identified
-                    div = sumpf.modules.Divide(value1=identified, value2=noise).GetResult()
+                    div = identified / noise
+                    div = nlsp.common.helper_functions_private.cut_spectrum(div, self.__desired_frequency_range)
                     div_energy = nlsp.common.helper_functions_private.calculateenergy_betweenfreq_freqdomain(div,
                                                                                                              self.__desired_frequency_range)
                     snr.append(10 * math.log10(div_energy[0]))
