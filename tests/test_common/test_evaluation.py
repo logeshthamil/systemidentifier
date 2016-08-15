@@ -19,7 +19,7 @@ def test_SER_multichannel():
     HGM.SetInput(combined_signal_2)
     output_2 = HGM.GetOutput()
     evaluation = nlsp.evaluations.CompareWithReference(output_1,output_2)
-    assert len(evaluation.GetSignaltoErrorRatio()) == 2
+    assert len(evaluation.GetSignaltoErrorRatio()[0]) == 2
 
 def test_SERvsfrequency_multichannel():
     """

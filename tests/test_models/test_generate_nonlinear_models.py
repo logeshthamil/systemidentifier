@@ -147,8 +147,11 @@ def test_HGM_withmultichannelinput():
     input_signal_1 = sumpf.modules.SweepGenerator(samplingrate=sampling_rate, length=length).GetSignal()
     input_signal_2 = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=length).GetSignal()
     combined_signal = sumpf.modules.MergeSignals(signals=[input_signal_1, input_signal_2]).GetOutput()
+    linear_kernels = nlsp.helper_functions.create_arrayof_bpfilter(branches=2, sampling_rate=sampling_rate)
+    linear_kernels = sumpf.modules.MergeSignals(signals=linear_kernels).GetOutput()
     HGM = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Power(i+1) for i in range(branches)],
-                                     aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
+                                     aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                     filter_impulseresponses=[linear_kernels,]*branches)
     HGM.SetInput(combined_signal)
     combined_output = HGM.GetOutput()
     HGM.SetInput(input_signal_1)
@@ -158,5 +161,5 @@ def test_HGM_withmultichannelinput():
     energy_1 = nlsp.common.helper_functions_private.calculateenergy_timedomain(output_1)
     energy_2 = nlsp.common.helper_functions_private.calculateenergy_timedomain(output_2)
     combined_energy = nlsp.common.helper_functions_private.calculateenergy_timedomain(combined_output)
-    assert energy_1 == combined_energy[0]
-    assert energy_2 == combined_energy[1]
+    assert energy_1[0] == combined_energy[0]
+    assert energy_2[1] == combined_energy[1]
