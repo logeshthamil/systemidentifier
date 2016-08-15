@@ -82,7 +82,7 @@ class CompareWithReference(object):
                     div = nlsp.common.helper_functions_private.cut_spectrum(div, self.__desired_frequency_range)
                     div_energy = nlsp.common.helper_functions_private.calculateenergy_betweenfreq_freqdomain(div,
                                                                                                              self.__desired_frequency_range)
-                    snr.append(10 * math.log10(div_energy[0]))
+                    snr.append([10 * math.log10(div_energy[i]) for i in range(len(div_energy))])
                 else:
                     print "The given arguments is not a sumpf.Signal or sumpf.Spectrum"
         except ZeroDivisionError:
@@ -122,11 +122,9 @@ class CompareWithReference(object):
                     observed = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[0]).GetOutput()
                     identified = sumpf.modules.SplitSpectrum(data=merged_spectrum, channels=[1]).GetOutput()
                 reference = observed
-                reference = nlsp.common.helper_functions_private.cut_spectrum(reference, self.__desired_frequency_range)
-                identified = nlsp.common.helper_functions_private.cut_spectrum(identified,
-                                                                               self.__desired_frequency_range)
                 noise = reference - identified
                 servsfreq = identified / noise
+                servsfreq = nlsp.common.helper_functions_private.cut_spectrum(servsfreq, self.__desired_frequency_range)
             else:
                 print "The given arguments is not a sumpf.Signal or sumpf.Spectrum"
         return servsfreq

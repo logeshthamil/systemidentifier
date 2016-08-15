@@ -160,5 +160,3 @@ def test_HGM_withmultichannelinput():
     combined_energy = nlsp.common.helper_functions_private.calculateenergy_timedomain(combined_output)
     assert energy_1 == combined_energy[0]
     assert energy_2 == combined_energy[1]
-
-
