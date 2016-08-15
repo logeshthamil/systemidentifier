@@ -30,16 +30,14 @@ class Adaptive(SystemIdentification):
         else:
             self.__system_excitation = system_excitation
         self.multichannel_algorithm = multichannel_algorithm
-        self.__nonlinear_functions = []
         self._select_branches = select_branches
-        for branch in self._select_branches:
-            nonlinear_func = nonlinear_function(degree=branch)
-            self.__nonlinear_functions.append(nonlinear_func)
+        self.__nlfunction = nonlinear_function
         self.__initial_coefficients = initial_coefficients
         self.__filter_length = filter_length
         self.__iterations = iterations
         self.__step_size = step_size
         self.__input_model = nlsp.HammersteinGroupModel
+        self._aliasing_compensation = aliasing_compensation
         SystemIdentification.__init__(self, system_response=system_response, select_branches=select_branches,
                                       aliasing_compensation=aliasing_compensation, excitation_length=excitation_length,
                                       excitation_sampling_rate=excitation_sampling_rate)
@@ -59,18 +57,16 @@ class Adaptive(SystemIdentification):
         Get the identified filter impulse responses.
         @return: the filter impulse responses
         """
-        input = self.GetExcitation()
+        input_ex = self.GetExcitation()
         outputs = self._system_response
-        aliasing_compensation = self._aliasing_compensation.CreateModified()
-        nonlinear_functions = [i.CreateModified() for i in self._nonlinear_functions]
-
-        impulse = sumpf.modules.ImpulseGenerator(samplingrate=outputs.GetSamplingRate(), length=len(input)).GetSignal()
+        nonlinear_functions = [self.__nlfunction(degree=i) for i in self._select_branches]
         input_signal = []
         for nonlinear_function in nonlinear_functions:
-            aliasing_comp = copy.deepcopy(aliasing_compensation)
-            model = nlsp.HammersteinModel(input_signal=input, nonlinear_function=nonlinear_function,
-                                          filter_impulseresponse=impulse,
-                                          aliasing_compensation=aliasing_comp)
+            aliasing_compensation = self._aliasing_compensation.CreateModified()
+            model = nlsp.HammersteinModel(nonlinear_function=nonlinear_function,
+                                          aliasing_compensation=aliasing_compensation,
+                                          downsampling_position=self._downsampling_position)
+            model.SetInput(input_ex)
             input_signal.append(model.GetOutput().GetChannels()[0])
         desired_signal = outputs.GetChannels()[0]
         if self.__initial_coefficients is None:
@@ -95,4 +91,8 @@ class Adaptive(SystemIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return self._nonlinear_functions
+        nonlinear_functions = []
+        for branch in self._select_branches:
+            nonlinear_func = self.__nlfunction(degree=branch)
+            nonlinear_functions.append(nonlinear_func)
+        return nonlinear_functions

@@ -1,6 +1,9 @@
 import nlsp
 
 def test_identify_an_HGM_Cosinesweep():
+    """
+    Test the accuracy of the Sweep based system identification using cosine sweep signal.
+    """
     branches = 2
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     linear_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000.0)
@@ -25,6 +28,9 @@ def test_identify_an_HGM_Cosinesweep():
     assert evaluation.GetSignaltoErrorRatio()[0] >= 100
 
 def test_identify_an_HGM_Sinesweep():
+    """
+    Test the accuracy of sweep based system identification using sine sweep signal.
+    """
     sampling_rate = 48000
     branches = 2
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
