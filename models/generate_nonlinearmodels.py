@@ -128,7 +128,6 @@ class HammersteinGroupModel(object):
                               filter_impulseresponses=filter_impulseresponses,
                               aliasing_compensation=aliasing_compensation, downsampling_position=downsampling_position)
 
-
 class HammersteinModel(object):
     """
     A class to construct a Hammerstein model.
@@ -145,7 +144,6 @@ class HammersteinModel(object):
         :param aliasing_compensation: the aliasing compensation technique
         :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
         """
-        self.__ir = filter_impulseresponse
         if input_signal is None:
             self.__input_signal = sumpf.Signal()
         else:
@@ -154,7 +152,7 @@ class HammersteinModel(object):
             self.__filterir = sumpf.modules.ImpulseGenerator(samplingrate=self.__input_signal.GetSamplingRate(),
                                                              length=2 ** 8).GetSignal()
         else:
-            self.__filterir = self.__ir
+            self.__filterir = filter_impulseresponse
         if nonlinear_function is None:
             self.__nonlin_function = nlsp.nonlinear_functions.Power(degree=1)
         else:
@@ -180,12 +178,11 @@ class HammersteinModel(object):
         self.__splitsignal = sumpf.modules.SplitSignal(channels=[0])
         self.__splitfilter = sumpf.modules.SplitSignal(channels=[1])
         self.__attenuator = sumpf.modules.Multiply()
-
-        self._ConnectHGM()
+        self._ConnectHM()
         self.SetInput = self.__passsignal.SetSignal
         self.GetOutput = self.__passoutput.GetSignal
 
-    def _ConnectHGM(self):
+    def _ConnectHM(self):
         if self._downsampling_position == 1:
             sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
             sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)

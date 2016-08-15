@@ -22,14 +22,13 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
     A class which identifies a model of a system using a
     """
 
-    def _get_K_matrix(self, input_signal):
+    def __get_K_matrix(self, input_signal):
         """
         Find the k matrix for the input signal
         :param input: the input signal
         :param total_branches: the total number of branches
         :return: the k matrix
         """
-        input = input_signal
         total_branches = max(self._select_branches)
         row_array = range(0, total_branches)
         column_array = range(0, total_branches)
@@ -38,11 +37,12 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
             n = n + 1
             m = m + 1
             k_matrix[0][0] = 1.000
+            k = None
             if n < m:
                 k = 0
                 for i in range(n, m):
-                    num = nlsp.nonlinear_function.Power(degree=i + m, input_signal=input)
-                    den = nlsp.nonlinear_function.Power(degree=2 * i, input_signal=input)
+                    num = nlsp.nonlinear_function.Power(degree=i + m, input_signal=input_signal)
+                    den = nlsp.nonlinear_function.Power(degree=2 * i, input_signal=input_signal)
                     num = num.GetOutput()
                     den = den.GetOutput()
                     num = round(sumpf.modules.SignalMean(num).GetMean()[0], 3)
@@ -65,22 +65,21 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
         :param total_branches: the total number of branches
         :return: the decorrelated signal, the k matrix and the mu matrix
         """
-        input = input_signal
         total_branches = max(self._select_branches)
-        k_matrix = self._get_K_matrix(input_signal=input_signal)
+        k_matrix = self.__get_K_matrix(input_signal=input_signal)
         mu_matrix = []
         signal_matrix = []
-        dummy = sumpf.modules.ConstantSignalGenerator(value=0.0, samplingrate=input.GetSamplingRate(),
-                                                      length=len(input)).GetSignal()
+        dummy = sumpf.modules.ConstantSignalGenerator(value=0.0, samplingrate=input_signal.GetSamplingRate(),
+                                                      length=len(input_signal)).GetSignal()
         signal_powers = []
         for i in range(1, total_branches + 1, 1):
-            power = nlsp.nonlinear_function.Power(input_signal=input, degree=i)
+            power = nlsp.nonlinear_function.Power(input_signal=input_signal, degree=i)
             signal_powers.append(power.GetOutput())
         signal_powers_k = []
         k_matrix_t = numpy.transpose(k_matrix)
         for i in range(0, total_branches):
-            dummy_sig = sumpf.modules.ConstantSignalGenerator(value=0.0, samplingrate=input.GetSamplingRate(),
-                                                              length=len(input)).GetSignal()
+            dummy_sig = sumpf.modules.ConstantSignalGenerator(value=0.0, samplingrate=input_signal.GetSamplingRate(),
+                                                              length=len(input_signal)).GetSignal()
             for sig, k in zip(signal_powers, k_matrix_t[i]):
                 sig = sig * k
                 dummy_sig = sig + dummy_sig
@@ -88,7 +87,7 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
         for i in range(0, total_branches):
             core = signal_powers_k[i]
             if i % 2 == 0:
-                power = nlsp.nonlinear_function.Power(input, i)
+                power = nlsp.nonlinear_function.Power(input_signal=input_signal, degree=i)
                 mu = sumpf.modules.SignalMean(signal=power.GetOutput()).GetMean()
                 mu = sumpf.modules.ConstantSignalGenerator(value=float(mu[0]), samplingrate=core.GetSamplingRate(),
                                                            length=len(core)).GetSignal()
@@ -143,4 +142,5 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
         Get the nonlinear functions.
         @return: the nonlinear functions
         """
-        return [nlsp.nonlinear_function.Power(i + 1) for i in self._select_branches]
+        branches = max(self._select_branches)
+        return [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
