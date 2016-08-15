@@ -1,6 +1,6 @@
 import numpy
 import sumpf
-import math
+import nlsp
 
 class Sinesweepgenerator_Novak(object):
     """
@@ -58,11 +58,11 @@ class Sinesweepgenerator_Novak(object):
         if self.__fade_out > 0:
             s[-self.__fade_out:] = s[-self.__fade_out:] * (
                 (numpy.cos(numpy.arange(self.__fade_out) / self.__fade_out * numpy.pi) + 1) / 2)
-        signal = sumpf.Signal(channels=(s,), samplingrate=self.__sampling_rate, labels=("Sweep signal",))
-        if len(signal) % 2 != 0:
-            signal = sumpf.modules.CutSignal(signal, start=0, stop=-1).GetOutput()
-        signal = self.GetAmplitudeRange() * signal
-        return signal
+        ip_signal = sumpf.Signal(channels=(s,), samplingrate=self.__sampling_rate, labels=("Sweep signal",))
+        if len(ip_signal) % 2 != 0:
+            ip_signal = sumpf.modules.CutSignal(ip_signal, start=0, stop=-1).GetOutput()
+        ip_signal = self.GetAmplitudeRange() * ip_signal
+        return ip_signal
 
     @sumpf.Output(sumpf.Signal)
     def GetReversedOutput(self, numberofsamples=None):
@@ -202,11 +202,11 @@ class Cosinesweepgenerator_Novak(object):
         if self.__fade_out > 0:
             s[-self.__fade_out:] = s[-self.__fade_out:] * (
                 (numpy.cos(numpy.arange(self.__fade_out) / self.__fade_out * numpy.pi) + 1) / 2)
-        signal = sumpf.Signal(channels=(s,), samplingrate=self.__sampling_rate, labels=("Sweep signal",))
-        if len(signal) % 2 != 0:
-            signal = sumpf.modules.CutSignal(signal, start=0, stop=-1).GetOutput()
-        signal = sumpf.modules.Multiply(value1=signal, value2=self.GetAmplitudeRange()).GetResult()
-        return signal
+        ip_signal = sumpf.Signal(channels=(s,), samplingrate=self.__sampling_rate, labels=("Sweep signal",))
+        if len(ip_signal) % 2 != 0:
+            ip_signal = sumpf.modules.CutSignal(ip_signal, start=0, stop=-1).GetOutput()
+        ip_signal = sumpf.modules.Multiply(value1=ip_signal, value2=self.GetAmplitudeRange()).GetResult()
+        return ip_signal
 
     @sumpf.Output(sumpf.Signal)
     def GetReversedOutput(self, numberofsamples=None):

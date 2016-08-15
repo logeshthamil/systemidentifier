@@ -1,3 +1,4 @@
+import sumpf
 import nlsp
 
 def test_identify_an_HGM_Cosinesweep():
@@ -53,3 +54,55 @@ def test_identify_an_HGM_Sinesweep():
     ref_nlsystem.SetInput(exc.GetOutput())
     evaluation = nlsp.evaluations.CompareWithReference(ref_nlsystem.GetOutput(), model_black_box.GetOutput())
     assert evaluation.GetSignaltoErrorRatio()[0] >= 100
+
+def test_sinesweep_using_different_branch_numbers():
+    """
+    Test the Powerseries sweep based system identification using different branch numbers.
+    """
+    sampling_rate = 48000
+    branches = 5
+    select_branches = range(1,branches+1,2)
+    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    ref_nlsystem = sumpf.modules.ClipSignal(thresholds=(-0.9, 0.9))
+    system_identification = nlsp.system_identification.SineSweep(select_branches=select_branches,
+                                                                 aliasing_compensation=aliasing_compensation,
+                                                                 excitation_length=2**14,
+                                                                 excitation_sampling_rate=sampling_rate)
+    excitation = system_identification.GetExcitation()
+    ref_nlsystem.SetInput(excitation)
+    system_identification.SetResponse(ref_nlsystem.GetOutput())
+    model_black_box = system_identification.GetOutputModel()
+    exc = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=2**14).GetSignal()
+    assert len(system_identification._GetNonlinerFunctions()) == len(system_identification._GetFilterImpuleResponses()) \
+           == len(select_branches)
+    model_black_box.SetInput(exc)
+    ref_nlsystem.SetInput(exc)
+    evaluation = nlsp.evaluations.CompareWithReference(ref_nlsystem.GetOutput(), model_black_box.GetOutput())
+    ser = evaluation.GetSignaltoErrorRatio()
+    assert ser >= 40
+
+def test_cosinesweep_using_different_branch_numbers():
+    """
+    Test the Chebyshev sweep based system identification using different branch numbers.
+    """
+    sampling_rate = 48000
+    branches = 5
+    select_branches = range(1,branches+1,2)
+    aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+    ref_nlsystem = sumpf.modules.ClipSignal(thresholds=(-0.9, 0.9))
+    system_identification = nlsp.system_identification.CosineSweep(select_branches=select_branches,
+                                                                 aliasing_compensation=aliasing_compensation,
+                                                                 excitation_length=2**14,
+                                                                 excitation_sampling_rate=sampling_rate)
+    excitation = system_identification.GetExcitation()
+    ref_nlsystem.SetInput(excitation)
+    system_identification.SetResponse(ref_nlsystem.GetOutput())
+    model_black_box = system_identification.GetOutputModel()
+    exc = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=2**14).GetSignal()
+    assert len(system_identification._GetNonlinerFunctions()) == len(system_identification._GetFilterImpuleResponses()) \
+           == len(select_branches)
+    model_black_box.SetInput(exc)
+    ref_nlsystem.SetInput(exc)
+    evaluation = nlsp.evaluations.CompareWithReference(ref_nlsystem.GetOutput(), model_black_box.GetOutput())
+    ser = evaluation.GetSignaltoErrorRatio()
+    assert ser >= 40

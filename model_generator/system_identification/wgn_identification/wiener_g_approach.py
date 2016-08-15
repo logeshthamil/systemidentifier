@@ -23,10 +23,7 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
                                                            length=len(cross_corr)).GetSignal()
             k = cross_corr * factor
             kernels.append(k)
-        filter_kernels = []
-        for branch in self._select_branches:
-            filter_kernels.append(kernels[branch - 1])
-        return filter_kernels
+        return kernels
 
     def _GetNonlinerFunctions(self):
         """
