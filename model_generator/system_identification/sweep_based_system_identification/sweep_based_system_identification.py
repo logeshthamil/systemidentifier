@@ -47,9 +47,12 @@ class SineSweep(SystemIdentification):
                                             labels=split_harm.GetLabels()))
         ir_merger = ir_merger.GetOutput()
         tf_harmonics_all = sumpf.modules.FourierTransform(ir_merger).GetSpectrum()
+        n = len(tf_harmonics_all.GetChannels()) // branches
+        items = range(len(tf_harmonics_all.GetChannels()))
+        clubbed = [a for a in zip(*[iter(items)]*n)]
         harmonics_tf = []
-        for i in range(len(tf_harmonics_all.GetChannels())):
-            tf_harmonics = sumpf.modules.SplitSpectrum(data=tf_harmonics_all, channels=[i]).GetOutput()
+        for clubb in clubbed:
+            tf_harmonics = sumpf.modules.SplitSpectrum(data=tf_harmonics_all, channels=clubb).GetOutput()
             harmonics_tf.append(tf_harmonics)
         A_matrix = numpy.zeros((branches, branches), dtype=numpy.complex128)
         for n in range(0, branches):
@@ -130,9 +133,12 @@ class CosineSweep(SystemIdentification):
                                             samplingrate=ir_sweep.GetSamplingRate(),
                                             labels=split_harm.GetLabels()))
         ir_merger = ir_merger.GetOutput()
+        n = len(ir_merger.GetChannels()) // branches
+        items = range(len(ir_merger.GetChannels()))
+        clubbed = [a for a in zip(*[iter(items)]*n)]
         ir_harmonics = []
-        for i in range(len(ir_merger.GetChannels())):
-            ir_harmonics.append(sumpf.modules.SplitSignal(data=ir_merger, channels=[i]).GetOutput())
+        for clubb in clubbed:
+            ir_harmonics.append(sumpf.modules.SplitSignal(data=ir_merger, channels=clubb).GetOutput())
         filter_kernels = []
         for branch in self._select_branches:
             filter_kernels.append(ir_harmonics[branch - 1])

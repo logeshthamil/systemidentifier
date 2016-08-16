@@ -106,3 +106,65 @@ def test_cosinesweep_using_different_branch_numbers():
     evaluation = nlsp.evaluations.CompareWithReference(ref_nlsystem.GetOutput(), model_black_box.GetOutput())
     ser = evaluation.GetSignaltoErrorRatio()
     assert ser >= 40
+
+def test_sinesweep_multichannel_identification():
+    """
+    Test the accuracy of sweep based system identification using sine sweep signal for multichannel systems.
+    """
+    sampling_rate = 48000
+    branches = 2
+
+    def blackbox(input_signal):
+        input_signal = sumpf.modules.MergeSignals(signals=[input_signal,input_signal]).GetOutput()
+        aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+        nonlinear_functions = [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
+        filter_spec_tofind = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=sampling_rate)
+        ref_nlsystem = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
+                                                  filter_impulseresponses=filter_spec_tofind,
+                                                  aliasing_compensation=aliasing_compensation)
+        ref_nlsystem.SetInput(input_signal)
+        return ref_nlsystem.GetOutput()
+    system_identification = nlsp.system_identification.SineSweep(select_branches=range(1,branches+1),
+                                                                 aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                                                 excitation_length=2**16)
+    excitation = system_identification.GetExcitation()
+    response = blackbox(excitation)
+    system_identification.SetResponse(response)
+    model_black_box = system_identification.GetOutputModel()
+    exc = nlsp.excitation_generators.Sinesweepgenerator_Novak(sampling_rate=48000.0,
+                                                              approximate_numberofsamples=2**16)
+    model_black_box.SetInput(exc.GetOutput())
+    ref_output = blackbox(exc.GetOutput())
+    evaluation = nlsp.evaluations.CompareWithReference(ref_output, model_black_box.GetOutput())
+    assert evaluation.GetSignaltoErrorRatio()[0][0] == evaluation.GetSignaltoErrorRatio()[0][1]
+
+def test_cosinesweep_multichannel_identification():
+    """
+    Test the accuracy of sweep based system identification using cosine sweep signal for multichannel systems.
+    """
+    sampling_rate = 48000
+    branches = 2
+
+    def blackbox(input_signal):
+        input_signal = sumpf.modules.MergeSignals(signals=[input_signal,input_signal]).GetOutput()
+        aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
+        nonlinear_functions = [nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)]
+        filter_spec_tofind = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=sampling_rate)
+        ref_nlsystem = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
+                                                  filter_impulseresponses=filter_spec_tofind,
+                                                  aliasing_compensation=aliasing_compensation)
+        ref_nlsystem.SetInput(input_signal)
+        return ref_nlsystem.GetOutput()
+    system_identification = nlsp.system_identification.CosineSweep(select_branches=range(1,branches+1),
+                                                                 aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                                                 excitation_length=2**16)
+    excitation = system_identification.GetExcitation()
+    response = blackbox(excitation)
+    system_identification.SetResponse(response)
+    model_black_box = system_identification.GetOutputModel()
+    exc = nlsp.excitation_generators.Sinesweepgenerator_Novak(sampling_rate=48000.0,
+                                                              approximate_numberofsamples=2**16)
+    model_black_box.SetInput(exc.GetOutput())
+    ref_output = blackbox(exc.GetOutput())
+    evaluation = nlsp.evaluations.CompareWithReference(ref_output, model_black_box.GetOutput())
+    assert evaluation.GetSignaltoErrorRatio()[0][0] == evaluation.GetSignaltoErrorRatio()[0][1]

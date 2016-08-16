@@ -3,6 +3,9 @@ import math
 
 
 class FindHarmonicImpulseResponse_NovakSweep(object):
+    """
+    Find the impulse response of the harmonics from the total impulse response measured using Novak's sweep signal.
+    """
     def __init__(self,
                  impulse_response=None,
                  harmonic_order=2,
@@ -21,16 +24,29 @@ class FindHarmonicImpulseResponse_NovakSweep(object):
 
     @sumpf.Input(sumpf.Signal, "GetHarmonicImpulseResponse")
     def SetImpulseResponse(self, impulse_response):
+        """
+        Set the impulse response of a system to find its harmonic impulse responses
+        @param impulse_response: the impulse response
+        """
         self.__impulse_response = impulse_response
 
     @sumpf.Input(int, "GetHarmonicImpulseResponse")
     def SetHarmonicOrder(self, order):
+        """
+        Set the order of the harmonics to find its impulse response.
+        @param order: the harmonic order
+        @return:
+        """
         if order < 2:
             raise ValueError("The harmonic order has to be at least 2.")
         self.__harmonic_order = order
 
     @sumpf.Output(sumpf.Signal)
     def GetHarmonicImpulseResponse(self):
+        """
+        Get the harmonic impuse response.
+        @return: the harmonic impulse response
+        """
         # stable
         sweep_rate = self.__sweep_generator.GetSweepExcitationRate()
         harmonic_start_time = self.__sweep_duration - (math.log(self.__harmonic_order) * sweep_rate)
