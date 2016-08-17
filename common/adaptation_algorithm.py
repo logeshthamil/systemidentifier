@@ -75,7 +75,7 @@ class FIRAdaptationAlgorithm(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
-class MISO_NLMS_multichannel_algorithm(FIRAdaptationAlgorithm):
+class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     """
     A class where the MISO NLMS algorithm is implemented. If the input signals have multiple channels then filter kernels
     for multiple filters are found, else filter kernel of single filter is found.
@@ -142,7 +142,7 @@ class MISO_NLMS_multichannel_algorithm(FIRAdaptationAlgorithm):
             W = sumpf.Signal(channels=w, samplingrate=self._input_signal.GetSamplingRate(), labels=("Identified filters",))
         return W
 
-class SISO_NLMS_multichannel_algorithm(FIRAdaptationAlgorithm):
+class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     """
     A class where the SISO NLMS algorithm is implemented. If the input signals have multiple channels then filter kernels
     for multiple filters are found, else filter kernel of single filter is found.
@@ -170,32 +170,34 @@ class SISO_NLMS_multichannel_algorithm(FIRAdaptationAlgorithm):
         Get the identified filter kernel by the adaptation algorithm. This should be overriden by the base classes.
         @return: the identified filter kernel
         """
-        d = self._desired_output
+        d = self._desired_output.GetChannels()[0]
         M = self._filter_length
-        channels = len(self._input_signal.GetChannels())
-        N = len(self._input_signal) - M + 1
-        if self.__initial_coeff is None:
-            self.__initial_coeff = sumpf.Signal(channels=numpy.zeros((channels, M)),samplingrate=d.GetSamplingRate(),labels=("",))
-        else:
-            self.__initial_coeff = self.__initial_coeff
-        init = self.__initial_coeff.GetChannels()
-        leakstep = (1 - self._step_size * self._leakage)
+        input_signals_array = self._input_signal.GetChannels()
+        channels = len(input_signals_array)
+        initCoeffs = self._initial_coeff
+        step_size = self._step_size
+        leak = self._leakage
+        eps = self.__epsilon
         W = []
+        if initCoeffs is None:
+            init = numpy.zeros((channels, M))
+        else:
+            init = initCoeffs
+        leakstep = (1 - step_size * leak)
+
         for channel in range(channels):
-            u = sumpf.modules.SplitSignal(data=self._input_signal, channels=[channel]).GetOutput()
-            if N is None:
-                N = len(u) - M + 1
+            u = input_signals_array[channel]
+            N = len(u) - M + 1
             w = init[channel]  # Initial coefficients
             y = numpy.zeros((channels, N))  # Filter output
             e = numpy.zeros((channels, N))  # Error signal
-            x = None
             for n in xrange(N):
                 x = numpy.flipud(u[n:n + M])  # Slice to get view of M latest datapoints
                 y[channel][n] = numpy.dot(x, w)
                 e[channel][n] = d[n + M - 1] - y[channel][n]
 
-                normFactor = 1. / (numpy.dot(x, x) + self.__epsilon)
-                w = leakstep * w + self._step_size * normFactor * x * e[channel][n]
+                normFactor = 1. / (numpy.dot(x, x) + eps)
+                w = leakstep * w + step_size * normFactor * x * e[channel][n]
             d = d - numpy.dot(x, w)
             W.append(w)
-        return sumpf.modules.MergeSignals(signals=W).GetOutput()
+        return sumpf.Signal(channels=W, samplingrate=self._input_signal.GetSamplingRate(), labels=("Identified filters",))
