@@ -116,7 +116,7 @@ class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
         if initCoeffs is None:
             init = numpy.zeros((channels, M))
         else:
-            init = initCoeffs
+            init = initCoeffs.GetChannels()
         leakstep = (1 - step_size * leak)
         u = []  # input signal array
         w = []  # filter coefficients array
@@ -182,7 +182,7 @@ class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
         if initCoeffs is None:
             init = numpy.zeros((channels, M))
         else:
-            init = initCoeffs
+            init = initCoeffs.GetChannels()
         leakstep = (1 - step_size * leak)
 
         for channel in range(channels):

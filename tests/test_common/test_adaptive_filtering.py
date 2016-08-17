@@ -2,10 +2,13 @@ import sumpf
 import nlsp
 
 def test_MISO_NLMS_algorithm():
+    """
+    Test the MISO_NLMS_algorithm class by identifying a HGM.
+    """
     sampling_rate = 48000
     length = 2**15
     branches = 2
-    input_signal = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=length).GetSignal()
+    input_signal = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=length, seed="signal").GetSignal()
     linear_kernels = nlsp.helper_functions.create_arrayof_bpfilter(sampling_rate=sampling_rate, branches=branches)
     nl_functions_1 = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
     nl_functions_2 = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
@@ -30,14 +33,17 @@ def test_MISO_NLMS_algorithm():
                                                   aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     identified_model.SetInput(input_signal=input_signal)
     evaluation = nlsp.evaluations.CompareWithReference(reference_signal=nl_system.GetOutput(), signal_to_be_evaluated=identified_model.GetOutput())
-    assert evaluation.GetSignaltoErrorRatio()[0][0] > 65
+    assert evaluation.GetSignaltoErrorRatio()[0][0] > 85
 
 
 def test_SISO_NLMS_algorithm():
+    """
+    Test the SISO_NLMS_algorithm class by identifying a HGM.
+    """
     sampling_rate = 48000
     length = 2**15
     branches = 2
-    input_signal = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=length).GetSignal()
+    input_signal = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=length, seed="signal").GetSignal()
     linear_kernels = nlsp.helper_functions.create_arrayof_bpfilter(sampling_rate=sampling_rate, branches=branches)
     nl_functions_1 = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
     nl_functions_2 = [nlsp.nonlinear_function.Power(i+1) for i in range(branches)]
@@ -62,7 +68,4 @@ def test_SISO_NLMS_algorithm():
                                                   aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     identified_model.SetInput(input_signal=input_signal)
     evaluation = nlsp.evaluations.CompareWithReference(reference_signal=nl_system.GetOutput(), signal_to_be_evaluated=identified_model.GetOutput())
-    print evaluation.GetSignaltoErrorRatio()
     assert evaluation.GetSignaltoErrorRatio()[0][0] > 60
-
-test_SISO_NLMS_algorithm()

@@ -5,5 +5,4 @@ import helper_functions
 
 import math_operations as math
 from find_harmonics import FindHarmonicImpulseResponse_NovakSweep
-from multichannel_adaptive_filtering import miso_nlms_multichannel, siso_nlms_multichannel
 from adaptation_algorithm import MISO_NLMS_algorithm, SISO_NLMS_algorithm

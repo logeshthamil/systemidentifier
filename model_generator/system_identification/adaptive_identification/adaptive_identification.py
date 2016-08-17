@@ -4,17 +4,14 @@ import copy
 import sumpf
 import nlsp
 
-
 class Adaptive(SystemIdentification):
     """
     A class to identify a nonlinear system using adaptation algorithm.
     """
 
     def __init__(self, system_excitation=None, system_response=None, select_branches=None,
-                 multichannel_algorithm=nlsp.common.miso_nlms_multichannel,
-                 filter_length=2 ** 10, initial_coefficients=None, nonlinear_function=nlsp.nonlinear_function.Power,
-                 excitation_length=2 ** 16, excitation_sampling_rate=None, aliasing_compensation=None, iterations=1,
-                 step_size=0.1):
+                 multichannel_algorithm=None, nonlinear_function=nlsp.nonlinear_function.Power,
+                 excitation_length=2 ** 16, excitation_sampling_rate=None, aliasing_compensation=None):
         """
         @param system_excitation: the excitation of the nonlinear system
         @param system_response: the response of the nonlinear system
@@ -29,13 +26,12 @@ class Adaptive(SystemIdentification):
             self.__system_excitation = sumpf.Signal()
         else:
             self.__system_excitation = system_excitation
-        self.multichannel_algorithm = multichannel_algorithm
+        if multichannel_algorithm is None:
+            self.multichannel_algorithm = nlsp.MISO_NLMS_algorithm()
+        else:
+            self.multichannel_algorithm = multichannel_algorithm
         self._select_branches = select_branches
         self.__nlfunction = nonlinear_function
-        self.__initial_coefficients = initial_coefficients
-        self.__filter_length = filter_length
-        self.__iterations = iterations
-        self.__step_size = step_size
         self.__input_model = nlsp.HammersteinGroupModel
         self._aliasing_compensation = aliasing_compensation
         SystemIdentification.__init__(self, system_response=system_response, select_branches=select_branches,
@@ -58,32 +54,21 @@ class Adaptive(SystemIdentification):
         @return: the filter impulse responses
         """
         input_ex = self.GetExcitation()
-        outputs = self._system_response
         nonlinear_functions = [self.__nlfunction(degree=i) for i in self._select_branches]
-        input_signal = []
+        input_signal = sumpf.modules.MergeSignals()
         for nonlinear_function in nonlinear_functions:
             aliasing_compensation = self._aliasing_compensation.CreateModified()
             model = nlsp.HammersteinModel(nonlinear_function=nonlinear_function,
                                           aliasing_compensation=aliasing_compensation,
                                           downsampling_position=self._downsampling_position)
             model.SetInput(input_ex)
-            input_signal.append(model.GetOutput().GetChannels()[0])
-        desired_signal = outputs.GetChannels()[0]
-        if self.__initial_coefficients is None:
-            w = numpy.zeros((len(input_signal), self.__filter_length))
-        else:
-            w = []
-            for k in self.__initial_coefficients:
-                w.append(numpy.asarray(k.GetChannels()[0]))
-        kernel = []
-        for i in range(self.__iterations):
-            w = self.multichannel_algorithm(input_signals_array=input_signal, desired_output=desired_signal,
-                                            filter_length=self.__filter_length,
-                                            step_size=self.__step_size, initCoeffs=w)
-            kernel = []
-            for k in w:
-                iden_filter = sumpf.Signal(channels=(k,), samplingrate=outputs.GetSamplingRate(), labels=("filter",))
-                kernel.append(iden_filter)
+            input_signal.AddInput(model.GetOutput())
+        input_signal = input_signal.GetOutput()
+        desired_signal = self._system_response
+        self.multichannel_algorithm.SetInput(input_signal=input_signal)
+        self.multichannel_algorithm.SetDesiredOutput(desired_output=desired_signal)
+        w = self.multichannel_algorithm.GetFilterKernel()
+        kernel = [sumpf.modules.SplitSignal(data=w, channels=[i]).GetOutput() for i in range(len(w.GetChannels()))]
         return kernel
 
     def _GetNonlinerFunctions(self):
