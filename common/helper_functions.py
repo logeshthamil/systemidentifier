@@ -13,6 +13,8 @@ def create_arrayof_bpfilter(start_frequency=20.0, stop_frequency=20000.0, branch
     """
     if filter_length is None:
         filter_length = 2**10
+    if sampling_rate is None:
+        sampling_rate = 48000
     ip_prp = sumpf.modules.ChannelDataProperties()
     ip_prp.SetSamplingRate(sampling_rate)
     ip_prp.SetSignalLength(filter_length)
