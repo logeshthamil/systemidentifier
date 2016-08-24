@@ -7,7 +7,7 @@ class AnalyzeModels(object):
         """
         @param model: the instance of the nonlinear model
         """
-        pass
+        self.__input_model = model
 
     def SetModel(self):
         """

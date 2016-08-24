@@ -13,7 +13,6 @@ class CompareWithReference(object):
         """
         @param reference_signal: the reference signal and it should be of datatype sumpf.Signal()
         @param signal_to_be_evaluated: the signal which has to be evaluated and it should be of datatype sumpf.Signal()
-        @return:
         """
         if reference_signal is None:
             self.__reference_output = sumpf.Signal()

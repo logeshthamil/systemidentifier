@@ -10,11 +10,17 @@ class SineSweep(SystemIdentification):
     """
 
     @sumpf.Output(sumpf.Signal)
-    def GetExcitation(self):
+    def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
+        @param excitation_length: the length of the excitation signal
+        @param excitation_sampling_rate: the sampling rate of the excitation signal
         @return: the excitation signal
         """
+        if excitation_length is not None:
+            self._length = excitation_length
+        if excitation_sampling_rate is not None:
+            self._sampling_rate = excitation_sampling_rate
         self.__excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
                 sampling_rate=self._sampling_rate,
                 approximate_numberofsamples=self._length)
@@ -97,11 +103,17 @@ class CosineSweep(SystemIdentification):
     A class which identifies a model of the system using a cosine sweep signal.
     """
 
-    def GetExcitation(self):
+    def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
+        @param excitation_length: the length of the excitation signal
+        @param excitation_sampling_rate: the sampling rate of the excitation signal
         @return: the excitation signal
         """
+        if excitation_length is not None:
+            self._length = excitation_length
+        if excitation_sampling_rate is not None:
+            self._sampling_rate = excitation_sampling_rate
         self.__excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
                 sampling_rate=self._sampling_rate,
                 approximate_numberofsamples=self._length)

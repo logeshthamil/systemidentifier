@@ -38,11 +38,17 @@ class Adaptive(SystemIdentification):
                                       aliasing_compensation=aliasing_compensation, excitation_length=excitation_length,
                                       excitation_sampling_rate=excitation_sampling_rate)
 
-    def GetExcitation(self):
+    def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
+        @param excitation_length: the length of the excitation signal
+        @param excitation_sampling_rate: the sampling rate of the excitation signal
         @return: the excitation signal
         """
+        if excitation_length is not None:
+            self._length = excitation_length
+        if excitation_sampling_rate is not None:
+            self._sampling_rate = excitation_sampling_rate
         self._excitation_generator = sumpf.modules.NoiseGenerator(
                 distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
                 samplingrate=self._sampling_rate, length=self._length, seed="seed")
