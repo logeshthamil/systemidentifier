@@ -1,4 +1,5 @@
 import sumpf
+import nlsp
 import numpy
 import mpmath
 
@@ -36,6 +37,87 @@ class NonlinearBlock(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
+class ClippingNonlinearBlock(NonlinearBlock):
+    """
+    A base class to create nonlinear block by clipping signals.
+    """
+
+    def __init__(self, input_signal=None, clipping_threshold=None):
+        """
+        @param input_signal: the input signal
+        @param clipping_threshold: the clipping threshold
+        """
+        NonlinearBlock.__init__(self, input_signal=input_signal)
+        if clipping_threshold is None:
+            self._clipping_threshold = [-1.0,1.0]
+        else:
+            self._clipping_threshold = clipping_threshold
+
+    @sumpf.Input(data_type=tuple, observers=["GetMaximumHarmonics"])
+    def SetClippingThreshold(self, clipping_threshold=None):
+        """
+        Set the clipping threshold of the clipping nonlinear block.
+        @param degree: the degree (should be integer value)
+        """
+        self._clipping_threshold = clipping_threshold
+
+    @sumpf.Output(data_type=int)
+    def GetMaximumHarmonics(self):
+        """
+        Get the maximum harmonics introduced by the clipping nonlinear block.
+        @return: the maximum harmonics
+        """
+        harmonics = 1
+        return harmonics
+
+    def CreateModified(self, input_signal=None, clipping_threshold=None):
+        """
+        Create a new instance of the class with or without modified parameters.
+        @param signal: the input signal
+        @param clipping_threshold: the clipping threshold
+        @return:
+        """
+        if input_signal is None:
+            input_signal = self._input_signal
+        if clipping_threshold is None:
+            clipping_threshold = self._clipping_threshold
+        return self.__class__(input_signal=input_signal, clipping_threshold=clipping_threshold)
+
+class HardClip(ClippingNonlinearBlock):
+    """
+    A class to create a nonlinear block using hard clipper.
+    """
+    @sumpf.Output(data_type=sumpf.Signal)
+    def GetOutput(self):
+        """
+        Get the output of the nonlinear block using hard clipper.
+        @return: the output signal
+        """
+        nl_function = hard_clip(thresholds=self._clipping_threshold)
+        new_channels = []
+        for c in self._input_signal.GetChannels():
+            self.__dummy = c
+            new_channels.append(tuple(nl_function((c))))
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+                            labels=self._input_signal.GetLabels())
+
+class SoftClip(ClippingNonlinearBlock):
+    """
+    A class to create a nonlinear block using soft clipper.
+    """
+    @sumpf.Output(data_type=sumpf.Signal)
+    def GetOutput(self):
+        """
+        Get the output of the nonlinear block using soft clipper.
+        @return: the output signal
+        """
+        nl_function = soft_clip(thresholds=self._clipping_threshold)
+        new_channels = []
+        for c in self._input_signal.GetChannels():
+            self.__dummy = c
+            new_channels.append(tuple(nl_function((c))))
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+                            labels=self._input_signal.GetLabels())
 
 class PolynomialNonlinearBlock(NonlinearBlock):
     """
@@ -162,70 +244,17 @@ class Legendre(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
-
-class Clipping(NonlinearBlock):
-    """
-    A class to create a nonlinear block using hard clipping function.
-    """
-
-    def __init__(self, input_signal=None, thresholds=None, harmonics=5):
-        """
-        @param input_signal: the input signal
-        @param thresholds: the thresholds of the hard clipping function
-        @param harmonics: the harmonics introduced by the clipping function
-        """
-        NonlinearBlock.__init__(self, input_signal=input_signal)
-        if thresholds is None:
-            self._thresholds = [-1.0, 1.0]
-        else:
-            self._thresholds = thresholds
-        self._thresholds = harmonics
-        self._harmonics = harmonics
-
-    @sumpf.Input(data_type=tuple, observers=["GetOutput"])
-    def SetThreshold(self, thresholds=None):
-        """
-        Set the thresholds of the clipping function.
-        @param thresholds: the thresholds Eg. [-0.8,0.8]
-        """
-        self._thresholds = thresholds
-
-    @sumpf.Output(data_type=sumpf.Signal)
-    def GetOutput(self):
-        """
-        Get the output of the nonlinear block using hard clipping function.
-        @return: the output signal
-        """
-        nl_function = hard_clip(thresholds=self._thresholds)
-        new_channels = []
-        for c in self._input_signal.GetChannels():
-            self.__dummy = c
-            new_channels.append(tuple(nl_function((c))))
-        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
-                            labels=self._input_signal.GetLabels())
-
-    @sumpf.Output(data_type=int)
-    def GetMaximumHarmonics(self):
-        """
-        Get the maximum harmonics introduced by the clipping nonlinear block.
-        @return: the maximum harmonics
-        """
-        return self._harmonics
-
-
 def power(degree=None):
     """
     A function to generate power of an array of samples.
     @param degree: the degree
     @return: the power function
     """
-
     def func(channel):
         result = channel
         for i in range(1, degree):
             result = numpy.multiply(result, channel)
         return result
-
     return func
 
 
@@ -235,13 +264,11 @@ def chebyshev_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
-
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
             channell.append(float(mpmath.chebyt(degree, channel[i])))
         return numpy.asarray(channell)
-
     return func
 
 
@@ -251,13 +278,11 @@ def hermite_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
-
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
             channell.append(float(mpmath.hermite(degree, channel[i])))
         return numpy.asarray(channell)
-
     return func
 
 
@@ -267,26 +292,34 @@ def legendre_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
-
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
             channell.append(float(mpmath.laguerre(degree, 0, channel[i])))
         return numpy.asarray(channell)
-
     return func
 
 
 def hard_clip(thresholds=None):
     """
-    A function which clips an array of samples
+    A function which hard clips an array of samples
     @param thresholds: the thresholds of clipping
     @return: the clipping function
     """
-
     def func(channel):
         signal = sumpf.Signal(channels=(channel,), samplingrate=48000, labels=("nl",))
         clipped = sumpf.modules.ClipSignal(signal=signal, thresholds=thresholds)
         return numpy.asarray(clipped.GetOutput().GetChannels()[0])
+    return func
 
+def soft_clip(thresholds=None):
+    """
+    A function which soft clips an array of samples
+    @param thresholds: the thresholds of clipping
+    @return: the clipping function
+    """
+    def func(channel):
+        signal = sumpf.Signal(channels=(channel,), samplingrate=48000, labels=("nl",))
+        clipped = nlsp.sumpf.SoftClipSignal(signal=signal, thresholds=thresholds)
+        return numpy.asarray(clipped.GetOutput().GetChannels()[0])
     return func
