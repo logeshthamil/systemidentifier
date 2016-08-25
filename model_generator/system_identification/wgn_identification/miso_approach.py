@@ -147,7 +147,8 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
             G.append(sumpf.modules.InverseFourierTransform(A + mu_matrix[row]).GetSignal())
         filter_kernels = []
         for branch in self._select_branches:
-            filter_kernels.append(G[branch - 1])
+            filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=G[branch - 1],
+                                                                                            length=int(len(self.GetExcitation())/1.1)))
         return filter_kernels
 
     def _GetNonlinerFunctions(self):

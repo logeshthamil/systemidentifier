@@ -163,3 +163,18 @@ def test_HGM_withmultichannelinput():
     combined_energy = nlsp.common.helper_functions_private.calculateenergy_timedomain(combined_output)
     assert energy_1[0] == combined_energy[0]
     assert energy_2[1] == combined_energy[1]
+
+
+def test_filterlength_signallength():
+    """
+    Test whether the HM when the signal length is less than or equal to the filter length.
+    """
+    length = 2**16
+    sampling_rate = 48000
+    sample_signal = sumpf.modules.NoiseGenerator(samplingrate=sampling_rate, length=length, seed="signal").GetSignal()
+    filter_kernel = nlsp.helper_functions.create_arrayof_bpfilter(branches=1, filter_length=length)[0]
+    nl_function = nlsp.nonlinear_function.Power(degree=1)
+    HM = nlsp.HammersteinModel(input_signal=sample_signal, nonlinear_function=nl_function, filter_impulseresponse=filter_kernel,
+                               aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
+    ser = nlsp.evaluations.CompareWithReference(reference_signal=sample_signal, signal_to_be_evaluated=HM.GetOutput())
+    assert ser.GetSignaltoErrorRatio()[0] >= 55

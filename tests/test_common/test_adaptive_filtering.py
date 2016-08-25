@@ -33,7 +33,7 @@ def test_MISO_NLMS_algorithm():
                                                   aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     identified_model.SetInput(input_signal=input_signal)
     evaluation = nlsp.evaluations.CompareWithReference(reference_signal=nl_system.GetOutput(), signal_to_be_evaluated=identified_model.GetOutput())
-    assert evaluation.GetSignaltoErrorRatio()[0][0] > 85
+    assert evaluation.GetSignaltoErrorRatio()[0][0] > 70
 
 
 def test_SISO_NLMS_algorithm():
@@ -68,4 +68,4 @@ def test_SISO_NLMS_algorithm():
                                                   aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     identified_model.SetInput(input_signal=input_signal)
     evaluation = nlsp.evaluations.CompareWithReference(reference_signal=nl_system.GetOutput(), signal_to_be_evaluated=identified_model.GetOutput())
-    assert evaluation.GetSignaltoErrorRatio()[0][0] > 60
+    assert evaluation.GetSignaltoErrorRatio()[0][0] > 55

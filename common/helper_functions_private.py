@@ -129,6 +129,9 @@ class CheckEqualLength(object):
         elif len(self.__input_signal2) > len(self.__input_signal1):
             self.__output_signal1 = append_zeros(self.__input_signal1, len(self.__input_signal2))
             self.__output_signal2 = self.__input_signal2
+        elif len(self.__input_signal1) == len(self.__input_signal2):
+            self.__output_signal1 = self.__input_signal1
+            self.__output_signal2 = self.__input_signal2
 
     @sumpf.Output(sumpf.Signal)
     def GetFirstOutput(self):
