@@ -83,7 +83,10 @@ class SineSweep(SystemIdentification):
             B.append(B_temp)
         filter_kernels = []
         for branch in self._select_branches:
-            filter_kernels.append(B[branch - 1])
+            if self._filter_length is not None:
+                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=B[branch - 1], length=self._filter_length))
+            else:
+                filter_kernels.append(B[branch - 1])
         return filter_kernels
 
     def _GetNonlinerFunctions(self):
@@ -153,7 +156,10 @@ class CosineSweep(SystemIdentification):
             ir_harmonics.append(sumpf.modules.SplitSignal(data=ir_merger, channels=clubb).GetOutput())
         filter_kernels = []
         for branch in self._select_branches:
-            filter_kernels.append(ir_harmonics[branch - 1])
+            if self._filter_length is not None:
+                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=ir_harmonics[branch - 1], length=self._filter_length))
+            else:
+                filter_kernels.append(ir_harmonics[branch - 1])
         return filter_kernels
 
     def _GetNonlinerFunctions(self):

@@ -9,7 +9,7 @@ class SystemIdentification(HGMModelGenerator):
     """
 
     def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None,
-                 excitation_length=None, excitation_sampling_rate=None):
+                 excitation_length=None, excitation_sampling_rate=None, filter_length=None):
         """
         @param system_response: the response of the nonlinear system
         @param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
@@ -37,6 +37,7 @@ class SystemIdentification(HGMModelGenerator):
             self._aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
         else:
             self._aliasing_compensation = aliasing_compensation
+        self._filter_length = filter_length
         self._input_model = nlsp.HammersteinGroupModel()
         HGMModelGenerator.__init__(self, input_model=self._input_model, aliasing_compensation=self._aliasing_compensation)
 

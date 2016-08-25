@@ -145,10 +145,16 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
                 temp = sumpf.modules.Multiply(value1=L[column], value2=k_matrix[row][column]).GetResult()
                 A = A + temp
             G.append(sumpf.modules.InverseFourierTransform(A + mu_matrix[row]).GetSignal())
-        filter_kernels = []
+        kernel = []
         for branch in self._select_branches:
-            filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=G[branch - 1],
+            kernel.append(nlsp.common.helper_functions_private.change_length_signal(signal=G[branch - 1],
                                                                                             length=int(len(self.GetExcitation())/1.1)))
+        if self._filter_length is not None:
+            filter_kernels = []
+            for k in kernel:
+                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
+        else:
+            filter_kernels = kernel
         return filter_kernels
 
     def _GetNonlinerFunctions(self):

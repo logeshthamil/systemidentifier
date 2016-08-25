@@ -75,7 +75,13 @@ class Adaptive(SystemIdentification):
         self.multichannel_algorithm.SetDesiredOutput(desired_output=desired_signal)
         w = self.multichannel_algorithm.GetFilterKernel()
         kernel = [sumpf.modules.SplitSignal(data=w, channels=[i]).GetOutput() for i in range(len(w.GetChannels()))]
-        return kernel
+        if self._filter_length is not None:
+            filter_kernels = []
+            for k in kernel:
+                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
+        else:
+            filter_kernels = kernel
+        return filter_kernels
 
     def _GetNonlinerFunctions(self):
         """
