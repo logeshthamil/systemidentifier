@@ -295,7 +295,7 @@ def legendre_polynomial(degree=None):
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
-            channell.append(float(mpmath.laguerre(degree, 0, channel[i])))
+            channell.append(float(mpmath.legendre(degree, channel[i])))
         return numpy.asarray(channell)
     return func
 
