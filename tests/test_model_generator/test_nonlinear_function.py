@@ -26,24 +26,22 @@ def test_recomputefilterkernels():
     nlsp.plots.relabelandplot(modified_output_model.GetOutput(),label="identified_m",show=True)
 
 def test_filter_kernels():
-    branches = 5
+    branches = 3
     ref_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches,filter_length=2**10)
-    ref_nlsystem = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Hermite(degree=i+1) for i in range(branches)],
+    ref_nlsystem = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)],
                                               aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
                                               filter_impulseresponses=ref_filters)
     ref_nlsystem1= ref_nlsystem
     recompute_filterkernels = nlsp.RecomputeFilterKernels(input_model=ref_nlsystem1)
     recompute_filterkernels.SetNonlinearFunction(nonlinearfunction=nlsp.nonlinear_function.Hermite)
     found_filter_kernels = recompute_filterkernels._filter_impulseresponses
-    nlsp.plots.plot_array(ref_filters,Show=False)
-    nlsp.plots.plot_array(found_filter_kernels,Show=True)
-    mod_system = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)],
+    mod_system = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Hermite(degree=i+1) for i in range(branches)],
                                               aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
                                               filter_impulseresponses=found_filter_kernels)
     ip = sumpf.modules.NoiseGenerator().GetSignal()
     ref_nlsystem.SetInput(ip)
     mod_system.SetInput(ip)
-    nlsp.plots.relabelandplot(sumpf.modules.FourierTransform(ref_nlsystem.GetOutput()).GetSpectrum(),label="ref",show=False)
-    nlsp.plots.relabelandplot(sumpf.modules.FourierTransform(mod_system.GetOutput()).GetSpectrum(),label="mod",show=True)
+    evaluation = nlsp.evaluations.CompareWithReference(reference_signal=ref_nlsystem.GetOutput(), signal_to_be_evaluated=mod_system.GetOutput())
+    print evaluation.GetSignaltoErrorRatio()
 
 test_filter_kernels()

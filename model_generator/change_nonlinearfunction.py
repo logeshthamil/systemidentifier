@@ -28,6 +28,7 @@ class RecomputeFilterKernels(HGMModelGenerator):
         """
         modify_model = nlsp.ModifyModel(input_model=self._input_model)
         ref_nl = modify_model._nonlinear_functions
+        ref_nl_specific = ref_nl[0].__class__
         ref_filter = modify_model._filter_impulseresponses
         degree = []
         self._nonlinear_functions = []
@@ -37,26 +38,43 @@ class RecomputeFilterKernels(HGMModelGenerator):
             for nl in ref_nl:
                 self._nonlinear_functions.append(nl.CreateModified())
             self._filter_impulseresponses = ref_filter
+        elif self.__nonlinear_function is ref_nl_specific:
+            for nl in ref_nl:
+                self._nonlinear_functions.append(nl.CreateModified())
+            self._filter_impulseresponses = ref_filter
+        elif self.__nonlinear_function is nlsp.nonlinear_function.Power:
+            for i in degree:
+                self._nonlinear_functions.append(self.__nonlinear_function(degree=i))
+            if self.__nonlinear_function is nlsp.nonlinear_function.Chebyshev:
+                polynomial = numpy.polynomial.chebyshev.Chebyshev
+                coefficient = numpy.polynomial.chebyshev.cheb2poly
+                self._filter_impulseresponses = powertoany(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+            elif self.__nonlinear_function is nlsp.nonlinear_function.Hermite:
+                polynomial = numpy.polynomial.hermite_e.HermiteE
+                coefficient = numpy.polynomial.hermite_e.herme2poly
+                self._filter_impulseresponses = powertoany(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+            elif self.__nonlinear_function is nlsp.nonlinear_function.Legendre:
+                polynomial = numpy.polynomial.hermite_e.HermiteE
+                coefficient = numpy.polynomial.hermite_e.herme2poly
+                self._filter_impulseresponses = powertoany(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
         else:
             for i in degree:
                 self._nonlinear_functions.append(self.__nonlinear_function(degree=i))
-            if self.__nonlinear_function is nlsp.nonlinear_function.Power:
-                print "power"
-                polynomial = numpy.polynomial.hermite.Hermite
-                coefficient = numpy.polynomial.hermite.herm2poly
-                self._filter_impulseresponses = anytopower(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
-            elif self.__nonlinear_function is nlsp.nonlinear_function.Chebyshev:
-                print "cheby"
+            if self.__nonlinear_function is nlsp.nonlinear_function.Chebyshev:
                 polynomial = numpy.polynomial.chebyshev.Chebyshev
                 coefficient = numpy.polynomial.chebyshev.cheb2poly
-                self._filter_impulseresponses = anytopower(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+                temp = anytopower(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+                self._filter_impulseresponses = powertoany(degree=degree,ip_filter_kernels=temp,polynomial=polynomial,coefficient=coefficient)
             elif self.__nonlinear_function is nlsp.nonlinear_function.Hermite:
-                print "hermite"
                 polynomial = numpy.polynomial.hermite_e.HermiteE
                 coefficient = numpy.polynomial.hermite_e.herme2poly
-                self._filter_impulseresponses = anytopower(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+                temp = anytopower(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+                self._filter_impulseresponses = powertoany(degree=degree,ip_filter_kernels=temp,polynomial=polynomial,coefficient=coefficient)
             elif self.__nonlinear_function is nlsp.nonlinear_function.Legendre:
-                print "legendre"
+                polynomial = numpy.polynomial.legendre.Legendre
+                coefficient = numpy.polynomial.legendre.leg2poly
+                temp = anytopower(degree=degree,ip_filter_kernels=ref_filter,polynomial=polynomial,coefficient=coefficient)
+                self._filter_impulseresponses = powertoany(degree=degree,ip_filter_kernels=temp,polynomial=polynomial,coefficient=coefficient)
 
 def powertoany(degree,ip_filter_kernels,polynomial,coefficient):
     ip_filter_kernels_spec = []
@@ -74,6 +92,7 @@ def powertoany(degree,ip_filter_kernels,polynomial,coefficient):
         coefficients.append(coeff)
     coefficients = numpy.asarray(coefficients)
     coefficients = numpy.transpose(coefficients)
+    print coefficients
     coefficients = numpy.linalg.inv(coefficients)
     coefficients = numpy.delete(coefficients, numpy.s_[::len(degree)], 1)
     constants = numpy.transpose(coefficients[0])

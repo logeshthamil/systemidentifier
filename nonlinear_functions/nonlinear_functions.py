@@ -267,23 +267,9 @@ def chebyshev_polynomial(degree=None):
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
-            channell.append(float(mpmath.chebyt(degree, channel[i])))
+            channell.append(numpy.polynomial.Chebyshev.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
     return func
-
-
-# def hermite_polynomial(degree=None):
-#     """
-#     A function to generate chebyshev polynomial of an array of samples.
-#     @param degree: the degree
-#     @return: the chebyshev function
-#     """
-#     def func(channel):
-#         channell = []
-#         for i in range(0, len(channel)):
-#             channell.append(float(mpmath.hermite(degree, channel[i])))
-#         return numpy.asarray(channell)
-#     return func
 
 def hermite_polynomial(degree=None):
     """
@@ -308,7 +294,7 @@ def legendre_polynomial(degree=None):
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
-            channell.append(float(mpmath.legendre(degree, channel[i])))
+            channell.append(numpy.polynomial.Legendre.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
     return func
 
