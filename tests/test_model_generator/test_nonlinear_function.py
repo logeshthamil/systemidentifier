@@ -2,7 +2,8 @@ import sumpf
 import nlsp
 
 def test_recomputefilterkernels():
-    ref_nlsystem = sumpf.modules.ClipSignal(thresholds=[-0.9,0.9])
+    ref_nlsystem = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i+1) for i in range(5)],
+                                              aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
     system_iden = nlsp.system_identification.SineSweep()
     excitation = system_iden.GetExcitation()
     ref_nlsystem.SetInput(excitation)
@@ -10,7 +11,7 @@ def test_recomputefilterkernels():
     system_iden.SetResponse(response)
     output_model = system_iden.GetOutputModel()
     recompute_filterkernels = nlsp.RecomputeFilterKernels(input_model=output_model)
-    recompute_filterkernels.SetNonlinearFunction(nonlinearfunction=nlsp.nonlinear_function.Chebyshev)
+    recompute_filterkernels.SetNonlinearFunction(nonlinearfunction=nlsp.nonlinear_function.Hermite)
     modified_output_model = recompute_filterkernels.GetOutputModel()
     sample_signal = sumpf.modules.SweepGenerator().GetSignal()
     output_model.SetInput(sample_signal)
@@ -24,4 +25,25 @@ def test_recomputefilterkernels():
     nlsp.plots.relabelandplot(output_model.GetOutput(),label="identified",show=False)
     nlsp.plots.relabelandplot(modified_output_model.GetOutput(),label="identified_m",show=True)
 
-test_recomputefilterkernels()
+def test_filter_kernels():
+    branches = 5
+    ref_filters = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches,filter_length=2**10)
+    ref_nlsystem = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Hermite(degree=i+1) for i in range(branches)],
+                                              aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                              filter_impulseresponses=ref_filters)
+    ref_nlsystem1= ref_nlsystem
+    recompute_filterkernels = nlsp.RecomputeFilterKernels(input_model=ref_nlsystem1)
+    recompute_filterkernels.SetNonlinearFunction(nonlinearfunction=nlsp.nonlinear_function.Hermite)
+    found_filter_kernels = recompute_filterkernels._filter_impulseresponses
+    nlsp.plots.plot_array(ref_filters,Show=False)
+    nlsp.plots.plot_array(found_filter_kernels,Show=True)
+    mod_system = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i+1) for i in range(branches)],
+                                              aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation(),
+                                              filter_impulseresponses=found_filter_kernels)
+    ip = sumpf.modules.NoiseGenerator().GetSignal()
+    ref_nlsystem.SetInput(ip)
+    mod_system.SetInput(ip)
+    nlsp.plots.relabelandplot(sumpf.modules.FourierTransform(ref_nlsystem.GetOutput()).GetSpectrum(),label="ref",show=False)
+    nlsp.plots.relabelandplot(sumpf.modules.FourierTransform(mod_system.GetOutput()).GetSpectrum(),label="mod",show=True)
+
+test_filter_kernels()
