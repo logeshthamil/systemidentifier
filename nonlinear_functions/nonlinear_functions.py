@@ -272,25 +272,38 @@ def chebyshev_polynomial(degree=None):
     return func
 
 
+# def hermite_polynomial(degree=None):
+#     """
+#     A function to generate chebyshev polynomial of an array of samples.
+#     @param degree: the degree
+#     @return: the chebyshev function
+#     """
+#     def func(channel):
+#         channell = []
+#         for i in range(0, len(channel)):
+#             channell.append(float(mpmath.hermite(degree, channel[i])))
+#         return numpy.asarray(channell)
+#     return func
+
 def hermite_polynomial(degree=None):
     """
-    A function to generate chebyshev polynomial of an array of samples.
+    A function to generate hermite polynomial of an array of samples.
     @param degree: the degree
-    @return: the chebyshev function
+    @return: the hermite function
     """
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
-            channell.append(float(mpmath.hermite(degree, channel[i])))
+            channell.append(numpy.polynomial.HermiteE.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
     return func
 
 
 def legendre_polynomial(degree=None):
     """
-    A function to generate chebyshev polynomial of an array of samples.
+    A function to legendre polynomial of an array of samples.
     @param degree: the degree
-    @return: the chebyshev function
+    @return: the legendre function
     """
     def func(channel):
         channell = []
