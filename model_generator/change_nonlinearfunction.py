@@ -59,6 +59,9 @@ class RecomputeFilterKernels(HGMModelGenerator):
                 print "legendre"
 
 def powertoany(degree,ip_filter_kernels,polynomial,coefficient):
+    ip_filter_kernels_spec = []
+    for kernel in ip_filter_kernels:
+        ip_filter_kernels_spec.append(sumpf.modules.FourierTransform(kernel).GetSpectrum())
     degree.insert(0,0)
     op_filter_kernels_s = []
     coefficients = []
@@ -71,31 +74,33 @@ def powertoany(degree,ip_filter_kernels,polynomial,coefficient):
         coefficients.append(coeff)
     coefficients = numpy.asarray(coefficients)
     coefficients = numpy.transpose(coefficients)
+    coefficients = numpy.linalg.inv(coefficients)
     coefficients = numpy.delete(coefficients, numpy.s_[::len(degree)], 1)
     constants = numpy.transpose(coefficients[0])
     coefficients = coefficients[1:]
-    coefficients_i = numpy.linalg.inv(coefficients)
-    c = []
     constant_specs = []
-    for i in constants:
-        constant_signal = sumpf.modules.ConstantSignalGenerator(value=i,samplingrate=ip_filter_kernels[0].GetSamplingRate(),
-                                                                length=len(ip_filter_kernels[0])).GetSignal()
+    for i,c in enumerate(constants):
+        constant_signal = sumpf.modules.ImpulseGenerator(samplingrate=ip_filter_kernels[0].GetSamplingRate(), length=len(ip_filter_kernels[0])).GetSignal()*c
         constant_spec = sumpf.modules.FourierTransform(constant_signal).GetSpectrum()
+        constant_spec = constant_spec * ip_filter_kernels_spec[i]
         constant_specs.append(constant_spec)
-    ip_filter_kernels_modif = []
-    for kernel, cons in zip(ip_filter_kernels,constant_specs):
-        sub = sumpf.modules.Subtract(value1=sumpf.modules.FourierTransform(kernel).GetSpectrum(), value2=cons).GetResult()
-        ip_filter_kernels_modif.append(sub)
-    for coeff in coefficients_i:
-        c.append(coeff)
+    ip_sub = []
+    for spec, cons in zip(ip_filter_kernels_spec,constant_specs):
+        sub = sumpf.modules.Subtract(value1=spec, value2=cons).GetResult()
+        ip_sub.append(sub)
+    for coeff in coefficients:
         product = []
         for i in range(len(coeff)):
-            product.append(ip_filter_kernels_modif[i]*coeff[i])
+            product.append(ip_sub[i]*coeff[i])
         filter_kernel = sum(product)
         op_filter_kernels_s.append(sumpf.modules.InverseFourierTransform(filter_kernel).GetSignal())
     return op_filter_kernels_s
 
+
 def anytopower(degree,ip_filter_kernels,polynomial,coefficient):
+    ip_filter_kernels_spec = []
+    for kernel in ip_filter_kernels:
+        ip_filter_kernels_spec.append(sumpf.modules.FourierTransform(kernel).GetSpectrum())
     degree.insert(0,0)
     op_filter_kernels_s = []
     coefficients = []
@@ -108,26 +113,24 @@ def anytopower(degree,ip_filter_kernels,polynomial,coefficient):
         coefficients.append(coeff)
     coefficients = numpy.asarray(coefficients)
     coefficients = numpy.transpose(coefficients)
+    # coefficients = numpy.linalg.inv(coefficients)
     coefficients = numpy.delete(coefficients, numpy.s_[::len(degree)], 1)
     constants = numpy.transpose(coefficients[0])
     coefficients = coefficients[1:]
-    c = []
     constant_specs = []
-    for i in constants:
-        constant_signal = sumpf.modules.ConstantSignalGenerator(value=i,samplingrate=ip_filter_kernels[0].GetSamplingRate(),
-                                                                length=len(ip_filter_kernels[0])).GetSignal()
+    for i,c in enumerate(constants):
+        constant_signal = sumpf.modules.ImpulseGenerator(samplingrate=ip_filter_kernels[0].GetSamplingRate(), length=len(ip_filter_kernels[0])).GetSignal()*c
         constant_spec = sumpf.modules.FourierTransform(constant_signal).GetSpectrum()
+        constant_spec = constant_spec * ip_filter_kernels_spec[i]
         constant_specs.append(constant_spec)
     for coeff in coefficients:
-        c.append(coeff)
         product = []
         for i in range(len(coeff)):
-            product.append(sumpf.modules.FourierTransform(ip_filter_kernels[i]).GetSpectrum()*coeff[i])
+            product.append(ip_filter_kernels_spec[i]*coeff[i])
         filter_kernel = sum(product)
         op_filter_kernels_s.append(filter_kernel)
     op_filters = []
     for spec,cons in zip(op_filter_kernels_s,constant_specs):
-        op = sumpf.modules.Add(value1=spec, value2=cons).GetResult()
+        op = sumpf.modules.Add(value1=spec,value2=cons).GetResult()
         op_filters.append(sumpf.modules.InverseFourierTransform(op).GetSignal())
     return op_filters
-
