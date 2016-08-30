@@ -244,6 +244,26 @@ class Legendre(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
+class Laguerre(PolynomialNonlinearBlock):
+    """
+    A class to create a nonlinear block using Legendre polynomials.
+    """
+
+    @sumpf.Output(data_type=sumpf.Signal)
+    def GetOutput(self):
+        """
+        Get the output of the nonlinear block using Legendre polynomials.
+        @return: the output signal
+        """
+        nl_function = laguerre_polynomial(degree=self._degree)
+        new_channels = []
+        for c in self._input_signal.GetChannels():
+            self.__dummy = c
+            new_channels.append(tuple(nl_function((c))))
+        return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
+                            labels=self._input_signal.GetLabels())
+
 def power(degree=None):
     """
     A function to generate power of an array of samples.
@@ -296,6 +316,22 @@ def legendre_polynomial(degree=None):
         for i in range(0, len(channel)):
             channell.append(numpy.polynomial.Legendre.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
+    return func
+
+
+def laguerre_polynomial(degree=None):
+    """
+    A function to laguerre polynomial of an array of samples.
+    @param degree: the degree
+    @return: the legendre function
+    """
+
+    def func(channel):
+        channell = []
+        for i in range(0, len(channel)):
+            channell.append(numpy.polynomial.Laguerre.basis(deg=degree)(channel[i]))
+        return numpy.asarray(channell)
+
     return func
 
 

@@ -1,1 +1,1 @@
-from nonlinear_functions import Power, Chebyshev, Hermite, Legendre, HardClip, SoftClip
+from nonlinear_functions import Power, Chebyshev, Hermite, Legendre, Laguerre, HardClip, SoftClip
