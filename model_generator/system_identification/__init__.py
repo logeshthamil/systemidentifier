@@ -1,5 +1,5 @@
 from sweep_based_system_identification import SineSweep, CosineSweep
 
-from wgn_identification import MISOapproach, WienerGapproach
+from wgn_identification import MISOapproach, WienerGapproach, MISOapproachusingHermite
 
 from adaptive_identification import Adaptive, ClippingAdaptive
