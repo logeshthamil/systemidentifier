@@ -40,14 +40,11 @@ class MISOapproachusingHermite(WhiteGaussianNoiseIdentification):
             den = sumpf.modules.FourierTransform(sumpf.modules.CorrelateSignals(signal1=input_decorrelated,
                                                                                 signal2=input_decorrelated,
                                                                                 mode=mode).GetOutput()).GetSpectrum()
-            den = sumpf.modules.ConstantSpectrumGenerator(value=(math.factorial(branch + 1) * variance),
-                                                          resolution=den.GetResolution(), length=len(den)).GetSpectrum()
             linear = sumpf.modules.Divide(value1=num, value2=den).GetResult()
             kernel = sumpf.modules.InverseFourierTransform(linear).GetSignal()
             signal = sumpf.Signal(channels=kernel.GetChannels(), samplingrate=input_wgn.GetSamplingRate(),
                                   labels=kernel.GetLabels())
             hermite_filterkernels.append(signal)
-            nlsp.plots.plot(signal)
         return hermite_filterkernels
 
     def _GetNonlinerFunctions(self):

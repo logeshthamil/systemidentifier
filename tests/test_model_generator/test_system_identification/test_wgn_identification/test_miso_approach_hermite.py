@@ -6,8 +6,8 @@ def test_identify_an_HGM():
     """
     Test the accuracy of identification of an HGM by MISO approach of system identification.
     """
-    branches = 5
-    excitation_length = 2 ** 16
+    branches = 3
+    excitation_length = 2 ** 14
     sampling_rate = 48000
     select_branches = range(1, branches + 1)
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
@@ -26,14 +26,8 @@ def test_identify_an_HGM():
     model_black_box = identification_algorithm.GetOutputModel()
 
     exc = sumpf.modules.NoiseGenerator(distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
-                                       samplingrate=48000, length=2 ** 16)
-    model_black_box.SetInput(exc.GetSignal())
-    black_box.SetInput(exc.GetSignal())
+                                       samplingrate=48000, length=2 ** 16).GetSignal()
+    model_black_box.SetInput(exc)
+    black_box.SetInput(exc)
     evaluation = nlsp.evaluations.CompareWithReference(black_box.GetOutput(), model_black_box.GetOutput())
-    print evaluation.GetSignaltoErrorRatio()
     assert evaluation.GetSignaltoErrorRatio()[0] >= 40
-    nlsp.plots.plot(sumpf.modules.FourierTransform(model_black_box.GetOutput()).GetSpectrum(), show=False)
-    nlsp.plots.plot(sumpf.modules.FourierTransform(black_box.GetOutput()).GetSpectrum())
-
-
-test_identify_an_HGM()
