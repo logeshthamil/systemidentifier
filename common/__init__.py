@@ -4,6 +4,7 @@ import helper_functions
 import evaluation_systemidentification as evaluate_systemidentification
 import sumpf_extensions as sumpf
 import analyze_models
+from save_and_retrieve_model import SaveHGMModel, RetrieveHGMModel
 
 import math_operations as math
 from find_harmonics import FindHarmonicImpulseResponse_NovakSweep

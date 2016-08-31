@@ -109,11 +109,11 @@ def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
     degree = []
     for nl in nonlinearfunctions:
         degree.append(nl.GetMaximumHarmonics())
-    degree = str(numpy.asarray(degree))
+    degree = str(degree)
     nl_class = str(fullname(nonlinearfunctions[0]))
     aliasingcomp = str(fullname(aliasingcomp))
     downsamplingposition = str(downsamplingposition)
-    label = nl_class + "*" + degree + "*" + aliasingcomp + "*" + downsamplingposition
+    label = nl_class + "*" + degree[1:-1] + "*" + aliasingcomp + "*" + downsamplingposition
     return label
 
 
@@ -130,7 +130,7 @@ def decode_label(label):
     aliasingcomp_loc = a[3]
 
     nonlinearfunction_class = eval(nonlinearfunction_class)
-    nonlinearfunction_degree = eval(nonlinearfunction_degree)
+    nonlinearfunction_degree = [int(e) for e in nonlinearfunction_degree.split(',')]
     aliasingcomp_type = eval(aliasingcomp_type)
     aliasingcomp_loc = eval(aliasingcomp_loc)
     nonlinear_functions = [nonlinearfunction_class(degree=i) for i in nonlinearfunction_degree]
