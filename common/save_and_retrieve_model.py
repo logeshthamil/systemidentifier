@@ -57,14 +57,8 @@ class SaveHGMModel(SaveandRetrieveModel):
         aliasing = get_param._aliasing_compensation
         downsampling_position = get_param._downsampling_position
         filter_kernels = sumpf.modules.MergeSignals(signals=filter_kernels).GetOutput()
-        nonlinear_function_class = nonlinear_functions[0].__class__
-        degree = []
-        for nl in nonlinear_functions:
-            degree.append(nl.GetMaximumHarmonics())
-        degree = numpy.asarray(degree)
-        aliasing = aliasing.__class__
-        label = generate_label(nonlinearfunction_class=nonlinear_function_class, nonlinearfunction_degree=degree,
-                               aliasingcomp_type=aliasing, aliasingcomp_loc=downsampling_position)
+        label = generate_label(nonlinearfunctions=nonlinear_functions, aliasingcomp=aliasing,
+                               downsamplingposition=downsampling_position)
         model = sumpf.modules.RelabelSignal(signal=filter_kernels,
                                             labels=(label,) * len(filter_kernels.GetChannels())).GetOutput()
         sumpf.modules.SignalFile(filename=self._filename, signal=model, file_format=self._file_format).GetSignal()
@@ -88,38 +82,38 @@ class RetrieveHGMModel(SaveandRetrieveModel):
         """
         model = sumpf.modules.SignalFile(filename=self._filename, file_format=self._file_format).GetSignal()
         label = model.GetLabels()[0]
-        nonlinearfunction_class, nonlinearfunction_degree, aliasingcomp_type, aliasingcomp_loc = decode_label(
-            label=label)
-        nonlinear_functions = [nonlinearfunction_class(degree=i) for i in nonlinearfunction_degree]
+        nonlinear_functions, aliasingcomp, aliasingcomp_loc = decode_label(label=label)
         filter_kernels = []
         for i in range(len(model.GetChannels())):
             kernel = sumpf.modules.SplitSignal(data=model, channels=[i]).GetOutput()
             filter_kernels.append(kernel)
         model = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
                                            filter_impulseresponses=filter_kernels,
-                                           aliasing_compensation=aliasingcomp_type(),
+                                           aliasing_compensation=aliasingcomp(),
                                            downsampling_position=aliasingcomp_loc)
         return model
 
 
-
-def generate_label(nonlinearfunction_class, nonlinearfunction_degree, aliasingcomp_type, aliasingcomp_loc):
+def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
     """
     A helper function to generate a label based on model parameters.
-    @param nonlinearfunction_class: the class of the nonlinear block
-    @param nonlinearfunction_degree: the degree of the nonlinear function
-    @param aliasingcomp_type: the type of aliasing compensation
-    @param aliasingcomp_loc: the location in which the aliasing compensation is done
+    @param nonlinearfunctions: the array of nonlinear functions class
+    @param aliasingcomp: the aliasing compensation class
+    @param downsamplingposition: the location in which the aliasing compensation is done
     @return: the label
     """
-    nonlinear_class = str(nonlinearfunction_class)
-    char1 = "/'"
-    char2 = "/'"
-    print nonlinear_class
-    nonlinear_class = nonlinear_class[nonlinear_class.find(char1) + 1: nonlinear_class.find(char2)]
-    print nonlinear_class
-    label = nonlinear_class + "*" + str(nonlinearfunction_degree) + "*" + str(aliasingcomp_type) + "*" + str(
-        aliasingcomp_loc)
+
+    def fullname(o):
+        return o.__module__ + "." + o.__class__.__name__
+
+    degree = []
+    for nl in nonlinearfunctions:
+        degree.append(nl.GetMaximumHarmonics())
+    degree = str(numpy.asarray(degree))
+    nl_class = str(fullname(nonlinearfunctions[0]))
+    aliasingcomp = str(fullname(aliasingcomp))
+    downsamplingposition = str(downsamplingposition)
+    label = nl_class + "*" + degree + "*" + aliasingcomp + "*" + downsamplingposition
     return label
 
 
@@ -127,7 +121,7 @@ def decode_label(label):
     """
     Decodes the label to different parameters of the model.
     @param label: the label
-    @return: nonlinearfunction_class, nonlinearfunction_degree, aliasingcomp_type, aliasingcomp_loc
+    @return: nonlinearfunctions, aliasingcomp, downsamplingposition
     """
     a = label.split('*')
     nonlinearfunction_class = a[0]
@@ -135,14 +129,9 @@ def decode_label(label):
     aliasingcomp_type = a[2]
     aliasingcomp_loc = a[3]
 
-    model = sumpf.modules.SignalFile(filename="C:/Users/diplomand.8/Desktop/save/some").GetSignal()
+    nonlinearfunction_class = eval(nonlinearfunction_class)
     nonlinearfunction_degree = eval(nonlinearfunction_degree)
+    aliasingcomp_type = eval(aliasingcomp_type)
+    aliasingcomp_loc = eval(aliasingcomp_loc)
     nonlinear_functions = [nonlinearfunction_class(degree=i) for i in nonlinearfunction_degree]
-    filter_kernels = []
-    for i in range(len(model.GetChannels())):
-        kernel = sumpf.modules.SplitSignal(data=model, channels=[i]).GetOutput()
-        filter_kernels.append(kernel)
-    model = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
-                                       filter_impulseresponses=filter_kernels,
-                                       aliasing_compensation=aliasingcomp_type(),
-                                       downsampling_position=aliasingcomp_loc)
+    return nonlinear_functions, aliasingcomp_type, aliasingcomp_loc
