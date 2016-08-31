@@ -80,18 +80,21 @@ class RetrieveHGMModel(SaveandRetrieveModel):
         """
         Get the model which is saved in the file location.
         """
-        model = sumpf.modules.SignalFile(filename=self._filename, file_format=self._file_format).GetSignal()
-        label = model.GetLabels()[0]
-        nonlinear_functions, aliasingcomp, aliasingcomp_loc = decode_label(label=label)
-        filter_kernels = []
-        for i in range(len(model.GetChannels())):
-            kernel = sumpf.modules.SplitSignal(data=model, channels=[i]).GetOutput()
-            filter_kernels.append(kernel)
-        model = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
-                                           filter_impulseresponses=filter_kernels,
-                                           aliasing_compensation=aliasingcomp(),
-                                           downsampling_position=aliasingcomp_loc)
-        return model
+        if self._filename is None:
+            raise Exception("Please enter the filename")
+        else:
+            model = sumpf.modules.SignalFile(filename=self._filename, file_format=self._file_format).GetSignal()
+            label = model.GetLabels()[0]
+            nonlinear_functions, aliasingcomp, aliasingcomp_loc = decode_label(label=label)
+            filter_kernels = []
+            for i in range(len(model.GetChannels())):
+                kernel = sumpf.modules.SplitSignal(data=model, channels=[i]).GetOutput()
+                filter_kernels.append(kernel)
+            model = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions,
+                                               filter_impulseresponses=filter_kernels,
+                                               aliasing_compensation=aliasingcomp(),
+                                               downsampling_position=aliasingcomp_loc)
+            return model
 
 
 def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
