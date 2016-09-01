@@ -35,7 +35,7 @@ def test_modify_model_SetAliasingCompensation():
     input_signal = sumpf.modules.SweepGenerator(samplingrate=48000.0, length=2 ** 14).GetSignal()
     nonlinear_functions = [nlsp.nonlinear_functions.Power(degree=i + 1) for i in range(branches)]
     filter_irs = nlsp.helper_functions.create_arrayof_bpfilter(branches=branches, sampling_rate=48000.0)
-    downsampling_posititon = nlsp.HammersteinGroupModel.AFTER_NONLINEAR_BLOCK
+    downsampling_posititon = nlsp.HammersteinGroupModel.AFTERNONLINEARBLOCK
     aliasing_compensation = nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation()
     HGM = nlsp.HammersteinGroupModel(nonlinear_functions=nonlinear_functions, filter_impulseresponses=filter_irs,
                                      aliasing_compensation=aliasing_compensation,
@@ -103,7 +103,7 @@ def test_modify_model_SetFilterImpulseResponses():
     Test the SetFilterImpulseResponses method of the ModifyModel class.
     """
     branches = 3
-    downsampling_posititon = nlsp.HammersteinGroupModel.AFTER_NONLINEAR_BLOCK
+    downsampling_posititon = nlsp.HammersteinGroupModel.AFTERNONLINEARBLOCK
     input_signal = sumpf.modules.SweepGenerator(samplingrate=48000, length=2 ** 15).GetSignal()
     ref_nlfunctions1 = [nlsp.nonlinear_functions.Power(degree=i + 1) for i in range(branches)]
     ref_nlfunctions2 = [nlsp.nonlinear_functions.Power(degree=i + 1) for i in range(branches)]

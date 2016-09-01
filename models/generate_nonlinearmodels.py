@@ -6,11 +6,11 @@ class HammersteinGroupModel(object):
     """
     A class to construct a Hammerstein Group Model.
     """
-    AFTER_NONLINEAR_BLOCK = 1
-    AFTER_LINEAR_BLOCK = 2
+    AFTERNONLINEARBLOCK = 1
+    AFTERLINEARBLOCK = 2
 
     def __init__(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
-                 aliasing_compensation=None, downsampling_position=AFTER_NONLINEAR_BLOCK):
+                 aliasing_compensation=None, downsampling_position=AFTERNONLINEARBLOCK):
         """
         @param input_signal: the input signal
         @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]
