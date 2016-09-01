@@ -1,10 +1,12 @@
 import sumpf
 import nlsp
 
+
 class AnalyzeModels(object):
     """
     A base class to analyze the model.
     """
+
     def __init__(self, model=None):
         """
         @param model: the instance of the nonlinear model
@@ -34,6 +36,7 @@ class CalculateEnergyofFilterKernels(AnalyzeModels):
     """
     Calculate the energy of filter kernels of the input model.
     """
+
     def __init__(self, model=None):
         """
         @param model: the input model
@@ -52,4 +55,3 @@ class CalculateEnergyofFilterKernels(AnalyzeModels):
         for kernel in filter_kernels:
             energy.append(nlsp.common.helper_functions_private.calculateenergy_timedomain(kernel))
         return energy
-

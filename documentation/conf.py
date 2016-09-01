@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # nlsp documentation build configuration file, created by
-# sphinx-quickstart on Wed Aug 31 13:35:23 2016.
+# sphinx-quickstart on Thu Sep  1 16:46:31 2016.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -21,7 +21,7 @@ import shlex
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-
+sys.path.append('O:/Diplomanden/Logeshwaran.Thamilselvan/Loudspeaker nonlinearity/sdlc')
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -84,7 +84,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -366,3 +366,4 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+autoclass_content = 'both'

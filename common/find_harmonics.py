@@ -6,6 +6,7 @@ class FindHarmonicImpulseResponse_NovakSweep(object):
     """
     Find the impulse response of the harmonics from the total impulse response measured using Novak's sweep signal.
     """
+
     def __init__(self,
                  impulse_response=None,
                  harmonic_order=2,

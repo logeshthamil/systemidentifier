@@ -3,10 +3,12 @@ import nlsp
 import time
 import numpy
 
+
 class Evaluation_artificial(object):
     """
     The base class for the evaluation of the system identification algorithms using artificial system.
     """
+
     def __init__(self, reference_system=None, identification_algorithms=None, test_signal=None):
         """
         @param reference_system: the reference system object
@@ -14,14 +16,16 @@ class Evaluation_artificial(object):
         @param test_signal: the test signal which is used for evaluation
         """
         if reference_system is None:
-            self._reference_system = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i+1) for i in range(5)],
-                                                                filter_impulseresponses=nlsp.helper_functions.create_arrayof_bpfilter(),
-                                                                aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
+            self._reference_system = nlsp.HammersteinGroupModel(
+                nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i + 1) for i in range(5)],
+                filter_impulseresponses=nlsp.helper_functions.create_arrayof_bpfilter(),
+                aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
         else:
             self._reference_system = reference_system
         self._identification_algorithms = identification_algorithms
         if test_signal is None:
-            self._test_signal = sumpf.modules.NoiseGenerator(distribution=sumpf.modules.NoiseGenerator.LaplaceDistribution(),seed="seed").GetSignal()
+            self._test_signal = sumpf.modules.NoiseGenerator(
+                distribution=sumpf.modules.NoiseGenerator.LaplaceDistribution(), seed="seed").GetSignal()
         else:
             self._test_signal = test_signal
 
@@ -51,6 +55,7 @@ class AccuracyEvaluation(Evaluation_artificial):
     """
     Evaluate the accuracy of the system identification algorithm.
     """
+
     def __init__(self, reference_nonlinearsystem=None, identification_algorithms=None, test_signal=None):
         """
         @param reference_nonlinearsystem: the reference nonlinear system
@@ -68,7 +73,7 @@ class AccuracyEvaluation(Evaluation_artificial):
         ser = []
         for identification_algorithm in self._identification_algorithms:
             excitation = identification_algorithm.GetExcitation(excitation_length=len(self._test_signal),
-                                                                      excitation_sampling_rate=self._test_signal.GetSamplingRate())
+                                                                excitation_sampling_rate=self._test_signal.GetSamplingRate())
             self._reference_system.SetInput(excitation)
             response = self._reference_system.GetOutput()
             identification_algorithm.SetResponse(response=response)
@@ -77,14 +82,17 @@ class AccuracyEvaluation(Evaluation_artificial):
             self._reference_system.SetInput(self._test_signal)
             output_ref = self._reference_system.GetOutput()
             output_iden = model.GetOutput()
-            evaluation = nlsp.evaluations.CompareWithReference(reference_signal=output_ref, signal_to_be_evaluated=output_iden)
+            evaluation = nlsp.evaluations.CompareWithReference(reference_signal=output_ref,
+                                                               signal_to_be_evaluated=output_iden)
             ser.append(evaluation.GetSignaltoErrorRatio()[0])
         return ser
+
 
 class RobustnessEvaluationWithAddedNoise(Evaluation_artificial):
     """
     Evaluate the robustness of the system identification algorithm with added noise signal.
     """
+
     def __init__(self, reference_nonlinearsystem=None, identification_algorithms=None, test_signal=None,
                  noise_signal=None):
         """
@@ -105,10 +113,11 @@ class RobustnessEvaluationWithAddedNoise(Evaluation_artificial):
         ser = []
         for identification_algorithm in self._identification_algorithms:
             excitation = identification_algorithm.GetExcitation(excitation_length=len(self._test_signal),
-                                                                      excitation_sampling_rate=self._test_signal.GetSamplingRate())
+                                                                excitation_sampling_rate=self._test_signal.GetSamplingRate())
             self._reference_system.SetInput(excitation)
             response = self._reference_system.GetOutput()
-            self._noise_signal = nlsp.common.helper_functions_private.change_length_signal(self._noise_signal,length=len(response))
+            self._noise_signal = nlsp.common.helper_functions_private.change_length_signal(self._noise_signal,
+                                                                                           length=len(response))
             response = response + self._noise_signal
             identification_algorithm.SetResponse(response=response)
             model = identification_algorithm.GetOutputModel()
@@ -116,14 +125,17 @@ class RobustnessEvaluationWithAddedNoise(Evaluation_artificial):
             self._reference_system.SetInput(self._test_signal)
             output_ref = self._reference_system.GetOutput()
             output_iden = model.GetOutput()
-            evaluation = nlsp.evaluations.CompareWithReference(reference_signal=output_ref, signal_to_be_evaluated=output_iden)
+            evaluation = nlsp.evaluations.CompareWithReference(reference_signal=output_ref,
+                                                               signal_to_be_evaluated=output_iden)
             ser.append(evaluation.GetSignaltoErrorRatio()[0])
         return ser
+
 
 class RobustnessEvaluationWithDifferentExcitationLevel(Evaluation_artificial):
     """
     Test the robustness of the system identification algorithms with different excitation levels.
     """
+
     def __init__(self, reference_nonlinearsystem=None, identification_algorithms=None, test_signal=None,
                  identification_level=None, testing_level=None):
         """
@@ -152,7 +164,7 @@ class RobustnessEvaluationWithDifferentExcitationLevel(Evaluation_artificial):
         ser = []
         for identification_algorithm in self._identification_algorithms:
             excitation = identification_algorithm.GetExcitation(excitation_length=len(self._test_signal),
-                                                                      excitation_sampling_rate=self._test_signal.GetSamplingRate())
+                                                                excitation_sampling_rate=self._test_signal.GetSamplingRate())
             excitation = sumpf.modules.Multiply(value1=excitation, value2=self._identification_level).GetResult()
             self._reference_system.SetInput(excitation)
             response = self._reference_system.GetOutput()
@@ -163,14 +175,17 @@ class RobustnessEvaluationWithDifferentExcitationLevel(Evaluation_artificial):
             self._reference_system.SetInput(self._test_signal)
             output_ref = self._reference_system.GetOutput()
             output_iden = model.GetOutput()
-            evaluation = nlsp.evaluations.CompareWithReference(reference_signal=output_ref, signal_to_be_evaluated=output_iden)
+            evaluation = nlsp.evaluations.CompareWithReference(reference_signal=output_ref,
+                                                               signal_to_be_evaluated=output_iden)
             ser.append(evaluation.GetSignaltoErrorRatio()[0])
         return ser
+
 
 class PerformanceEvaluation(Evaluation_artificial):
     """
     Evaluate the performance of the system identification algorithm.
     """
+
     def __init__(self, identification_algorithms=None, test_signal=None, excitation_length=None, kernel_length=None):
         """
         @param reference_nonlinearsystem: the reference nonlinear system
@@ -179,12 +194,12 @@ class PerformanceEvaluation(Evaluation_artificial):
         @param excitation_length: the excitation length
         @param kernel_length: the kernel length
         """
-        reference_nonlinearsystem = sumpf.modules.ClipSignal(thresholds=(-0.8,0.8))
+        reference_nonlinearsystem = sumpf.modules.ClipSignal(thresholds=(-0.8, 0.8))
         Evaluation_artificial.__init__(self, reference_system=reference_nonlinearsystem,
                                        identification_algorithms=identification_algorithms, test_signal=test_signal)
         self._excitation_length = excitation_length
         if kernel_length is None:
-            self._kernel_length = 2**10
+            self._kernel_length = 2 ** 10
         else:
             self._kernel_length = kernel_length
 
@@ -199,7 +214,7 @@ class PerformanceEvaluation(Evaluation_artificial):
             iden_time = []
             for i in range(iterations):
                 excitation = identification_algorithm.GetExcitation(excitation_length=len(self._test_signal),
-                                                                          excitation_sampling_rate=self._test_signal.GetSamplingRate())
+                                                                    excitation_sampling_rate=self._test_signal.GetSamplingRate())
                 self._reference_system.SetInput(excitation)
                 response = self._reference_system.GetOutput()
                 response = response
@@ -222,14 +237,16 @@ class PerformanceEvaluation(Evaluation_artificial):
             sim_time = []
             for i in range(iterations):
                 excitation = identification_algorithm.GetExcitation(excitation_length=len(self._test_signal),
-                                                                          excitation_sampling_rate=self._test_signal.GetSamplingRate())
+                                                                    excitation_sampling_rate=self._test_signal.GetSamplingRate())
                 self._reference_system.SetInput(excitation)
                 response = self._reference_system.GetOutput()
                 response = response
                 identification_algorithm.SetResponse(response=response)
                 model = identification_algorithm.GetOutputModel()
                 kernels = identification_algorithm._GetFilterImpuleResponses()
-                kernels = [nlsp.common.helper_functions_private.change_length_signal(signal=kernel, length=self._kernel_length) for kernel in kernels]
+                kernels = [
+                    nlsp.common.helper_functions_private.change_length_signal(signal=kernel, length=self._kernel_length)
+                    for kernel in kernels]
                 modify = nlsp.ModifyModel(input_model=model, filter_impulseresponses=kernels)
                 model = modify.GetOutputModel()
                 sim_time_start = time.clock()

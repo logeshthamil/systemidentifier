@@ -37,6 +37,7 @@ class NonlinearBlock(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
+
 class ClippingNonlinearBlock(NonlinearBlock):
     """
     A base class to create nonlinear block by clipping signals.
@@ -49,7 +50,7 @@ class ClippingNonlinearBlock(NonlinearBlock):
         """
         NonlinearBlock.__init__(self, input_signal=input_signal)
         if clipping_threshold is None:
-            self._clipping_threshold = [-1.0,1.0]
+            self._clipping_threshold = [-1.0, 1.0]
         else:
             self._clipping_threshold = clipping_threshold
 
@@ -83,10 +84,12 @@ class ClippingNonlinearBlock(NonlinearBlock):
             clipping_threshold = self._clipping_threshold
         return self.__class__(input_signal=input_signal, clipping_threshold=clipping_threshold)
 
+
 class HardClip(ClippingNonlinearBlock):
     """
     A class to create a nonlinear block using hard clipper.
     """
+
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
@@ -101,10 +104,12 @@ class HardClip(ClippingNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
 class SoftClip(ClippingNonlinearBlock):
     """
     A class to create a nonlinear block using soft clipper.
     """
+
     @sumpf.Output(data_type=sumpf.Signal)
     def GetOutput(self):
         """
@@ -118,6 +123,7 @@ class SoftClip(ClippingNonlinearBlock):
             new_channels.append(tuple(nl_function((c))))
         return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
+
 
 class PolynomialNonlinearBlock(NonlinearBlock):
     """
@@ -264,17 +270,20 @@ class Laguerre(PolynomialNonlinearBlock):
         return sumpf.Signal(channels=new_channels, samplingrate=self._input_signal.GetSamplingRate(),
                             labels=self._input_signal.GetLabels())
 
+
 def power(degree=None):
     """
     A function to generate power of an array of samples.
     @param degree: the degree
     @return: the power function
     """
+
     def func(channel):
         result = channel
         for i in range(1, degree):
             result = numpy.multiply(result, channel)
         return result
+
     return func
 
 
@@ -284,12 +293,15 @@ def chebyshev_polynomial(degree=None):
     @param degree: the degree
     @return: the chebyshev function
     """
+
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
             channell.append(numpy.polynomial.Chebyshev.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
+
     return func
+
 
 def hermite_polynomial(degree=None):
     """
@@ -297,11 +309,13 @@ def hermite_polynomial(degree=None):
     @param degree: the degree
     @return: the hermite function
     """
+
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
             channell.append(numpy.polynomial.HermiteE.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
+
     return func
 
 
@@ -311,11 +325,13 @@ def legendre_polynomial(degree=None):
     @param degree: the degree
     @return: the legendre function
     """
+
     def func(channel):
         channell = []
         for i in range(0, len(channel)):
             channell.append(numpy.polynomial.Legendre.basis(deg=degree)(channel[i]))
         return numpy.asarray(channell)
+
     return func
 
 
@@ -341,11 +357,14 @@ def hard_clip(thresholds=None):
     @param thresholds: the thresholds of clipping
     @return: the clipping function
     """
+
     def func(channel):
         signal = sumpf.Signal(channels=(channel,), samplingrate=48000, labels=("nl",))
         clipped = sumpf.modules.ClipSignal(signal=signal, thresholds=thresholds)
         return numpy.asarray(clipped.GetOutput().GetChannels()[0])
+
     return func
+
 
 def soft_clip(thresholds=None):
     """
@@ -353,8 +372,10 @@ def soft_clip(thresholds=None):
     @param thresholds: the thresholds of clipping
     @return: the clipping function
     """
+
     def func(channel):
         signal = sumpf.Signal(channels=(channel,), samplingrate=48000, labels=("nl",))
         clipped = nlsp.sumpf.SoftClipSignal(signal=signal, thresholds=thresholds)
         return numpy.asarray(clipped.GetOutput().GetChannels()[0])
+
     return func

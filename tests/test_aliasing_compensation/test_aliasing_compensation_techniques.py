@@ -7,7 +7,7 @@ def test_noaliasingcompensation():
     """
     Test the NoAliasingCompensation class. The NoAliasingCompensation class should not modify the signal.
     """
-    input_signal = sumpf.modules.SweepGenerator(samplingrate=40000, length=2**14).GetSignal()
+    input_signal = sumpf.modules.SweepGenerator(samplingrate=40000, length=2 ** 14).GetSignal()
     nl_alias = nlsp.aliasing_compensation.NoAliasingCompensation(maximum_harmonics=5)
     nl_alias.SetPreprocessingInput(input_signal)
     preprocessing_output = nl_alias.GetPreprocessingOutput()

@@ -4,6 +4,7 @@ import copy
 import sumpf
 import nlsp
 
+
 class ClippingAdaptive(SystemIdentification):
     """
     A class to identify a nonlinear system using adaptation algorithm.
@@ -12,7 +13,7 @@ class ClippingAdaptive(SystemIdentification):
     def __init__(self, system_excitation=None, system_response=None, select_branches=None,
                  multichannel_algorithm=None, nonlinear_function=nlsp.nonlinear_function.HardClip,
                  excitation_length=2 ** 16, excitation_sampling_rate=None, aliasing_compensation=None,
-                 thresholds = None):
+                 thresholds=None):
         """
         @param system_excitation: the excitation of the nonlinear system
         @param system_response: the response of the nonlinear system
@@ -36,7 +37,7 @@ class ClippingAdaptive(SystemIdentification):
         self.__input_model = nlsp.HammersteinGroupModel
         self._aliasing_compensation = aliasing_compensation
         if thresholds is None:
-            self.__thresholds = [[-1.0,1.0],] * max(self._select_branches)
+            self.__thresholds = [[-1.0, 1.0], ] * max(self._select_branches)
         else:
             self.__thresholds = thresholds
         SystemIdentification.__init__(self, system_response=system_response, select_branches=select_branches,
@@ -55,8 +56,8 @@ class ClippingAdaptive(SystemIdentification):
         if excitation_sampling_rate is not None:
             self._sampling_rate = excitation_sampling_rate
         self._excitation_generator = sumpf.modules.NoiseGenerator(
-                distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
-                samplingrate=self._sampling_rate, length=self._length, seed="seed")
+            distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
+            samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self._excitation_generator.GetSignal()
 
     def _GetFilterImpuleResponses(self):
@@ -83,7 +84,8 @@ class ClippingAdaptive(SystemIdentification):
         if self._filter_length is not None:
             filter_kernels = []
             for k in kernel:
-                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
+                filter_kernels.append(
+                    nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
         else:
             filter_kernels = kernel
         return filter_kernels
@@ -96,6 +98,6 @@ class ClippingAdaptive(SystemIdentification):
         self.__nlfunction = nlsp.nonlinear_function.HardClip
         nonlinear_functions = []
         for branch in self._select_branches:
-            nonlinear_func = self.__nlfunction(clipping_threshold=self.__thresholds[branch-1])
+            nonlinear_func = self.__nlfunction(clipping_threshold=self.__thresholds[branch - 1])
             nonlinear_functions.append(nonlinear_func)
         return nonlinear_functions

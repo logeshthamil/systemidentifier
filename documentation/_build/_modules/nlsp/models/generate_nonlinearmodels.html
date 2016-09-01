@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>nlsp.models.generate_nonlinearmodels &mdash; nlsp 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="nlsp 1.0.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for nlsp.models.generate_nonlinearmodels</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">sumpf</span>
+<span class="kn">import</span> <span class="nn">nlsp</span>
+
+
+<div class="viewcode-block" id="HammersteinGroupModel"><a class="viewcode-back" href="../../../index.html#nlsp.HammersteinGroupModel">[docs]</a><span class="k">class</span> <span class="nc">HammersteinGroupModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to construct a Hammerstein Group Model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">AFTERNONLINEARBLOCK</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">AFTERLINEARBLOCK</span> <span class="o">=</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="HammersteinGroupModel.__init__"><a class="viewcode-back" href="../../../index.html#nlsp.HammersteinGroupModel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_signal</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nonlinear_functions</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">filter_impulseresponses</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">aliasing_compensation</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">downsampling_position</span><span class="o">=</span><span class="n">AFTERNONLINEARBLOCK</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @param input_signal: the input signal</span>
+<span class="sd">        @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]</span>
+<span class="sd">        @param filter_impulseresponse: the filter impulse responses Eg. [impulse_response1, impulse_response2, ...]</span>
+<span class="sd">        @param aliasing_compensation: the aliasin compensation technique</span>
+<span class="sd">        Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()</span>
+<span class="sd">        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># interpret the input parameters</span>
+        <span class="k">if</span> <span class="n">input_signal</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span> <span class="o">=</span> <span class="n">input_signal</span>
+        <span class="k">if</span> <span class="n">nonlinear_functions</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span> <span class="o">=</span> <span class="p">(</span><span class="n">nlsp</span><span class="o">.</span><span class="n">nonlinear_functions</span><span class="o">.</span><span class="n">Power</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">1</span><span class="p">),)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span> <span class="o">=</span> <span class="n">nonlinear_functions</span>
+        <span class="k">if</span> <span class="n">filter_impulseresponses</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__filter_irs</span> <span class="o">=</span> <span class="p">(</span><span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">ImpulseGenerator</span><span class="p">(</span><span class="n">samplingrate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span><span class="o">.</span><span class="n">GetSamplingRate</span><span class="p">(),</span>
+                                                                <span class="n">length</span><span class="o">=</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">(),)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__filter_irs</span> <span class="o">=</span> <span class="n">filter_impulseresponses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_downsampling_position</span> <span class="o">=</span> <span class="n">downsampling_position</span>
+
+        <span class="c"># check if the filter ir length and the nonlinear functions length is same</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__filter_irs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__branches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;the given arguments dont have same length&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__passsignal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">PassThroughSignal</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span><span class="p">)</span>
+
+        <span class="c"># create multiple aliasing compensation instances which is similar to the aliasing compensation parameter received</span>
+        <span class="k">if</span> <span class="n">aliasing_compensation</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensation</span> <span class="o">=</span> <span class="n">nlsp</span><span class="o">.</span><span class="n">aliasing_compensation</span><span class="o">.</span><span class="n">NoAliasingCompensation</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensation</span> <span class="o">=</span> <span class="n">aliasing_compensation</span>
+
+        <span class="n">aliasing_comp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">aliasing_comp</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__branches</span><span class="p">:</span>
+            <span class="n">classname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensation</span><span class="o">.</span><span class="n">__class__</span><span class="p">()</span>
+            <span class="n">aliasing_comp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">classname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensations</span> <span class="o">=</span> <span class="n">aliasing_comp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">nl</span><span class="p">,</span> <span class="n">ir</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__filter_irs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensations</span><span class="p">)):</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">HammersteinModel</span><span class="p">(</span><span class="n">input_signal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__passsignal</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">(),</span> <span class="n">nonlinear_function</span><span class="o">=</span><span class="n">nl</span><span class="p">,</span>
+                                 <span class="n">filter_impulseresponse</span><span class="o">=</span><span class="n">ir</span><span class="p">,</span> <span class="n">aliasing_compensation</span><span class="o">=</span><span class="n">alias</span><span class="p">,</span>
+                                 <span class="n">downsampling_position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_downsampling_position</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sums</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__branches</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__a</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">Add</span><span class="p">()</span>
+            <span class="c"># print &quot;connecting hammerstein model %i to adder %i&quot; % (i, i)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__a</span><span class="o">.</span><span class="n">SetValue1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c"># print &quot;connecting hammerstein model %i to adder %i&quot; % (i+1, i)</span>
+                <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__a</span><span class="o">.</span><span class="n">SetValue2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># print &quot;connecting adder %i to adder %i&quot; % (i+1, i)</span>
+                <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__sums</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">GetResult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__a</span><span class="o">.</span><span class="n">SetValue2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__a</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GetOutput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetOutput</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GetOutput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetResult</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_aliasing_compensation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensation</span>
+
+    <span class="nd">@sumpf.Output</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">GetFilterImpulseResponses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__filter_irs</span>
+
+    <span class="nd">@sumpf.Output</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">GetNonlinearFunctions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span>
+
+    <span class="nd">@sumpf.Input</span><span class="p">(</span><span class="n">sumpf</span><span class="o">.</span><span class="n">Signal</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">SetInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_signal</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the input to the model.</span>
+<span class="sd">        @param input_signal: the input signal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">)):</span>
+            <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">__hmodels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">SetInput</span><span class="p">,</span> <span class="n">input_signal</span><span class="p">))</span>
+        <span class="n">sumpf</span><span class="o">.</span><span class="n">set_multiple_values</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HammersteinGroupModel.CreateModified"><a class="viewcode-back" href="../../../index.html#nlsp.HammersteinGroupModel.CreateModified">[docs]</a>    <span class="k">def</span> <span class="nf">CreateModified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_signal</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nonlinear_functions</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">filter_impulseresponses</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                       <span class="n">aliasing_compensation</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">downsampling_position</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method creates a new instance of the class with or without modification.</span>
+<span class="sd">        @param input_signal: the input signal</span>
+<span class="sd">        @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]</span>
+<span class="sd">        @param filter_impulseresponse: the filter impulse responses Eg. [impulse_response1, impulse_response2, ...]</span>
+<span class="sd">        @param aliasing_compensation: the aliasin compensation technique</span>
+<span class="sd">        Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()</span>
+<span class="sd">        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK</span>
+<span class="sd">        @return: the modified instance of the class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">input_signal</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">input_signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span>
+        <span class="k">if</span> <span class="n">nonlinear_functions</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">nonlinear_functions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nonlinear_functions</span>
+        <span class="k">if</span> <span class="n">filter_impulseresponses</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">filter_impulseresponses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__filter_irs</span>
+        <span class="k">if</span> <span class="n">aliasing_compensation</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">aliasing_compensation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliasingcompensation</span>
+        <span class="k">if</span> <span class="n">downsampling_position</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">downsampling_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_downsampling_position</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="n">input_signal</span><span class="o">=</span><span class="n">input_signal</span><span class="p">,</span> <span class="n">nonlinear_functions</span><span class="o">=</span><span class="n">nonlinear_functions</span><span class="p">,</span>
+                              <span class="n">filter_impulseresponses</span><span class="o">=</span><span class="n">filter_impulseresponses</span><span class="p">,</span>
+                              <span class="n">aliasing_compensation</span><span class="o">=</span><span class="n">aliasing_compensation</span><span class="p">,</span> <span class="n">downsampling_position</span><span class="o">=</span><span class="n">downsampling_position</span><span class="p">)</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">HammersteinModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to construct a Hammerstein model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">AFTER_NONLINEAR_BLOCK</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">AFTER_LINEAR_BLOCK</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_signal</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nonlinear_function</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">filter_impulseresponse</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">aliasing_compensation</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">downsampling_position</span><span class="o">=</span><span class="n">AFTER_NONLINEAR_BLOCK</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param input_signal: the input signal</span>
+<span class="sd">        :param nonlinear_function: the nonlinear function</span>
+<span class="sd">        :param filter_impulseresponse: the impulse response</span>
+<span class="sd">        :param aliasing_compensation: the aliasing compensation technique</span>
+<span class="sd">        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">input_signal</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span> <span class="o">=</span> <span class="n">input_signal</span>
+        <span class="k">if</span> <span class="n">filter_impulseresponse</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__filterir</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">ImpulseGenerator</span><span class="p">(</span><span class="n">samplingrate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span><span class="o">.</span><span class="n">GetSamplingRate</span><span class="p">(),</span>
+                                                             <span class="n">length</span><span class="o">=</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__filterir</span> <span class="o">=</span> <span class="n">filter_impulseresponse</span>
+        <span class="k">if</span> <span class="n">nonlinear_function</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span> <span class="o">=</span> <span class="n">nlsp</span><span class="o">.</span><span class="n">nonlinear_functions</span><span class="o">.</span><span class="n">Power</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span> <span class="o">=</span> <span class="n">nonlinear_function</span>
+        <span class="k">if</span> <span class="n">aliasing_compensation</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span> <span class="o">=</span> <span class="n">nlsp</span><span class="o">.</span><span class="n">aliasing_compensation</span><span class="o">.</span><span class="n">NoAliasingCompensation</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span> <span class="o">=</span> <span class="n">aliasing_compensation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_downsampling_position</span> <span class="o">=</span> <span class="n">downsampling_position</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__passsignal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">PassThroughSignal</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__input_signal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__passfilter</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">PassThroughSignal</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__filterir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__prop_signal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">ChannelDataProperties</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__prop_filter</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">ChannelDataProperties</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">ResampleSignal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__transform_signal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">FourierTransform</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__transform_filter</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">FourierTransform</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">Multiply</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__itransform</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">InverseFourierTransform</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__passoutput</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">PassThroughSignal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span> <span class="o">=</span> <span class="n">nlsp</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">helper_functions_private</span><span class="o">.</span><span class="n">CheckEqualLength</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__merger</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">MergeSignals</span><span class="p">(</span><span class="n">on_length_conflict</span><span class="o">=</span><span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">MergeSignals</span><span class="o">.</span><span class="n">FILL_WITH_ZEROS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__splitsignal</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">SplitSignal</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__splitfilter</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">SplitSignal</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attenuator</span> <span class="o">=</span> <span class="n">sumpf</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">Multiply</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ConnectHM</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetInput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__passsignal</span><span class="o">.</span><span class="n">SetSignal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GetOutput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__passoutput</span><span class="o">.</span><span class="n">GetSignal</span>
+
+    <span class="k">def</span> <span class="nf">_ConnectHM</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_downsampling_position</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__passsignal</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">SetPreprocessingInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span><span class="o">.</span><span class="n">GetMaximumHarmonics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">SetMaximumHarmonics</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">GetPreprocessingOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span><span class="o">.</span><span class="n">SetInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">SetPostprocessingInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">GetPostprocessingOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__prop_signal</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">GetPostprocessingOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">SetFirstInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prop_signal</span><span class="o">.</span><span class="n">GetSamplingRate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span><span class="o">.</span><span class="n">SetSamplingRate</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__passfilter</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span><span class="o">.</span><span class="n">SetInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">SetSecondInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">GetSecondOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__transform_filter</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">GetFirstOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__transform_signal</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__transform_signal</span><span class="o">.</span><span class="n">GetSpectrum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span><span class="o">.</span><span class="n">SetValue1</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__transform_filter</span><span class="o">.</span><span class="n">GetSpectrum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span><span class="o">.</span><span class="n">SetValue2</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span><span class="o">.</span><span class="n">GetResult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__itransform</span><span class="o">.</span><span class="n">SetSpectrum</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__itransform</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__passoutput</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_downsampling_position</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__passsignal</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">SetPreprocessingInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span><span class="o">.</span><span class="n">GetMaximumHarmonics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">SetMaximumHarmonics</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">GetPreprocessingOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span><span class="o">.</span><span class="n">SetInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">_GetAttenuation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__attenuator</span><span class="o">.</span><span class="n">SetValue1</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonlin_function</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__attenuator</span><span class="o">.</span><span class="n">SetValue2</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__attenuator</span><span class="o">.</span><span class="n">GetResult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__prop_signal</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__attenuator</span><span class="o">.</span><span class="n">GetResult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">SetFirstInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prop_signal</span><span class="o">.</span><span class="n">GetSamplingRate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span><span class="o">.</span><span class="n">SetSamplingRate</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__passfilter</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span><span class="o">.</span><span class="n">SetInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__resampler</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">SetSecondInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">GetFirstOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__transform_signal</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__change_length</span><span class="o">.</span><span class="n">GetSecondOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__transform_filter</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__transform_signal</span><span class="o">.</span><span class="n">GetSpectrum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span><span class="o">.</span><span class="n">SetValue1</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__transform_filter</span><span class="o">.</span><span class="n">GetSpectrum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span><span class="o">.</span><span class="n">SetValue2</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__multiplier</span><span class="o">.</span><span class="n">GetResult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__itransform</span><span class="o">.</span><span class="n">SetSpectrum</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__itransform</span><span class="o">.</span><span class="n">GetSignal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">SetPostprocessingInput</span><span class="p">)</span>
+            <span class="n">sumpf</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__signalaliascomp</span><span class="o">.</span><span class="n">GetPostprocessingOutput</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__passoutput</span><span class="o">.</span><span class="n">SetSignal</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Logeshwaran Thamilselvan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

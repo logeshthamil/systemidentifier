@@ -221,8 +221,8 @@ class LowpassAliasingCompensation(AliasingCompensation):
         self._filter_function.SetResolution(property.GetResolution())
         self._filter_function.SetLength(property.GetSpectrumLength())
         result_spectrum = sumpf.modules.Multiply(
-                value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
-                value2=self._filter_function.GetSpectrum()).GetResult()
+            value1=sumpf.modules.FourierTransform(self._input_signal).GetSpectrum(),
+            value2=self._filter_function.GetSpectrum()).GetResult()
         return sumpf.modules.InverseFourierTransform(spectrum=result_spectrum).GetSignal()
 
     def CreateModified(self, input_signal=None, maximum_harmonics=None, filter_function_class=None,

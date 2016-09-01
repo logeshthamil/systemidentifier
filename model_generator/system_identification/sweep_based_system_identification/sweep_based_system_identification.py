@@ -22,8 +22,8 @@ class SineSweep(SystemIdentification):
         if excitation_sampling_rate is not None:
             self._sampling_rate = excitation_sampling_rate
         self.__excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
-                sampling_rate=self._sampling_rate,
-                approximate_numberofsamples=self._length)
+            sampling_rate=self._sampling_rate,
+            approximate_numberofsamples=self._length)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -55,7 +55,7 @@ class SineSweep(SystemIdentification):
         tf_harmonics_all = sumpf.modules.FourierTransform(ir_merger).GetSpectrum()
         n = len(tf_harmonics_all.GetChannels()) // branches
         items = range(len(tf_harmonics_all.GetChannels()))
-        clubbed = [a for a in zip(*[iter(items)]*n)]
+        clubbed = [a for a in zip(*[iter(items)] * n)]
         harmonics_tf = []
         for clubb in clubbed:
             tf_harmonics = sumpf.modules.SplitSpectrum(data=tf_harmonics_all, channels=clubb).GetOutput()
@@ -65,7 +65,7 @@ class SineSweep(SystemIdentification):
             for m in range(0, branches):
                 if ((n >= m) and ((n + m) % 2 == 0)):
                     A_matrix[m][n] = (((-1 + 0j) ** (2 * (n + 1) - m / 2)) / (2 ** n)) * nlsp.math.binomial_expression(
-                            (n + 1), (n - m) / 2)
+                        (n + 1), (n - m) / 2)
                 else:
                     A_matrix[m][n] = 0
         A_inverse = numpy.linalg.inv(A_matrix)
@@ -84,7 +84,8 @@ class SineSweep(SystemIdentification):
         filter_kernels = []
         for branch in self._select_branches:
             if self._filter_length is not None:
-                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=B[branch - 1], length=self._filter_length))
+                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=B[branch - 1],
+                                                                                                length=self._filter_length))
             else:
                 filter_kernels.append(B[branch - 1])
         return filter_kernels
@@ -118,8 +119,8 @@ class CosineSweep(SystemIdentification):
         if excitation_sampling_rate is not None:
             self._sampling_rate = excitation_sampling_rate
         self.__excitation_generator = nlsp.excitation_generators.Cosinesweepgenerator_Novak(
-                sampling_rate=self._sampling_rate,
-                approximate_numberofsamples=self._length)
+            sampling_rate=self._sampling_rate,
+            approximate_numberofsamples=self._length)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):
@@ -150,14 +151,16 @@ class CosineSweep(SystemIdentification):
         ir_merger = ir_merger.GetOutput()
         n = len(ir_merger.GetChannels()) // branches
         items = range(len(ir_merger.GetChannels()))
-        clubbed = [a for a in zip(*[iter(items)]*n)]
+        clubbed = [a for a in zip(*[iter(items)] * n)]
         ir_harmonics = []
         for clubb in clubbed:
             ir_harmonics.append(sumpf.modules.SplitSignal(data=ir_merger, channels=clubb).GetOutput())
         filter_kernels = []
         for branch in self._select_branches:
             if self._filter_length is not None:
-                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=ir_harmonics[branch - 1], length=self._filter_length))
+                filter_kernels.append(
+                    nlsp.common.helper_functions_private.change_length_signal(signal=ir_harmonics[branch - 1],
+                                                                              length=self._filter_length))
             else:
                 filter_kernels.append(ir_harmonics[branch - 1])
         return filter_kernels

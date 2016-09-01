@@ -2,11 +2,13 @@ from .model_generator import HGMModelGenerator
 import sumpf
 import nlsp
 
+
 class ModifyModel(HGMModelGenerator):
     """
     A class to modify the parameters of a model. The parameters which can be modified are the filter impulse responses,
     the nonlinear functions and the aliasing compensation technique.
     """
+
     def __init__(self, input_model=None, filter_impulseresponses=None, nonlinear_functions=None,
                  aliasing_compensation=None, downsampling_position=None):
         """

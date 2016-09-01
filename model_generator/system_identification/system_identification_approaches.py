@@ -39,7 +39,8 @@ class SystemIdentification(HGMModelGenerator):
             self._aliasing_compensation = aliasing_compensation
         self._filter_length = filter_length
         self._input_model = nlsp.HammersteinGroupModel()
-        HGMModelGenerator.__init__(self, input_model=self._input_model, aliasing_compensation=self._aliasing_compensation)
+        HGMModelGenerator.__init__(self, input_model=self._input_model,
+                                   aliasing_compensation=self._aliasing_compensation)
 
     def GetExcitation(self):
         """

@@ -5,6 +5,7 @@ from nlsp.nonlinear_functions.nonlinear_functions import PolynomialNonlinearBloc
 import numpy
 from .recompute_filterkernels import anytopower, powertoany
 
+
 class RecomputeFilterKernels(HGMModelGenerator):
     """
     A class to recompute the filter kernels based on the nonlinear function of the HGM.

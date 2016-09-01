@@ -1,11 +1,14 @@
 import numpy
 import sumpf
 
+
 class FIRAdaptationAlgorithm(object):
     """
     A base class of the FIR Adaptation algorithms.
     """
-    def __init__(self, input_signal=None, desired_output=None, filter_length=None, initialcoefficients=None, step_size=None,
+
+    def __init__(self, input_signal=None, desired_output=None, filter_length=None, initialcoefficients=None,
+                 step_size=None,
                  leakage=None, iteration_cycle=None):
         """
         @param input_signal: the input signal
@@ -26,7 +29,7 @@ class FIRAdaptationAlgorithm(object):
         else:
             self._desired_output = desired_output
         if filter_length is None:
-            self._filter_length = 2**10
+            self._filter_length = 2 ** 10
         else:
             self._filter_length = filter_length
         self._initial_coeff = initialcoefficients
@@ -75,11 +78,13 @@ class FIRAdaptationAlgorithm(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
+
 class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     """
     A class where the MISO NLMS algorithm is implemented. If the input signals have multiple channels then filter kernels
     for multiple filters are found, else filter kernel of single filter is found.
     """
+
     def __init__(self, input_signal=None, desired_output=None, filter_length=None, step_size=None,
                  initialcoefficients=None, leakage=None, iteration_cycle=None, epsilon=0.0001):
         """
@@ -93,7 +98,8 @@ class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
         @param epsilon: the regularization factor to avoid numerical errors when power of input is close to zero
         """
         self.__epsilon = epsilon
-        FIRAdaptationAlgorithm.__init__(self, input_signal=input_signal, desired_output=desired_output, step_size=step_size,
+        FIRAdaptationAlgorithm.__init__(self, input_signal=input_signal, desired_output=desired_output,
+                                        step_size=step_size,
                                         filter_length=filter_length, initialcoefficients=initialcoefficients,
                                         leakage=leakage, iteration_cycle=iteration_cycle)
 
@@ -139,14 +145,17 @@ class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
             for channel in range(channels):
                 w[channel] = leakstep * w[channel] + step_size * normfac[channel] * x[channel] * e
         for channel in range(channels):
-            W = sumpf.Signal(channels=w, samplingrate=self._input_signal.GetSamplingRate(), labels=("Identified filters",))
+            W = sumpf.Signal(channels=w, samplingrate=self._input_signal.GetSamplingRate(),
+                             labels=("Identified filters",))
         return W
+
 
 class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     """
     A class where the SISO NLMS algorithm is implemented. If the input signals have multiple channels then filter kernels
     for multiple filters are found, else filter kernel of single filter is found.
     """
+
     def __init__(self, input_signal=None, desired_output=None, filter_length=None, step_size=None,
                  initialcoefficients=None, leakage=None, iteration_cycle=None, epsilon=0.0001):
         """
@@ -160,7 +169,8 @@ class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
         @param epsilon: the regularization factor to avoid numerical errors when power of input is close to zero
         """
         self.__epsilon = epsilon
-        FIRAdaptationAlgorithm.__init__(self, input_signal=input_signal, desired_output=desired_output, step_size=step_size,
+        FIRAdaptationAlgorithm.__init__(self, input_signal=input_signal, desired_output=desired_output,
+                                        step_size=step_size,
                                         filter_length=filter_length, initialcoefficients=initialcoefficients,
                                         leakage=leakage, iteration_cycle=iteration_cycle)
 
@@ -200,4 +210,5 @@ class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
                 w = leakstep * w + step_size * normFactor * x * e[channel][n]
             d = d - numpy.dot(x, w)
             W.append(w)
-        return sumpf.Signal(channels=W, samplingrate=self._input_signal.GetSamplingRate(), labels=("Identified filters",))
+        return sumpf.Signal(channels=W, samplingrate=self._input_signal.GetSamplingRate(),
+                            labels=("Identified filters",))

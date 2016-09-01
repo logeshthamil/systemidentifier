@@ -26,7 +26,8 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
         if self._filter_length is not None:
             filter_kernels = []
             for k in kernels:
-                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
+                filter_kernels.append(
+                    nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
         else:
             filter_kernels = kernels
         return filter_kernels

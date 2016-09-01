@@ -151,6 +151,7 @@ class CheckEqualLength(object):
         self.__input_signal2 = input_signal2
         self._changelength()
 
+
 def change_length_signal(signal, length=None):
     """
     A function to change the length of signal. If the length of the signal is greater than the length then signal length
@@ -162,7 +163,7 @@ def change_length_signal(signal, length=None):
     if length is None:
         length = len(signal)
     if len(signal) >= length:
-        signal = sumpf.modules.CutSignal(signal=signal,start=0,stop=length).GetOutput()
+        signal = sumpf.modules.CutSignal(signal=signal, start=0, stop=length).GetOutput()
     else:
-        signal = append_zeros(signal,length)
+        signal = append_zeros(signal, length)
     return signal

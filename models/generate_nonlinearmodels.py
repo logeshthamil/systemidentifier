@@ -128,6 +128,7 @@ class HammersteinGroupModel(object):
                               filter_impulseresponses=filter_impulseresponses,
                               aliasing_compensation=aliasing_compensation, downsampling_position=downsampling_position)
 
+
 class HammersteinModel(object):
     """
     A class to construct a Hammerstein model.

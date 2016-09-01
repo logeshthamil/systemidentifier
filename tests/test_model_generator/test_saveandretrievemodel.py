@@ -2,6 +2,7 @@ import os
 import sumpf
 import nlsp
 
+
 def test_saveandretrieve_accuracy():
     branches = 5
     location = "C:\Users\diplomand.8\Desktop\some.npz"

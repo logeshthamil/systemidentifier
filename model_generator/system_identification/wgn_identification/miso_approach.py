@@ -9,6 +9,7 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
     """
     A base class for White Gaussian Noise based system identification.
     """
+
     @sumpf.Output(sumpf.Signal)
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
@@ -22,8 +23,8 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
         if excitation_sampling_rate is not None:
             self._sampling_rate = excitation_sampling_rate
         self.__excitation_generator = sumpf.modules.NoiseGenerator(
-                distribution=sumpf.modules.NoiseGenerator.GaussianDistribution(),
-                samplingrate=self._sampling_rate, length=self._length, seed="seed")
+            distribution=sumpf.modules.NoiseGenerator.GaussianDistribution(),
+            samplingrate=self._sampling_rate, length=self._length, seed="seed")
         return self.__excitation_generator.GetSignal()
 
 
@@ -148,11 +149,13 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
         kernel = []
         for branch in self._select_branches:
             kernel.append(nlsp.common.helper_functions_private.change_length_signal(signal=G[branch - 1],
-                                                                                            length=int(len(self.GetExcitation())/1.1)))
+                                                                                    length=int(len(
+                                                                                        self.GetExcitation()) / 1.1)))
         if self._filter_length is not None:
             filter_kernels = []
             for k in kernel:
-                filter_kernels.append(nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
+                filter_kernels.append(
+                    nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
         else:
             filter_kernels = kernel
         return filter_kernels
