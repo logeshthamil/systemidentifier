@@ -15,9 +15,8 @@ class HammersteinGroupModel(object):
         @param input_signal: the input signal
         @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]
         @param filter_impulseresponse: the filter impulse responses Eg. [impulse_response1, impulse_response2, ...]
-        @param aliasing_compensation: the aliasin compensation technique
-        Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
-        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
+        @param aliasing_compensation: the aliasin compensation technique Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+        @param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
         """
         # interpret the input parameters
         if input_signal is None:

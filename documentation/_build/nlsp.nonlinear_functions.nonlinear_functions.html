@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>nlsp.nonlinear_functions.nonlinear_functions module &mdash; Nonlinear Signal Processing (nlsp) 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Nonlinear Signal Processing (nlsp) 1.0.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="nlsp-nonlinear-functions-nonlinear-functions-module">
+<h1>nlsp.nonlinear_functions.nonlinear_functions module<a class="headerlink" href="#nlsp-nonlinear-functions-nonlinear-functions-module" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-nlsp.nonlinear_functions.nonlinear_functions"></span><dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.Chebyshev">
+<em class="property">class </em><code class="descname">Chebyshev</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.Chebyshev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using Chebyshev polynomials.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock">
+<em class="property">class </em><code class="descname">ClippingNonlinearBlock</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>clipping_threshold=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock</span></code></a></p>
+<p>A base class to create nonlinear block by clipping signals.</p>
+<dl class="method">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock.CreateModified">
+<code class="descname">CreateModified</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>clipping_threshold=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock.CreateModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new instance of the class with or without modified parameters.
+:param signal: the input signal
+:param clipping_threshold: the clipping threshold
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.HardClip">
+<em class="property">class </em><code class="descname">HardClip</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>clipping_threshold=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.HardClip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using hard clipper.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.Hermite">
+<em class="property">class </em><code class="descname">Hermite</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.Hermite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using Hermite polynomials.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.Laguerre">
+<em class="property">class </em><code class="descname">Laguerre</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.Laguerre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using Legendre polynomials.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.Legendre">
+<em class="property">class </em><code class="descname">Legendre</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.Legendre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using Legendre polynomials.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock">
+<em class="property">class </em><code class="descname">NonlinearBlock</code><span class="sig-paren">(</span><em>input_signal</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>An abstract base class to create a nonlinear block using nonlinear functions</p>
+<dl class="method">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock.CreateModified">
+<code class="descname">CreateModified</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock.CreateModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should be overridden in the derived classes. Get a new instance of the class with or without modified
+parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock.GetOutput">
+<code class="descname">GetOutput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock.GetOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should be overridden in the derived classes. Get the output signal of the nonlinear block.
+:return: the output signal.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock">
+<em class="property">class </em><code class="descname">PolynomialNonlinearBlock</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.NonlinearBlock</span></code></a></p>
+<p>A base class to create nonlinear block using polynomials.</p>
+<dl class="method">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock.CreateModified">
+<code class="descname">CreateModified</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock.CreateModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new instance of the class with or without modified parameters.
+:param signal: the input signal
+:param degree: the nonlinear degree
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.Power">
+<em class="property">class </em><code class="descname">Power</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.Power" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.PolynomialNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using powers.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.SoftClip">
+<em class="property">class </em><code class="descname">SoftClip</code><span class="sig-paren">(</span><em>input_signal=None</em>, <em>clipping_threshold=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.SoftClip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock" title="nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock"><code class="xref py py-class docutils literal"><span class="pre">nlsp.nonlinear_functions.nonlinear_functions.ClippingNonlinearBlock</span></code></a></p>
+<p>A class to create a nonlinear block using soft clipper.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.chebyshev_polynomial">
+<code class="descname">chebyshev_polynomial</code><span class="sig-paren">(</span><em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.chebyshev_polynomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to generate chebyshev polynomial of an array of samples.
+:param degree: the degree
+:return: the chebyshev function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.hard_clip">
+<code class="descname">hard_clip</code><span class="sig-paren">(</span><em>thresholds=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.hard_clip" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function which hard clips an array of samples
+:param thresholds: the thresholds of clipping
+:return: the clipping function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.hermite_polynomial">
+<code class="descname">hermite_polynomial</code><span class="sig-paren">(</span><em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.hermite_polynomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to generate hermite polynomial of an array of samples.
+:param degree: the degree
+:return: the hermite function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.laguerre_polynomial">
+<code class="descname">laguerre_polynomial</code><span class="sig-paren">(</span><em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.laguerre_polynomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to laguerre polynomial of an array of samples.
+:param degree: the degree
+:return: the legendre function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.legendre_polynomial">
+<code class="descname">legendre_polynomial</code><span class="sig-paren">(</span><em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.legendre_polynomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to legendre polynomial of an array of samples.
+:param degree: the degree
+:return: the legendre function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.power">
+<code class="descname">power</code><span class="sig-paren">(</span><em>degree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.power" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to generate power of an array of samples.
+:param degree: the degree
+:return: the power function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.nonlinear_functions.nonlinear_functions.soft_clip">
+<code class="descname">soft_clip</code><span class="sig-paren">(</span><em>thresholds=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.nonlinear_functions.nonlinear_functions.soft_clip" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function which soft clips an array of samples
+:param thresholds: the thresholds of clipping
+:return: the clipping function</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/nlsp.nonlinear_functions.nonlinear_functions.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Logeshwaran Thamilselvan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/nlsp.nonlinear_functions.nonlinear_functions.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

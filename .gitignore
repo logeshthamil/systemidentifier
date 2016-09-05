@@ -4,3 +4,13 @@ __pycache__
 
 # ignore the cache from the tests
 tests/.cache
+
+# Ignore everything in repository root
+documentation/_build/*
+documentation/_static/*
+documentation/_templates/*
+
+# Files to not ignore
+!/.gitignore
+!/index.rst
+!/conf.py

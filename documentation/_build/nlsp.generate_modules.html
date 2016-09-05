@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>nlsp.generate_modules module &mdash; Nonlinear Signal Processing (nlsp) 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Nonlinear Signal Processing (nlsp) 1.0.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-nlsp.generate_modules">
+<span id="nlsp-generate-modules-module"></span><h1>nlsp.generate_modules module<a class="headerlink" href="#module-nlsp.generate_modules" title="Permalink to this headline">¶</a></h1>
+<p>sphinx-autopackage-script</p>
+<p>This script parses a directory tree looking for python modules and packages and
+creates ReST files appropriately to create code documentation with Sphinx.
+It also creates a modules index (named modules.&lt;suffix&gt;).</p>
+<dl class="function">
+<dt id="nlsp.generate_modules.create_module_file">
+<code class="descname">create_module_file</code><span class="sig-paren">(</span><em>package</em>, <em>module</em>, <em>opts</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.create_module_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the text of the file and write the file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.create_modules_toc_file">
+<code class="descname">create_modules_toc_file</code><span class="sig-paren">(</span><em>master_package</em>, <em>modules</em>, <em>opts</em>, <em>name='modules'</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.create_modules_toc_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the module&#8217;s index.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.create_package_file">
+<code class="descname">create_package_file</code><span class="sig-paren">(</span><em>root</em>, <em>master_package</em>, <em>subroot</em>, <em>py_files</em>, <em>opts</em>, <em>subs</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.create_package_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the text of the file and write the file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.format_directive">
+<code class="descname">format_directive</code><span class="sig-paren">(</span><em>module</em>, <em>package=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.format_directive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the automodule directive and add the options.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.format_heading">
+<code class="descname">format_heading</code><span class="sig-paren">(</span><em>level</em>, <em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.format_heading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heading of &lt;level&gt; [1, 2 or 3 supported].</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.is_excluded">
+<code class="descname">is_excluded</code><span class="sig-paren">(</span><em>root</em>, <em>excludes</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.is_excluded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the directory is in the exclude list.</p>
+<dl class="docutils">
+<dt>Note: by having trailing slashes, we avoid common prefix issues, like</dt>
+<dd>e.g. an exlude &#8220;foo&#8221; also accidentally excluding &#8220;foobar&#8221;.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.main">
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse and check the command line arguments.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.makename">
+<code class="descname">makename</code><span class="sig-paren">(</span><em>package</em>, <em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.makename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join package and module with a dot.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.normalize_excludes">
+<code class="descname">normalize_excludes</code><span class="sig-paren">(</span><em>rootpath</em>, <em>excludes</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.normalize_excludes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the excluded directory list:
+* must be either an absolute path or start with rootpath,
+* otherwise it is joined with rootpath
+* with trailing slash</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.recurse_tree">
+<code class="descname">recurse_tree</code><span class="sig-paren">(</span><em>path</em>, <em>excludes</em>, <em>opts</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.recurse_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look for every file in the directory tree and create the corresponding
+ReST files.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.shall_skip">
+<code class="descname">shall_skip</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.shall_skip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if we want to skip this module.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nlsp.generate_modules.write_file">
+<code class="descname">write_file</code><span class="sig-paren">(</span><em>name</em>, <em>text</em>, <em>opts</em><span class="sig-paren">)</span><a class="headerlink" href="#nlsp.generate_modules.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the output file for module/package &lt;name&gt;.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/nlsp.generate_modules.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Logeshwaran Thamilselvan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/nlsp.generate_modules.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
