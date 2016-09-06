@@ -1,0 +1,2 @@
+@echo off
+sphinx-apidoc.exe -f -o "O:\Diplomanden\Logeshwaran.Thamilselvan\Loudspeaker nonlinearity\sdlc\nlsp\documentation\rst" "O:\Diplomanden\Logeshwaran.Thamilselvan\Loudspeaker nonlinearity\sdlc\nlsp"
