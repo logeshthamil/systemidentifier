@@ -1,14 +1,16 @@
 # ignore Python bytecode
 *.pyc
+*.rst
+*.doctree
 __pycache__
 
 # ignore the cache from the tests
 tests/.cache
 
 # Ignore everything in repository root
-documentation/_build/*
-documentation/_static/*
-documentation/_templates/*
+**/documentation/_build/**
+**/documentation/_build/.doctrees/
+**/documentation/
 
 # Files to not ignore
 !/.gitignore
