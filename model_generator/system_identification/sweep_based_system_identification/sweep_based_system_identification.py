@@ -117,7 +117,11 @@ class SineSweep(SystemIdentification):
                                                                                                 length=self._filter_length))
             else:
                 filter_kernels.append(B[branch - 1])
-        return filter_kernels
+        filters = []
+        for filt in filter_kernels:
+            filters.append(sumpf.Signal(channels=filt.GetChannels(), samplingrate=ir_sweep.GetSamplingRate(),
+                                        labels=filt.GetLabels()))
+        return filters
 
     def _GetNonlinerFunctions(self):
         """
@@ -195,6 +199,10 @@ class CosineSweep(SystemIdentification):
                                                                               length=self._filter_length))
             else:
                 filter_kernels.append(ir_harmonics[branch - 1])
+        filters = []
+        for filt in filter_kernels:
+            filters.append(sumpf.Signal(channels=filt.GetChannels(), samplingrate=ir_sweep.GetSamplingRate(),
+                                        labels=filt.GetLabels()))
         return filter_kernels
 
     def _GetNonlinerFunctions(self):

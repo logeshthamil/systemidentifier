@@ -59,6 +59,7 @@ class SystemIdentification(HGMModelGenerator):
         :param response: the response
         """
         self._system_response = response
+        self.GetExcitation()
         self._filter_impulseresponses = self._GetFilterImpuleResponses()
         self._nonlinear_functions = self._GetNonlinerFunctions()
 
