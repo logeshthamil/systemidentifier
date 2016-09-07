@@ -8,12 +8,12 @@ class AliasingCompensation(object):
     postprocessing units. Every derived aliasing compensation technique should implement the signal processing chain for
     aliasing compensation.
     """
-
     def __init__(self, input_signal=None, maximum_harmonics=None):
         """
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @return:
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        :type maximum_harmonics: int
         """
         if input_signal is None:
             self._input_signal = sumpf.Signal()
@@ -28,7 +28,8 @@ class AliasingCompensation(object):
     def SetMaximumHarmonics(self, maximum_harmonics=None):
         """
         Sets the maximum harmonics until which the aliasing compensation has to be compensated for.
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        :type maximum_harmonics: int
         """
         self._maximum_harmonics = maximum_harmonics
 
@@ -36,7 +37,8 @@ class AliasingCompensation(object):
     def SetPreprocessingInput(self, preprocessing_input=None):
         """
         Sets the input signal of the preprocessing unit.
-        @param input_signal: the input signal of the preprocessing unit
+        :param input_signal: the input signal of the preprocessing unit
+        :type preprocessing_input: sumpf.Signal()
         """
         self._input_signal = preprocessing_input
 
@@ -44,7 +46,8 @@ class AliasingCompensation(object):
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
-        @return: the output signal of the preprocessing aliasing compensation
+        :return: the output signal of the preprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         return self._input_signal
 
@@ -52,7 +55,8 @@ class AliasingCompensation(object):
     def SetPostprocessingInput(self, postprocessing_input=None):
         """
         Sets the input signal of the postprocessing aliasing compensation.
-        @param postprocessing_input: the input signal of the postprocessing aliasing compensation
+        :param postprocessing_input: the input signal of the postprocessing aliasing compensation
+        :type postprocessing_input: sumpf.Signal()
         """
         self._postprocessing_input = postprocessing_input
 
@@ -60,12 +64,18 @@ class AliasingCompensation(object):
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
-        @return: the output signal of the postprocessing aliasing compensation
+        :return: the output signal of the postprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         return self._postprocessing_input
 
     @sumpf.Output(float)
     def _GetAttenuation(self):
+        """
+        Get the attenuation factor.
+        :return: the attenuation factor
+        :rtype: float
+        """
         attenuation = self._input_signal.GetSamplingRate() / self.GetPreprocessingOutput().GetSamplingRate()
         return attenuation
 
@@ -78,9 +88,12 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
 
     def __init__(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics
+        :type maximum_harmonics: int
+        :param resampling_algorithm: the resampling algorithm
+        :type resampling_algorithm: Eg, sumpf.modules.ResampleSignal.SPECTRUM()
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
         if resampling_algorithm is None:
@@ -90,11 +103,12 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
 
     def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
-        This method creates a new instance of the class with or without parameter modification.
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
-        @return: the modified instance of the class
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        :type maximum_harmonics: int
+        :param resampling_algorithm: the resampling algorithm
+        :type resampling_algorithm: Eg. sumpf.modules.ResampleSignal.SPECTRUM()
         """
         if input_signal is None:
             input_signal = self._input_signal
@@ -108,8 +122,9 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPreprocessingOutput(self):
         """
-        Gets the output signal of the preprocessing aliasing compensation.
-        @return: the output signal of the preprocessing aliasing compensation
+        Get the output signal of the preprocessing aliasing compensation.
+        :return: the output signal of the preprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         resampling_rate = self._input_signal.GetSamplingRate() * self._maximum_harmonics
         resampler = sumpf.modules.ResampleSignal(signal=self._input_signal, samplingrate=resampling_rate,
@@ -120,7 +135,8 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
-        @return: the output signal of the postprocessing aliasing compensation
+        :return: the output signal of the postprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         resampling_rate = self._input_signal.GetSamplingRate()
         resampler = sumpf.modules.ResampleSignal(signal=self._postprocessing_input, samplingrate=resampling_rate,
@@ -136,9 +152,12 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
 
     def __init__(self, input_signal=None, maximum_harmonics=1, resampling_algorithm=None):
         """
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics
+        :type maximum_harmonics: int
+        :param resampling_algorithm: the resampling algorithm
+        :type resampling_algorithm: Eg, sumpf.modules.ResampleSignal.SPECTRUM()
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
         if resampling_algorithm is None:
@@ -150,7 +169,8 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
-        @return: the output signal of the preprocessing aliasing compensation
+        :return: the output signal of the preprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         resampling_rate = self._input_signal.GetSamplingRate() * math.ceil((self._maximum_harmonics + 1.0) / 2.0)
         resampler = sumpf.modules.ResampleSignal(signal=self._input_signal, samplingrate=resampling_rate,
@@ -161,7 +181,8 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
-        @return: the output signal of the postprocessing aliasing compensation
+        :return: the output signal of the postprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         resampling_rate = self._input_signal.GetSamplingRate()
         resampler = sumpf.modules.ResampleSignal(signal=self._postprocessing_input, samplingrate=resampling_rate,
@@ -171,10 +192,10 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
         This method creates a new instance of the class with or without parameter modification.
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
-        @return: the modified instance of the class
+        :param input_signal: the input signal
+        :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        :param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
+        :return: the modified instance of the class
         """
         if input_signal is None:
             input_signal = self._input_signal
@@ -196,11 +217,16 @@ class LowpassAliasingCompensation(AliasingCompensation):
                  filter_function_class=sumpf.modules.FilterGenerator.BUTTERWORTH,
                  filter_order=16, attenuation=60):
         """
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param filter_function_class: the filter function which can be chosen based on the choice of filter used for
-        aliasing compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH
-        @param attenuation: the required attenuation (in dB) at the stopband frequency of the filter
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics
+        :type maximum_harmonics: int
+        :param filter_function_class: the filter function which can be chosen based on the choice of filter used for aliasing compensation
+        :type filter_function_class: Eg, sumpf.modules.FilterGenerator.BUTTERWORTH
+        :param filter_order: the filter order
+        :type filter_order: int
+        :param attenuation: the required attenuation at the stopband frequency of the filter in dB
+        :type attenuation: int
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
         self._filter_function = sumpf.modules.FilterGenerator(filterfunction=filter_function_class(order=filter_order))
@@ -211,7 +237,8 @@ class LowpassAliasingCompensation(AliasingCompensation):
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
-        @return: the output signal of the preprocessing aliasing compensation
+        :return: the output signal of the preprocessing aliasing compensation
+        :rtype: sumpf.Signal()
         """
         property = sumpf.modules.ChannelDataProperties()
         property.SetSignal(signal=self._input_signal)
@@ -229,12 +256,18 @@ class LowpassAliasingCompensation(AliasingCompensation):
                        filter_order=None, attenuation=None):
         """
         This method creates a new instance of the class with or without parameter modification.
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @param filter_function_class: the filter function which can be chosen based on the choice of filter used for
-        aliasing compensation Eg. sumpf.modules.FilterGenerator.BUTTERWORTH
-        @param attenuation: the required attenuation (in dB) at the stopband frequency of the filter
-        @return: the modified instance of the class
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics
+        :type maximum_harmonics: int
+        :param filter_function_class: the filter function which can be chosen based on the choice of filter used for aliasing compensation
+        :type filter_function_class: sumpf.modules.FilterGenerator.BUTTERWORTH
+        :param filter_order: the filter order
+        :type filter_order: int
+        :param attenuation: the required attenuation at the stopband frequency of the filter in dB
+        :type attenuation: int
+        :return: the modified instance of the class
+        :rtype: Eg, nlsp.aliasing_compensation.LowpassAliasingCompensation()
         """
         if input_signal is None:
             input_signal = self._input_signal
@@ -258,17 +291,22 @@ class NoAliasingCompensation(AliasingCompensation):
 
     def __init__(self, input_signal=None, maximum_harmonics=1):
         """
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics
+        :type maximum_harmonics: int
         """
         AliasingCompensation.__init__(self, input_signal=input_signal, maximum_harmonics=maximum_harmonics)
 
     def CreateModified(self, input_signal=None, maximum_harmonics=None):
         """
         This method creates a new instance of the class with or without modification.
-        @param input_signal: the input signal
-        @param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
-        @return: the modified instance of the class
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param maximum_harmonics: the maximum harmonics
+        :type maximum_harmonics: int
+        :return: the modified instance of the class
+        :rtype: nlsp.aliasing_compensation.NoAliasingCompensation()
         """
         if input_signal is None:
             input_signal = self._input_signal
