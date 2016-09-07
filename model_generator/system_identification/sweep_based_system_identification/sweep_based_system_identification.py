@@ -8,23 +8,50 @@ class SineSweep(SystemIdentification):
     """
     A class which identifies a model of the system using a sine sweep signal.
     """
+    def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None,
+                 excitation_length=None, excitation_sampling_rate=None, filter_length=None, excitation_start_freq=20.0,
+                 excitation_stop_freq=20000.0):
+        """
+        :param system_response: the response of the nonlinear system
+        :param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
+        :param aliasing_compensation: the aliasing compensation parameter of the resulting model
+        :param excitation_length: the length of the excitation and response signals
+        :param excitation_sampling_rate: the sampling rate of the excitation and response signals
+        :param filter_length: the identified filter length
+        :param excitation_start_freq: the start frequency of the excitation signal
+        :param excitation_stop_freq: the stop frequency of the excitation signal
+        """
+        SystemIdentification.__init__(self, system_response=system_response, select_branches=select_branches,
+                                      aliasing_compensation=aliasing_compensation, excitation_length=excitation_length,
+                                      excitation_sampling_rate=excitation_sampling_rate, filter_length=filter_length)
+        self.__start_freq = excitation_start_freq
+        self.__stop_freq = excitation_stop_freq
 
     @sumpf.Output(sumpf.Signal)
-    def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
+    def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None, excitation_start_freq=None,
+                      excitation_stop_freq=None):
         """
         Get the excitation signal for system identification.
 
         :param excitation_length: the length of the excitation signal
         :param excitation_sampling_rate: the sampling rate of the excitation signal
+        :param excitation_start_freq: the start frequency of the excitation signal
+        :param excitation_stop_freq: the stop frequency of the excitation signal
         :return: the excitation signal
         """
         if excitation_length is not None:
             self._length = excitation_length
         if excitation_sampling_rate is not None:
             self._sampling_rate = excitation_sampling_rate
+        if excitation_start_freq is not None:
+            self.__start_freq = excitation_start_freq
+        if excitation_stop_freq is not None:
+            self.__stop_freq = excitation_stop_freq
         self.__excitation_generator = nlsp.excitation_generators.Sinesweepgenerator_Novak(
             sampling_rate=self._sampling_rate,
-            approximate_numberofsamples=self._length)
+            approximate_numberofsamples=self._length,
+            start_frequency=self.__start_freq,
+            stop_frequency=self.__stop_freq)
         return self.__excitation_generator.GetOutput()
 
     def _GetFilterImpuleResponses(self):

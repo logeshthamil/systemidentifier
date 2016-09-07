@@ -16,6 +16,7 @@ class SystemIdentification(HGMModelGenerator):
         :param aliasing_compensation: the aliasing compensation parameter of the resulting model
         :param excitation_length: the length of the excitation and response signals
         :param excitation_sampling_rate: the sampling rate of the excitation and response signals
+        :param filter_length: the identified filter length
         """
         if system_response is None:
             self._system_response = sumpf.Signal()
