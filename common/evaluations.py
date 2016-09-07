@@ -11,8 +11,8 @@ class CompareWithReference(object):
 
     def __init__(self, reference_signal=None, signal_to_be_evaluated=None, desired_frequency_range=None):
         """
-        @param reference_signal: the reference signal and it should be of datatype sumpf.Signal()
-        @param signal_to_be_evaluated: the signal which has to be evaluated and it should be of datatype sumpf.Signal()
+        :param reference_signal: the reference signal and it should be of datatype sumpf.Signal()
+        :param signal_to_be_evaluated: the signal which has to be evaluated and it should be of datatype sumpf.Signal()
         """
         if reference_signal is None:
             self.__reference_output = sumpf.Signal()
@@ -31,6 +31,9 @@ class CompareWithReference(object):
     def SetReferenceOutput(self, reference_output):
         """
         Sets the output of the nonlinear system or the reference output.
+
+        :param reference_output: the reference output
+        :type reference_output: sumpf.Signal
         """
         self.__reference_output = reference_output
 
@@ -38,6 +41,9 @@ class CompareWithReference(object):
     def SetIdentifiedOutput(self, identified_output):
         """
         Sets the output fo the identified nonlinear model or the identified output.
+
+        :param identified_output: the identified output
+        :type identified_output: sumpf.Signal()
         """
         self.__identified_output = identified_output
 
@@ -45,7 +51,8 @@ class CompareWithReference(object):
     def GetSignaltoErrorRatio(self, desired_frequency_range=None):
         """
         Get the Signal to Error Ratio between the reference output and the identified output.
-        @return: the Signal to Error Ratio
+
+        :return: the Signal to Error Ratio
         """
         if desired_frequency_range is not None:
             self.__desired_frequency_range = desired_frequency_range
@@ -92,7 +99,8 @@ class CompareWithReference(object):
     def GetSERvsFrequency(self):
         """
         Get the spectrum of the Signal to Error Ratio.
-        @return: the spectrum of the SER value
+
+        :return: the spectrum of the SER value
         """
         ref_signalorspectrum = self.__reference_output
         iden_signalorspectrum = self.__identified_output

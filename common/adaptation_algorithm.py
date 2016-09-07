@@ -11,14 +11,20 @@ class FIRAdaptationAlgorithm(object):
                  step_size=None,
                  leakage=None, iteration_cycle=None):
         """
-        @param input_signal: the input signal
-        @param desired_output: the desired output signal
-        @param filter_length: length of the filter
-        @param initialcoefficients: the initial coefficients
-        @param step_size: the step size
-        @param leakage: the leakage value, Eg= 0-no leakage, <1-leaky filter design, >2-error
-        @param iteration_cycle: the iteration cycles, multiple iteration cycles results in over adaptation
-        @return:
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param desired_output: the desired output signal
+        :type desired_output: sumpf.Signal()
+        :param filter_length: the filter length
+        :type filter_length: int
+        :param initialcoefficients: the initial coefficients
+        :type initialcoefficients: sumpf.Signal()
+        :param step_size: the step size
+        :type step_size: float
+        :param leakage: the leakage value
+        :type leakage: Eg, 0-no leakage, <1-leaky filter design, >2-error
+        :param iteration_cycle: the iteration cycles, multiple iteration cycles results in over adaptation
+        :type iteration_cycle: int
         """
         if input_signal is None:
             self._input_signal = sumpf.Signal()
@@ -50,7 +56,9 @@ class FIRAdaptationAlgorithm(object):
     def SetInput(self, input_signal):
         """
         Set the input signal for the adaptation algorithm
-        @param inputsignal: the input signal
+
+        :param inputsignal: the input signal
+        :type input_signal: sumpf.Signal()
         """
         self._input_signal = input_signal
 
@@ -58,7 +66,9 @@ class FIRAdaptationAlgorithm(object):
     def SetDesiredOutput(self, desired_output):
         """
         Set the desired output of the adaptation algorithm
-        @param desired_output: the desired output signal
+
+        :param desired_output: the desired output signal
+        :type desired_output: sumpf.Signal()
         """
         self._desired_output = desired_output
 
@@ -66,7 +76,9 @@ class FIRAdaptationAlgorithm(object):
     def SetFilterLength(self, filter_length):
         """
         Set the filter length of the adaptation algorithm
-        @param filter_length: the filter length
+
+        :param filter_length: the filter length
+        :type filter_length: int
         """
         self._filter_length = filter_length
 
@@ -74,7 +86,9 @@ class FIRAdaptationAlgorithm(object):
     def GetFilterKernel(self):
         """
         Get the identified filter kernel by the adaptation algorithm. This should be overriden by the base classes.
-        @return: the identified filter kernel
+
+        :return the identified filter kernel
+        :rtype int
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
@@ -88,14 +102,22 @@ class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     def __init__(self, input_signal=None, desired_output=None, filter_length=None, step_size=None,
                  initialcoefficients=None, leakage=None, iteration_cycle=None, epsilon=0.0001):
         """
-        @param input_signal: the input signal
-        @param desired_output: the desired output signal
-        @param filter_length: length of the filter
-        @param step_size: the step size
-        @param initialcoefficients: the initial coefficients
-        @param leakage: the leakage value, Eg= 0-no leakage, <1-leaky filter design, >2-error
-        @param iteration_cycle: the iteration cycles, multiple iteration cycles results in over adaptation
-        @param epsilon: the regularization factor to avoid numerical errors when power of input is close to zero
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param desired_output: the desired output signal
+        :type desired_output: sumpf.Signal()
+        :param filter_length: length of the filter
+        :type filter_length: int
+        :param step_size: the step size
+        :type step_size: int
+        :param initialcoefficients: the initial coefficients
+        :type initialcoefficients: sumpf.Signal()
+        :param leakage: the leakage value
+        :type leakage: Eg, 0-no leakage, <1-leaky filter design, >2-error
+        :param iteration_cycle: the iteration cycles, multiple iteration cycles results in over adaptation
+        :type iteration_cycle: int
+        :param epsilon: the regularization factor to avoid numerical errors when power of input is close to zero
+        :type epsilon: float
         """
         self.__epsilon = epsilon
         FIRAdaptationAlgorithm.__init__(self, input_signal=input_signal, desired_output=desired_output,
@@ -107,7 +129,9 @@ class MISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     def GetFilterKernel(self):
         """
         Get the identified filter kernel by the adaptation algorithm. This should be overriden by the base classes.
-        @return: the identified filter kernel
+
+        :return: the identified filter kernel
+        :rtype: sumpf.Signal()
         """
         input_signals_array = self._input_signal.GetChannels()
         initCoeffs = self._initial_coeff
@@ -159,14 +183,22 @@ class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     def __init__(self, input_signal=None, desired_output=None, filter_length=None, step_size=None,
                  initialcoefficients=None, leakage=None, iteration_cycle=None, epsilon=0.0001):
         """
-        @param input_signal: the input signal
-        @param desired_output: the desired output signal
-        @param filter_length: length of the filter
-        @param step_size: the step size
-        @param initialcoefficients: the initial coefficients
-        @param leakage: the leakage value, Eg= 0-no leakage, <1-leaky filter design, >2-error
-        @param iteration_cycle: the iteration cycles, multiple iteration cycles results in over adaptation
-        @param epsilon: the regularization factor to avoid numerical errors when power of input is close to zero
+        :param input_signal: the input signal
+        :type input_signal: sumpf.Signal()
+        :param desired_output: the desired output signal
+        :type desired_output: sumpf.Signal()
+        :param filter_length: length of the filter
+        :type filter_length: int
+        :param step_size: the step size
+        :type step_size: int
+        :param initialcoefficients: the initial coefficients
+        :type initialcoefficients: sumpf.Signal()
+        :param leakage: the leakage value
+        :type leakage: Eg, 0-no leakage, <1-leaky filter design, >2-error
+        :param iteration_cycle: the iteration cycles, multiple iteration cycles results in over adaptation
+        :type iteration_cycle: int
+        :param epsilon: the regularization factor to avoid numerical errors when power of input is close to zero
+        :type epsilon: float
         """
         self.__epsilon = epsilon
         FIRAdaptationAlgorithm.__init__(self, input_signal=input_signal, desired_output=desired_output,
@@ -178,7 +210,9 @@ class SISO_NLMS_algorithm(FIRAdaptationAlgorithm):
     def GetFilterKernel(self):
         """
         Get the identified filter kernel by the adaptation algorithm. This should be overriden by the base classes.
-        @return: the identified filter kernel
+
+        :return: the identified filter kernel
+        :rtype: sumpf.Signal()
         """
         d = self._desired_output.GetChannels()[0]
         M = self._filter_length

@@ -11,14 +11,11 @@ class HGMModelGenerator(object):
                  aliasing_compensation=None,
                  downsampling_position=None):
         """
-        @param input_model: the input model
-        @param filter_impulseresponses: the filter impulse responses
-        Eg. [filter_impulseresponse1, filter_impulseresponse2, ...]
-        @param nonlinear_function: the nonlinear functions
-        Eg. [nonlinear_function1, nonlinear_function2, ...]
-        @param aliasing_compensation: the aliasing compensation technique
-        Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
-        @param downsampling_position: the downsampling position in the HGM
+        :param input_model: the input model
+        :param filter_impulseresponses: the filter impulse responses Eg, [filter_impulseresponse1, filter_impulseresponse2, ...]
+        :param nonlinear_function: the nonlinear functions Eg, [nonlinear_function1, nonlinear_function2, ...]
+        :param aliasing_compensation: the aliasing compensation technique Eg, nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+        :param downsampling_position: the downsampling position in the HGM
         """
         if input_model is None:
             self._input_model = nlsp.HammersteinGroupModel()
@@ -49,7 +46,8 @@ class HGMModelGenerator(object):
     def GetOutputModel(self):
         """
         Get the output model.
-        @return: the output model
+
+        :return: the output model
         """
         # aliasing compensation
         self._aliasing_compensation = self._aliasing_compensation.CreateModified()

@@ -11,9 +11,9 @@ class Evaluation_artificial(object):
 
     def __init__(self, reference_system=None, identification_algorithms=None, test_signal=None):
         """
-        @param reference_system: the reference system object
-        @param identification_algorithm: the identification algorithm object
-        @param test_signal: the test signal which is used for evaluation
+        :param reference_system: the reference system object
+        :param identification_algorithm: the identification algorithm object
+        :param test_signal: the test signal which is used for evaluation
         """
         if reference_system is None:
             self._reference_system = nlsp.HammersteinGroupModel(
@@ -32,21 +32,24 @@ class Evaluation_artificial(object):
     def SetReferenceSystem(self, reference_system=None):
         """
         Set the reference system for evaluation.
-        @param reference_system: the reference system
+
+        :param reference_system: the reference system
         """
         self._reference_system = reference_system
 
     def SetIdentificationAlgorithms(self, identification_algorithms=None):
         """
         Set the identification algorithms.
-        @param identification_algorithms: the identification algorithms
+
+        :param identification_algorithms: the identification algorithms
         """
         self._identification_algorithms = identification_algorithms
 
     def GetAccuracy(self):
         """
         This method should be overridden by the methods in the derived class.
-        @return: the accuracy of the resulting model
+
+        :return: the accuracy of the resulting model
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
@@ -58,9 +61,9 @@ class AccuracyEvaluation(Evaluation_artificial):
 
     def __init__(self, reference_nonlinearsystem=None, identification_algorithms=None, test_signal=None):
         """
-        @param reference_nonlinearsystem: the reference nonlinear system
-        @param identification_algorithms: the identification algorithm
-        @param test_signal: the test signal for evaluation
+        :param reference_nonlinearsystem: the reference nonlinear system
+        :param identification_algorithms: the identification algorithm
+        :param test_signal: the test signal for evaluation
         """
         Evaluation_artificial.__init__(self, reference_system=reference_nonlinearsystem,
                                        identification_algorithms=identification_algorithms, test_signal=test_signal)
@@ -68,7 +71,8 @@ class AccuracyEvaluation(Evaluation_artificial):
     def GetAccuracy(self):
         """
         Get the SER value between the output of the reference system and the output of the identified system.
-        @return: the SER value
+
+        :return: the SER value
         """
         ser = []
         for identification_algorithm in self._identification_algorithms:
@@ -96,10 +100,10 @@ class RobustnessEvaluationWithAddedNoise(Evaluation_artificial):
     def __init__(self, reference_nonlinearsystem=None, identification_algorithms=None, test_signal=None,
                  noise_signal=None):
         """
-        @param reference_nonlinearsystem: the reference nonlinear system
-        @param identification_algorithms: the identification algorithms
-        @param test_signal: the test signal for evaluation
-        @param noise_signal: the noise signal which is added to the response of the reference system
+        :param reference_nonlinearsystem: the reference nonlinear system
+        :param identification_algorithms: the identification algorithms
+        :param test_signal: the test signal for evaluation
+        :param noise_signal: the noise signal which is added to the response of the reference system
         """
         Evaluation_artificial.__init__(self, reference_system=reference_nonlinearsystem,
                                        identification_algorithms=identification_algorithms, test_signal=test_signal)
@@ -108,7 +112,8 @@ class RobustnessEvaluationWithAddedNoise(Evaluation_artificial):
     def GetAccuracy(self):
         """
         Get the SER value between the output of the reference system and the output of the identified system.
-        @return: the SER value
+
+        :return: the SER value
         """
         ser = []
         for identification_algorithm in self._identification_algorithms:
@@ -139,11 +144,11 @@ class RobustnessEvaluationWithDifferentExcitationLevel(Evaluation_artificial):
     def __init__(self, reference_nonlinearsystem=None, identification_algorithms=None, test_signal=None,
                  identification_level=None, testing_level=None):
         """
-        @param reference_nonlinearsystem: the reference nonlinear system
-        @param identification_algorithms: the identification algorithms
-        @param test_signal: the test signal for evaluation
-        @param identification_level: the amplitude level of the excitation signal Eg. 1.0
-        @param testing_level: the amplitude level of the test signal Eg. 1.0
+        :param reference_nonlinearsystem: the reference nonlinear system
+        :param identification_algorithms: the identification algorithms
+        :param test_signal: the test signal for evaluation
+        :param identification_level: the amplitude level of the excitation signal Eg. 1.0
+        :param testing_level: the amplitude level of the test signal Eg. 1.0
         """
         Evaluation_artificial.__init__(self, reference_system=reference_nonlinearsystem,
                                        identification_algorithms=identification_algorithms, test_signal=test_signal)
@@ -159,7 +164,8 @@ class RobustnessEvaluationWithDifferentExcitationLevel(Evaluation_artificial):
     def GetAccuracy(self):
         """
         Get the SER value between the output of the reference system and the output of the identified system.
-        @return: the SER value
+
+        :return: the SER value
         """
         ser = []
         for identification_algorithm in self._identification_algorithms:
@@ -188,11 +194,11 @@ class PerformanceEvaluation(Evaluation_artificial):
 
     def __init__(self, identification_algorithms=None, test_signal=None, excitation_length=None, kernel_length=None):
         """
-        @param reference_nonlinearsystem: the reference nonlinear system
-        @param identification_algorithms: the identification algorithms
-        @param test_signal: the test signal
-        @param excitation_length: the excitation length
-        @param kernel_length: the kernel length
+        :param reference_nonlinearsystem: the reference nonlinear system
+        :param identification_algorithms: the identification algorithms
+        :param test_signal: the test signal
+        :param excitation_length: the excitation length
+        :param kernel_length: the kernel length
         """
         reference_nonlinearsystem = sumpf.modules.ClipSignal(thresholds=(-0.8, 0.8))
         Evaluation_artificial.__init__(self, reference_system=reference_nonlinearsystem,
@@ -206,8 +212,9 @@ class PerformanceEvaluation(Evaluation_artificial):
     def GetIdentificationComplexity(self, iterations=1):
         """
         Get the identification complexity of the system identification algorithm in seconds.
-        @param iterations: the number of iterations after which the average time is taken
-        @return: the identification time
+
+        :param iterations: the number of iterations after which the average time is taken
+        :return: the identification time
         """
         i_t = []
         for identification_algorithm in self._identification_algorithms:
@@ -229,8 +236,9 @@ class PerformanceEvaluation(Evaluation_artificial):
     def GetSimulationComplexity(self, iterations=1):
         """
         Get the simulation complexity of the system identification algorithm in seconds.
-        @param iterations: the number of iterations after which the average time is taken
-        @return: the simulation time
+
+        :param iterations: the number of iterations after which the average time is taken
+        :return: the simulation time
         """
         s_t = []
         for identification_algorithm in self._identification_algorithms:

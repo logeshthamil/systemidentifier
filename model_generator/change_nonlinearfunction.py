@@ -23,7 +23,8 @@ class RecomputeFilterKernels(HGMModelGenerator):
     def SetNonlinearFunction(self, nonlinearfunction):
         """
         Set the nonlinear function of the HGM.
-        @param nonlinearfunction: the nonlinear function Eg, nlsp.nonlinear_function.Power
+
+        :param nonlinearfunction: the nonlinear function Eg, nlsp.nonlinear_function.Power
         """
         self.__desired_nonlinear_function = nonlinearfunction
         self._FindFilterKernels()
@@ -80,6 +81,13 @@ class RecomputeFilterKernels(HGMModelGenerator):
 
 
 def return_polynomial_and_coefficient(nl_func):
+    """
+    Returns the correct polynomial and the coefficient.
+
+    :param nl_func: the type of nonlinear functions
+    :type nl_func: nlsp.nonlinear_function
+    :return: the polynomial and its coefficients
+    """
     if nl_func is nlsp.nonlinear_function.Chebyshev:
         polynomial = numpy.polynomial.chebyshev.Chebyshev
         coefficient = numpy.polynomial.chebyshev.cheb2poly

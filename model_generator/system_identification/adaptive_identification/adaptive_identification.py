@@ -1,6 +1,4 @@
 from nlsp.model_generator.system_identification.system_identification_approaches import SystemIdentification
-import numpy
-import copy
 import sumpf
 import nlsp
 
@@ -14,14 +12,14 @@ class Adaptive(SystemIdentification):
                  multichannel_algorithm=None, nonlinear_function=nlsp.nonlinear_function.Power,
                  excitation_length=2 ** 16, excitation_sampling_rate=None, aliasing_compensation=None):
         """
-        @param system_excitation: the excitation of the nonlinear system
-        @param system_response: the response of the nonlinear system
-        @param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
-        @param multichannel_algorithm: the multichannel algorithm which is used for system identification
-        @param nonlinear_function: the nonlinear functions of the resulting model
-        @param excitation_length: the length of the excitation and response signals
-        @param excitation_sampling_rate: the sampling rate of the excitation and response signals
-        @param aliasing_compensation: the aliasing compensation parameter of the resulting model
+        :param system_excitation: the excitation of the nonlinear system
+        :param system_response: the response of the nonlinear system
+        :param select_branches: the branches of the model to which the filter kernels have to be found Eg. [1,2,3,4,5]
+        :param multichannel_algorithm: the multichannel algorithm which is used for system identification
+        :param nonlinear_function: the nonlinear functions of the resulting model
+        :param excitation_length: the length of the excitation and response signals
+        :param excitation_sampling_rate: the sampling rate of the excitation and response signals
+        :param aliasing_compensation: the aliasing compensation parameter of the resulting model
         """
         if system_excitation is None:
             self.__system_excitation = sumpf.Signal()
@@ -42,9 +40,10 @@ class Adaptive(SystemIdentification):
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
-        @param excitation_length: the length of the excitation signal
-        @param excitation_sampling_rate: the sampling rate of the excitation signal
-        @return: the excitation signal
+
+        :param excitation_length: the length of the excitation signal
+        :param excitation_sampling_rate: the sampling rate of the excitation signal
+        :return: the excitation signal
         """
         if excitation_length is not None:
             self._length = excitation_length
@@ -58,7 +57,8 @@ class Adaptive(SystemIdentification):
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
-        @return: the filter impulse responses
+
+        :return: the filter impulse responses
         """
         input_ex = self.GetExcitation()
         nonlinear_functions = [self.__nlfunction(degree=i) for i in self._select_branches]
@@ -88,7 +88,8 @@ class Adaptive(SystemIdentification):
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
-        @return: the nonlinear functions
+
+        :return: the nonlinear functions
         """
         nonlinear_functions = []
         for branch in self._select_branches:

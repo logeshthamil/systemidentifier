@@ -8,7 +8,8 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
-        @return: the filter impulse responses
+
+        :return: the filter impulse responses
         """
         excitation = self.GetExcitation()
         response = self._system_response
@@ -35,7 +36,8 @@ class WienerGapproach(WhiteGaussianNoiseIdentification):
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
-        @return: the nonlinear functions
+
+        :return: the nonlinear functions
         """
         nonlinear_functions = []
         for branch in self._select_branches:

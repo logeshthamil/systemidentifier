@@ -10,7 +10,7 @@ class SaveandRetrieveModel(object):
 
     def __init__(self, filename=None):
         """
-        @param filename: the filename where the model has to be save or the filename of the model which has to be retrieved
+        :param filename: the filename where the model has to be save or the filename of the model which has to be retrieved
         """
         self._filename = filename
         self._file_format = sumpf.modules.SignalFile.NUMPY_NPZ
@@ -19,7 +19,8 @@ class SaveandRetrieveModel(object):
     def SetFilename(self, filename=None):
         """
         Set the filename where the model has to be saved or to be retrieved.
-        @param filename: the filename
+
+        :param filename: the filename
         """
         self._filename = filename
 
@@ -31,8 +32,8 @@ class SaveHGMModel(SaveandRetrieveModel):
 
     def __init__(self, filename=None, model=None):
         """
-        @param filename: the file location
-        @param model: the model
+        :param filename: the file location
+        :param model: the model
         """
         SaveandRetrieveModel.__init__(self, filename=filename)
         self.__model = model
@@ -41,8 +42,9 @@ class SaveHGMModel(SaveandRetrieveModel):
     def SetModel(self, model=None):
         """
         Set model model which has to be saved in the file location.
-        @param model: the model
-        @return:
+
+        :param model: the model
+        :type model: nlsp.models
         """
         self.__model = model
         self.__SaveModel()
@@ -71,8 +73,8 @@ class RetrieveHGMModel(SaveandRetrieveModel):
 
     def __init__(self, filename=None, file_format=None):
         """
-        @param filename: the filename
-        @param file_format: the file format
+        :param filename: the filename
+        :param file_format: the file format
         """
         SaveandRetrieveModel.__init__(self, filename=filename)
 
@@ -100,10 +102,11 @@ class RetrieveHGMModel(SaveandRetrieveModel):
 def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
     """
     A helper function to generate a label based on model parameters.
-    @param nonlinearfunctions: the array of nonlinear functions class
-    @param aliasingcomp: the aliasing compensation class
-    @param downsamplingposition: the location in which the aliasing compensation is done
-    @return: the label
+
+    :param nonlinearfunctions: the array of nonlinear functions class
+    :param aliasingcomp: the aliasing compensation class
+    :param downsamplingposition: the location in which the aliasing compensation is done
+    :return: the label
     """
 
     def fullname(o):
@@ -123,8 +126,9 @@ def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
 def decode_label(label):
     """
     Decodes the label to different parameters of the model.
-    @param label: the label
-    @return: nonlinearfunctions, aliasingcomp, downsamplingposition
+
+    :param label: the label
+    :return: nonlinearfunctions, aliasingcomp, downsamplingposition
     """
     a = label.split('*')
     nonlinearfunction_class = a[0]

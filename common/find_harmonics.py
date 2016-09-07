@@ -11,6 +11,14 @@ class FindHarmonicImpulseResponse_NovakSweep(object):
                  impulse_response=None,
                  harmonic_order=2,
                  sweep_generator=None):
+        """
+        :param impulse_response: the impulse response of the system
+        :type impulse_response: sumpf.Signal
+        :param harmonic_order: the desired harmonics
+        :type harmonic_order: int
+        :param sweep_generator: the sweep generator which is used to find the impulse response
+        :type sweep_generator: nlsp.excitation_generators
+        """
         if harmonic_order < 2:
             raise ValueError("The harmonic order has to be at least 2.")
         self.__impulse_response = impulse_response
@@ -27,7 +35,8 @@ class FindHarmonicImpulseResponse_NovakSweep(object):
     def SetImpulseResponse(self, impulse_response):
         """
         Set the impulse response of a system to find its harmonic impulse responses
-        @param impulse_response: the impulse response
+
+        :param impulse_response: the impulse response
         """
         self.__impulse_response = impulse_response
 
@@ -35,8 +44,9 @@ class FindHarmonicImpulseResponse_NovakSweep(object):
     def SetHarmonicOrder(self, order):
         """
         Set the order of the harmonics to find its impulse response.
-        @param order: the harmonic order
-        @return:
+
+        :param order: the harmonic order
+        :return:
         """
         if order < 2:
             raise ValueError("The harmonic order has to be at least 2.")
@@ -46,7 +56,8 @@ class FindHarmonicImpulseResponse_NovakSweep(object):
     def GetHarmonicImpulseResponse(self):
         """
         Get the harmonic impuse response.
-        @return: the harmonic impulse response
+
+        :return: the harmonic impulse response
         """
         # stable
         sweep_rate = self.__sweep_generator.GetSweepExcitationRate()

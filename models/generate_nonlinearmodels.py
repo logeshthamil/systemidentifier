@@ -12,11 +12,11 @@ class HammersteinGroupModel(object):
     def __init__(self, input_signal=None, nonlinear_functions=None, filter_impulseresponses=None,
                  aliasing_compensation=None, downsampling_position=AFTERNONLINEARBLOCK):
         """
-        @param input_signal: the input signal
-        @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]
-        @param filter_impulseresponse: the filter impulse responses Eg. [impulse_response1, impulse_response2, ...]
-        @param aliasing_compensation: the aliasin compensation technique Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
-        @param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
+        :param input_signal: the input signal
+        :param nonlinear_functions: the nonlinear functions Eg, [nonlinear_function1, nonlinear_function2, ...]
+        :param filter_impulseresponse: the filter impulse responses Eg, [impulse_response1, impulse_response2, ...]
+        :param aliasing_compensation: the aliasin compensation technique Eg, nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+        :param downsampling_position: the downsampling position Eg, AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
         """
         # interpret the input parameters
         if input_signal is None:
@@ -80,21 +80,40 @@ class HammersteinGroupModel(object):
             self.GetOutput = self.__sums[0].GetResult
 
     def _get_aliasing_compensation(self):
+        """
+        Get the type of aliasing compensation.
+
+        :return: the type of aliasing compensation
+        :rtype: nlsp.aliasing_compensation
+        """
         return self.__aliasingcompensation
 
     @sumpf.Output(tuple)
     def GetFilterImpulseResponses(self):
+        """
+        Get the filter impulse responses.
+
+        :return: the filter impulse responses
+        :rtype: Eg, [impulse_response1, impulse_response2, ...]
+        """
         return self.__filter_irs
 
     @sumpf.Output(tuple)
     def GetNonlinearFunctions(self):
+        """
+        Get the nonlinear functions.
+
+        :return: the nonlinear functions
+        :rtype: Eg, [nonlinear_function1, nonlinear_function2, ...]
+        """
         return self.__nonlinear_functions
 
     @sumpf.Input(sumpf.Signal)
     def SetInput(self, input_signal=None):
         """
         Set the input to the model.
-        @param input_signal: the input signal
+
+        :param input_signal: the input signal
         """
         inputs = []
         for i in range(len(self.__hmodels)):
@@ -105,13 +124,13 @@ class HammersteinGroupModel(object):
                        aliasing_compensation=None, downsampling_position=None):
         """
         This method creates a new instance of the class with or without modification.
-        @param input_signal: the input signal
-        @param nonlinear_functions: the nonlinear functions Eg. [nonlinear_function1, nonlinear_function2, ...]
-        @param filter_impulseresponse: the filter impulse responses Eg. [impulse_response1, impulse_response2, ...]
-        @param aliasing_compensation: the aliasin compensation technique
-        Eg. nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
-        :param downsampling_position: the downsampling position Eg. AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
-        @return: the modified instance of the class
+
+        :param input_signal: the input signal
+        :param nonlinear_functions: the nonlinear functions Eg, [nonlinear_function1, nonlinear_function2, ...]
+        :param filter_impulseresponse: the filter impulse responses Eg, [impulse_response1, impulse_response2, ...]
+        :param aliasing_compensation: the aliasin compensation technique Eg, nlsp.aliasing_compensation.FullUpsamplingAliasingCompensation()
+        :param downsampling_position: the downsampling position Eg, AFTER_NONLINEAR_BLOCK or AFTER_LINEAR_BLOCK
+        :return: the modified instance of the class
         """
         if input_signal is None:
             input_signal = self.__input_signal
@@ -183,6 +202,9 @@ class HammersteinModel(object):
         self.GetOutput = self.__passoutput.GetSignal
 
     def _ConnectHM(self):
+        """
+        Connect the components of the Hammerstein Model.
+        """
         if self._downsampling_position == 1:
             sumpf.connect(self.__passsignal.GetSignal, self.__signalaliascomp.SetPreprocessingInput)
             sumpf.connect(self.__nonlin_function.GetMaximumHarmonics, self.__signalaliascomp.SetMaximumHarmonics)

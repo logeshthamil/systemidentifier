@@ -13,9 +13,10 @@ class SineSweep(SystemIdentification):
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
-        @param excitation_length: the length of the excitation signal
-        @param excitation_sampling_rate: the sampling rate of the excitation signal
-        @return: the excitation signal
+
+        :param excitation_length: the length of the excitation signal
+        :param excitation_sampling_rate: the sampling rate of the excitation signal
+        :return: the excitation signal
         """
         if excitation_length is not None:
             self._length = excitation_length
@@ -29,7 +30,8 @@ class SineSweep(SystemIdentification):
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
-        @return: the filter impulse responses
+
+        :return: the filter impulse responses
         """
         branches = max(self._select_branches)
         sweep_length = self.__excitation_generator.GetLength()
@@ -93,7 +95,8 @@ class SineSweep(SystemIdentification):
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
-        @return: the nonlinear functions
+
+        :return: the nonlinear functions
         """
         nonlinear_functions = []
         for branch in self._select_branches:
@@ -110,9 +113,10 @@ class CosineSweep(SystemIdentification):
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
-        @param excitation_length: the length of the excitation signal
-        @param excitation_sampling_rate: the sampling rate of the excitation signal
-        @return: the excitation signal
+
+        :param excitation_length: the length of the excitation signal
+        :param excitation_sampling_rate: the sampling rate of the excitation signal
+        :return: the excitation signal
         """
         if excitation_length is not None:
             self._length = excitation_length
@@ -126,7 +130,8 @@ class CosineSweep(SystemIdentification):
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
-        @return: the filter impulse responses
+
+        :return: the filter impulse responses
         """
         branches = max(self._select_branches)
         sweep_length = self.__excitation_generator.GetLength()
@@ -168,7 +173,8 @@ class CosineSweep(SystemIdentification):
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
-        @return: the nonlinear functions
+
+        :return: the nonlinear functions
         """
         nonlinear_functions = []
         for branch in self._select_branches:

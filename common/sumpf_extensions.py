@@ -1,6 +1,5 @@
 import sumpf
 
-
 class SoftClipSignal(object):
     """
     Class to clip the signal using soft clipper.
@@ -26,10 +25,22 @@ class SoftClipSignal(object):
 
     @sumpf.Input(sumpf.Signal, "GetOutput")
     def SetInput(self, signal):
+        """
+        Set the input signal.
+
+        :param signal: the input signal
+        :type signal: sumpf.Signal()
+        """
         self.__signal = sumpf.modules.NormalizeSignal(signal=signal).GetOutput()
 
     @sumpf.Output(sumpf.Signal)
     def GetOutput(self):
+        """
+        Get the output signal.
+
+        :return: the output signal
+        :rtype: sumpf.Signal
+        """
         channels = []
         for c in self.__signal.GetChannels():
             channel = []
@@ -45,6 +56,12 @@ class SoftClipSignal(object):
 
     @sumpf.Input(tuple, "GetOutput")
     def SetThresholds(self, thresholds):
+        """
+        Set the thresholds of the soft clipper.
+
+        :param thresholds: the thresholds
+        :type thresholds: Eg, [-1.0, 1.0]
+        """
         if abs(thresholds[0]) != thresholds[1]:
             raise NotImplementedError("SoftClipSignal class only supports symmetric clipping")
         self.__power = 1.0 - thresholds[1]

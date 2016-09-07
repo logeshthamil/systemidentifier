@@ -14,9 +14,10 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
-        @param excitation_length: the length of the excitation signal
-        @param excitation_sampling_rate: the sampling rate of the excitation signal
-        @return: the excitation signal
+
+        :param excitation_length: the length of the excitation signal
+        :param excitation_sampling_rate: the sampling rate of the excitation signal
+        :return: the excitation signal
         """
         if excitation_length is not None:
             self._length = excitation_length
@@ -30,12 +31,13 @@ class WhiteGaussianNoiseIdentification(SystemIdentification):
 
 class MISOapproach(WhiteGaussianNoiseIdentification):
     """
-    A class which identifies a model of a system using a
+    A class which identifies a model of a system using MISO approach.
     """
 
     def __get_K_matrix(self, input_signal):
         """
         Find the k matrix for the input signal
+
         :param input: the input signal
         :param total_branches: the total number of branches
         :return: the k matrix
@@ -72,6 +74,7 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
     def __get_decorrelated_output(self, input_signal):
         """
         Decorrelate the output signals of the powerseries expansion.
+
         :param input: the input signal
         :param total_branches: the total number of branches
         :return: the decorrelated signal, the k matrix and the mu matrix
@@ -116,7 +119,8 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
-        @return: the filter impulse responses
+
+        :return: the filter impulse responses
         """
         branches = max(self._select_branches)
         input_wgn = self.GetExcitation()
@@ -163,7 +167,8 @@ class MISOapproach(WhiteGaussianNoiseIdentification):
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
-        @return: the nonlinear functions
+
+        :return: the nonlinear functions
         """
         nonlinear_functions = []
         for branch in self._select_branches:

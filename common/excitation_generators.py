@@ -11,14 +11,14 @@ class Sinesweepgenerator_Novak(object):
     def __init__(self, sampling_rate=None, approximate_numberofsamples=None, start_frequency=20.0,
                  stop_frequency=20000.0, fade_out=0.02, fade_in=0.02, amplitude_range=1.0):
         """
-        @param sampling_rate: the sampling rate
-        @param approximate_length: the approximate number of samples of the sweep signal,
+        :param sampling_rate: the sampling rate
+        :param approximate_length: the approximate number of samples of the sweep signal,
         the length of the output signal will be different
-        @param start_frequency: the start frequency
-        @param stop_frequency: the stop frequency
-        @param fade_out: the fade out length in seconds
-        @param fade_in: the fade in length in seconds
-        @param factor: the amplitude range of the sweep signal
+        :param start_frequency: the start frequency
+        :param stop_frequency: the stop frequency
+        :param fade_out: the fade out length in seconds
+        :param fade_in: the fade in length in seconds
+        :param factor: the amplitude range of the sweep signal
         """
         if sampling_rate is None:
             self.__sampling_rate = sumpf.config.get("default_samplingrate")
@@ -39,8 +39,8 @@ class Sinesweepgenerator_Novak(object):
     def SetLength(self, approximate_numberofsamples):
         """
         Set the approximate number of samples of the sweep signal.
-        @param approximate_length: the approximate number of samples of excitation
-        @return:
+
+        :param approximate_length: the approximate number of samples of excitation
         """
         self.__approx_length = float(approximate_numberofsamples)
 
@@ -48,7 +48,8 @@ class Sinesweepgenerator_Novak(object):
     def GetOutput(self):
         """
         Get the output sine sweep signal.
-        @return: the output sine sweep signal
+
+        :return: the output sine sweep signal
         """
         t = numpy.arange(0, self.GetLength() / self.__sampling_rate, 1 / self.__sampling_rate)
         s = numpy.sin(2 * numpy.pi * self.__start_frequency * self.GetSweepExcitationRate() * (
@@ -69,8 +70,8 @@ class Sinesweepgenerator_Novak(object):
     def GetReversedOutput(self, numberofsamples=None):
         """
         Get the reversed output sine sweep signal.
-        @param numberofsamples: number of samples of the reversed sine sweep signal
-        @return:
+
+        :param numberofsamples: number of samples of the reversed sine sweep signal
         """
         numpy.seterr(all='ignore')
         if numberofsamples is None:
@@ -97,7 +98,8 @@ class Sinesweepgenerator_Novak(object):
     def GetSweepExcitationRate(self):
         """
         Get the sweep excitation rate.
-        @return: the sweep excitation rate
+
+        :return: the sweep excitation rate
         """
         L = 1 / self.__start_frequency * round((self.__approx_length / self.__sampling_rate) *
                                                self.__start_frequency / numpy.log(
@@ -108,7 +110,8 @@ class Sinesweepgenerator_Novak(object):
     def GetLength(self):
         """
         Get the actual length of the sine sweep signal.
-        @return: the acutual length
+
+        :return: the acutual length
         """
         T_hat = self.GetSweepExcitationRate() * numpy.log(self.__stop_frequency / self.__start_frequency)
         length = round(self.__sampling_rate * T_hat - 1)
@@ -118,7 +121,8 @@ class Sinesweepgenerator_Novak(object):
     def GetAmplitudeRange(self):
         """
         Get the amplitude range of the sine sweep signal.
-        @return: the amplitude range
+
+        :return: the amplitude range
         """
         return self.__excitation_factor
 
@@ -126,8 +130,9 @@ class Sinesweepgenerator_Novak(object):
     def SetAmplitudeRange(self, amplitude_range):
         """
         Set the amplitude range of the sine sweep signal.
-        @param amplitude_range: the amplitude range
-        @return: the amplitude range
+
+        :param amplitude_range: the amplitude range
+        :return: the amplitude range
         """
         self.__excitation_factor = amplitude_range
 
@@ -135,7 +140,8 @@ class Sinesweepgenerator_Novak(object):
     def GetStartFrequency(self):
         """
         Get the start frequency of the excitation signal.
-        @return: the start frequency
+
+        :return: the start frequency
         """
         return self.__start_frequency
 
@@ -143,7 +149,8 @@ class Sinesweepgenerator_Novak(object):
     def GetStopFrequency(self):
         """
         Get the stop frequency of the excitation signal.
-        @return: the stop frequency
+
+        :return: the stop frequency
         """
         return self.__stop_frequency
 
@@ -156,14 +163,14 @@ class Cosinesweepgenerator_Novak(object):
     def __init__(self, sampling_rate=None, approximate_numberofsamples=None, start_frequency=20.0,
                  stop_frequency=20000.0, fade_out=0.02, fade_in=0.02, amplitude_range=1.0):
         """
-        @param sampling_rate: the sampling rate
-        @param approximate_length: the approximate number of samples of the sweep signal,
+        :param sampling_rate: the sampling rate
+        :param approximate_length: the approximate number of samples of the sweep signal,
         the length of the output signal will be different
-        @param start_frequency: the start frequency
-        @param stop_frequency: the stop frequency
-        @param fade_out: the fade out length in seconds
-        @param fade_in: the fade in length in seconds
-        @param factor: the amplitude range of the sweep signal
+        :param start_frequency: the start frequency
+        :param stop_frequency: the stop frequency
+        :param fade_out: the fade out length in seconds
+        :param fade_in: the fade in length in seconds
+        :param factor: the amplitude range of the sweep signal
         """
         if sampling_rate is None:
             self.__sampling_rate = sumpf.config.get("default_samplingrate")
@@ -183,8 +190,8 @@ class Cosinesweepgenerator_Novak(object):
     def SetLength(self, approximate_numberofsamples):
         """
         Set the approximate number of samples of the sweep signal.
-        @param approximate_length: the approximate number of samples of excitation
-        @return:
+
+        :param approximate_length: the approximate number of samples of excitation
         """
         self.__approx_length = float(approximate_numberofsamples)
 
@@ -192,7 +199,8 @@ class Cosinesweepgenerator_Novak(object):
     def GetOutput(self):
         """
         Get the output cosine sweep signal.
-        @return: the output cosine sweep signal
+
+        :return: the output cosine sweep signal
         """
         t = numpy.arange(0, self.GetLength() / self.__sampling_rate, 1 / self.__sampling_rate)
         s = numpy.cos(2 * numpy.pi * self.__start_frequency * self.GetSweepExcitationRate() * (
@@ -213,8 +221,8 @@ class Cosinesweepgenerator_Novak(object):
     def GetReversedOutput(self, numberofsamples=None):
         """
         Get the reversed output cosine sweep signal.
-        @param numberofsamples: number of samples of the reversed cosine sweep signal
-        @return:
+
+        :param numberofsamples: number of samples of the reversed cosine sweep signal
         """
         numpy.seterr(all='ignore')
         if numberofsamples is None:
@@ -238,7 +246,8 @@ class Cosinesweepgenerator_Novak(object):
     def GetSweepExcitationRate(self):
         """
         Get the sweep excitation rate.
-        @return: the sweep excitation rate
+
+        :return: the sweep excitation rate
         """
         L = 1 / self.__start_frequency * round((self.__approx_length / self.__sampling_rate) *
                                                self.__start_frequency / numpy.log(
@@ -249,7 +258,8 @@ class Cosinesweepgenerator_Novak(object):
     def GetLength(self):
         """
         Get the actual length of the sine sweep signal.
-        @return: the acutual length
+
+        :return: the acutual length
         """
         T_hat = self.GetSweepExcitationRate() * numpy.log(self.__stop_frequency / self.__start_frequency)
         length = round(self.__sampling_rate * T_hat - 1)
@@ -259,7 +269,8 @@ class Cosinesweepgenerator_Novak(object):
     def GetAmplitudeRange(self):
         """
         Get the amplitude range of the sine sweep signal.
-        @return: the amplitude range
+
+        :return: the amplitude range
         """
         return self.__excitation_factor
 
@@ -267,8 +278,9 @@ class Cosinesweepgenerator_Novak(object):
     def SetAmplitudeRange(self, amplitude_range):
         """
         Set the amplitude range of the sine sweep signal.
-        @param amplitude_range: the amplitude range
-        @return: the amplitude range
+
+        :param amplitude_range: the amplitude range
+        :return: the amplitude range
         """
         self.__excitation_factor = amplitude_range
 
@@ -276,7 +288,8 @@ class Cosinesweepgenerator_Novak(object):
     def GetStartFrequency(self):
         """
         Get the start frequency of the excitation signal.
-        @return: the start frequency
+
+        :return: the start frequency
         """
         return self.__start_frequency
 
@@ -284,6 +297,7 @@ class Cosinesweepgenerator_Novak(object):
     def GetStopFrequency(self):
         """
         Get the stop frequency of the excitation signal.
-        @return: the stop frequency
+
+        :return: the stop frequency
         """
         return self.__stop_frequency

@@ -28,6 +28,7 @@ class AliasingCompensation(object):
     def SetMaximumHarmonics(self, maximum_harmonics=None):
         """
         Sets the maximum harmonics until which the aliasing compensation has to be compensated for.
+
         :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         :type maximum_harmonics: int
         """
@@ -37,6 +38,7 @@ class AliasingCompensation(object):
     def SetPreprocessingInput(self, preprocessing_input=None):
         """
         Sets the input signal of the preprocessing unit.
+
         :param input_signal: the input signal of the preprocessing unit
         :type preprocessing_input: sumpf.Signal()
         """
@@ -46,6 +48,7 @@ class AliasingCompensation(object):
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
+
         :return: the output signal of the preprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -55,6 +58,7 @@ class AliasingCompensation(object):
     def SetPostprocessingInput(self, postprocessing_input=None):
         """
         Sets the input signal of the postprocessing aliasing compensation.
+
         :param postprocessing_input: the input signal of the postprocessing aliasing compensation
         :type postprocessing_input: sumpf.Signal()
         """
@@ -64,6 +68,7 @@ class AliasingCompensation(object):
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
+
         :return: the output signal of the postprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -73,6 +78,7 @@ class AliasingCompensation(object):
     def _GetAttenuation(self):
         """
         Get the attenuation factor.
+
         :return: the attenuation factor
         :rtype: float
         """
@@ -103,6 +109,8 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
 
     def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
+        This method creates a new instance of the class with or without parameter modification.
+
         :param input_signal: the input signal
         :type input_signal: sumpf.Signal()
         :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
@@ -123,6 +131,7 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     def GetPreprocessingOutput(self):
         """
         Get the output signal of the preprocessing aliasing compensation.
+
         :return: the output signal of the preprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -135,6 +144,20 @@ class FullUpsamplingAliasingCompensation(AliasingCompensation):
     def GetPostprocessingOutput(self):
         """
         Gets the output signal of the postprocessing aliasing compensation.
+
+        :return: the output signal of the postprocessing aliasing compensation
+        :rtype: sumpf.Signal()
+        """
+        resampling_rate = self._input_signal.GetSamplingRate()
+        resampler = sumpf.modules.ResampleSignal(signal=self._postprocessing_input, samplingrate=resampling_rate,
+                                                 algorithm=self._resampling_algorithm)
+        self.GetPostprocessingOutput.__name__ = 'GetPostprocessingOutput'
+        return resampler.GetOutput()
+
+    def GetPostprocessingOutput1(self):
+        """
+        Gets the output signal of the postprocessing aliasing compensation.
+
         :return: the output signal of the postprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -169,6 +192,7 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
+
         :return: the output signal of the preprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -180,7 +204,8 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     @sumpf.Output(data_type=sumpf.Signal)
     def GetPostprocessingOutput(self):
         """
-        Gets the output signal of the postprocessing aliasing compensation.
+        Gets the output signal of the postprocessing aliasing compensation.\
+
         :return: the output signal of the postprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -192,6 +217,7 @@ class ReducedUpsamplingAliasingCompensation(AliasingCompensation):
     def CreateModified(self, input_signal=None, maximum_harmonics=None, resampling_algorithm=None):
         """
         This method creates a new instance of the class with or without parameter modification.
+
         :param input_signal: the input signal
         :param maximum_harmonics: the maximum harmonics introduced by the nonlinear model
         :param resampling_algorithm: the resampling algorithms Eg. sumpf.modules.ResampleSignal.SPECTRUM()
@@ -237,6 +263,7 @@ class LowpassAliasingCompensation(AliasingCompensation):
     def GetPreprocessingOutput(self):
         """
         Gets the output signal of the preprocessing aliasing compensation.
+
         :return: the output signal of the preprocessing aliasing compensation
         :rtype: sumpf.Signal()
         """
@@ -256,6 +283,7 @@ class LowpassAliasingCompensation(AliasingCompensation):
                        filter_order=None, attenuation=None):
         """
         This method creates a new instance of the class with or without parameter modification.
+
         :param input_signal: the input signal
         :type input_signal: sumpf.Signal()
         :param maximum_harmonics: the maximum harmonics
@@ -301,6 +329,7 @@ class NoAliasingCompensation(AliasingCompensation):
     def CreateModified(self, input_signal=None, maximum_harmonics=None):
         """
         This method creates a new instance of the class with or without modification.
+
         :param input_signal: the input signal
         :type input_signal: sumpf.Signal()
         :param maximum_harmonics: the maximum harmonics

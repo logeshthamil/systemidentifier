@@ -6,6 +6,7 @@ def create_arrayof_bpfilter(start_frequency=20.0, stop_frequency=20000.0, branch
                             filter_length=None):
     """
     Generates logarithmically seperated band pass filters between start and stop frequencies.
+
     :param start_frequency: the start frequency of the bandpass filter
     :param stop_frequency: the stop frequency of the bandpass filter
     :param branches: the number of branches of bandpass filter

@@ -1,5 +1,4 @@
 from .miso_approach import WhiteGaussianNoiseIdentification
-import math
 import sumpf
 import nlsp
 
@@ -23,7 +22,8 @@ class MISOapproachusingHermite(WhiteGaussianNoiseIdentification):
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
-        @return: the filter impulse responses
+
+        :return: the filter impulse responses
         """
         branches = max(self._select_branches)
         input_wgn = self.GetExcitation()
@@ -50,7 +50,8 @@ class MISOapproachusingHermite(WhiteGaussianNoiseIdentification):
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
-        @return: the nonlinear functions
+
+        :return: the nonlinear functions
         """
         nonlinear_functions = []
         for branch in self._select_branches:

@@ -1,7 +1,6 @@
 import sumpf
 import nlsp
 import numpy
-import mpmath
 
 
 class NonlinearBlock(object):
@@ -19,14 +18,16 @@ class NonlinearBlock(object):
     def SetInput(self, input_signal=None):
         """
         Set the input signal to the nonlinear block
-        @param input_signal: the input signal
+
+        :param input_signal: the input signal
         """
         self._input_signal = input_signal
 
     def GetOutput(self):
         """
         This method should be overridden in the derived classes. Get the output signal of the nonlinear block.
-        @return: the output signal.
+
+        :return: the output signal.
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
@@ -45,8 +46,8 @@ class ClippingNonlinearBlock(NonlinearBlock):
 
     def __init__(self, input_signal=None, clipping_threshold=None):
         """
-        @param input_signal: the input signal
-        @param clipping_threshold: the clipping threshold
+        :param input_signal: the input signal
+        :param clipping_threshold: the clipping threshold
         """
         NonlinearBlock.__init__(self, input_signal=input_signal)
         if clipping_threshold is None:
@@ -58,7 +59,8 @@ class ClippingNonlinearBlock(NonlinearBlock):
     def SetClippingThreshold(self, clipping_threshold=None):
         """
         Set the clipping threshold of the clipping nonlinear block.
-        @param degree: the degree (should be integer value)
+
+        :param degree: the degree (should be integer value)
         """
         self._clipping_threshold = clipping_threshold
 
@@ -66,7 +68,8 @@ class ClippingNonlinearBlock(NonlinearBlock):
     def GetMaximumHarmonics(self):
         """
         Get the maximum harmonics introduced by the clipping nonlinear block.
-        @return: the maximum harmonics
+
+        :return: the maximum harmonics
         """
         harmonics = 1
         return harmonics
@@ -74,9 +77,9 @@ class ClippingNonlinearBlock(NonlinearBlock):
     def CreateModified(self, input_signal=None, clipping_threshold=None):
         """
         Create a new instance of the class with or without modified parameters.
-        @param signal: the input signal
-        @param clipping_threshold: the clipping threshold
-        @return:
+
+        :param signal: the input signal
+        :param clipping_threshold: the clipping threshold
         """
         if input_signal is None:
             input_signal = self._input_signal
@@ -94,7 +97,8 @@ class HardClip(ClippingNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using hard clipper.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = hard_clip(thresholds=self._clipping_threshold)
         new_channels = []
@@ -114,7 +118,8 @@ class SoftClip(ClippingNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using soft clipper.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = soft_clip(thresholds=self._clipping_threshold)
         new_channels = []
@@ -132,8 +137,8 @@ class PolynomialNonlinearBlock(NonlinearBlock):
 
     def __init__(self, input_signal=None, degree=None):
         """
-        @param input_signal: the input signal
-        @param degree: the degree of the polynomial used in nonlinear block
+        :param input_signal: the input signal
+        :param degree: the degree of the polynomial used in nonlinear block
         """
         NonlinearBlock.__init__(self, input_signal=input_signal)
         if degree is None:
@@ -145,7 +150,8 @@ class PolynomialNonlinearBlock(NonlinearBlock):
     def SetDegree(self, degree=None):
         """
         Set the degree of the polynomial nonlinear block.
-        @param degree: the degree (should be integer value)
+
+        :param degree: the degree (should be integer value)
         """
         self._degree = degree
 
@@ -153,16 +159,17 @@ class PolynomialNonlinearBlock(NonlinearBlock):
     def GetMaximumHarmonics(self):
         """
         Get the maximum harmonics introduced by the polynomial nonlinear block.
-        @return: the maximum harmonics
+
+        :return: the maximum harmonics
         """
         return self._degree
 
     def CreateModified(self, input_signal=None, degree=None):
         """
         Create a new instance of the class with or without modified parameters.
-        @param signal: the input signal
-        @param degree: the nonlinear degree
-        @return:
+
+        :param signal: the input signal
+        :param degree: the nonlinear degree
         """
         if input_signal is None:
             input_signal = self._input_signal
@@ -180,7 +187,8 @@ class Power(PolynomialNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using powers.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = power(degree=self._degree)
         new_channels = []
@@ -200,7 +208,8 @@ class Chebyshev(PolynomialNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using chebyshev polynomials.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = chebyshev_polynomial(degree=self._degree)
         new_channels = []
@@ -220,7 +229,8 @@ class Hermite(PolynomialNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using Hermite polynomials.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = hermite_polynomial(degree=self._degree)
         new_channels = []
@@ -240,7 +250,8 @@ class Legendre(PolynomialNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using Legendre polynomials.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = legendre_polynomial(degree=self._degree)
         new_channels = []
@@ -260,7 +271,8 @@ class Laguerre(PolynomialNonlinearBlock):
     def GetOutput(self):
         """
         Get the output of the nonlinear block using Legendre polynomials.
-        @return: the output signal
+
+        :return: the output signal
         """
         nl_function = laguerre_polynomial(degree=self._degree)
         new_channels = []
@@ -274,8 +286,9 @@ class Laguerre(PolynomialNonlinearBlock):
 def power(degree=None):
     """
     A function to generate power of an array of samples.
-    @param degree: the degree
-    @return: the power function
+
+    :param degree: the degree
+    :return: the power function
     """
 
     def func(channel):
@@ -290,8 +303,9 @@ def power(degree=None):
 def chebyshev_polynomial(degree=None):
     """
     A function to generate chebyshev polynomial of an array of samples.
-    @param degree: the degree
-    @return: the chebyshev function
+
+    :param degree: the degree
+    :return: the chebyshev function
     """
 
     def func(channel):
@@ -306,8 +320,9 @@ def chebyshev_polynomial(degree=None):
 def hermite_polynomial(degree=None):
     """
     A function to generate hermite polynomial of an array of samples.
-    @param degree: the degree
-    @return: the hermite function
+
+    :param degree: the degree
+    :return: the hermite function
     """
 
     def func(channel):
@@ -322,8 +337,9 @@ def hermite_polynomial(degree=None):
 def legendre_polynomial(degree=None):
     """
     A function to legendre polynomial of an array of samples.
-    @param degree: the degree
-    @return: the legendre function
+
+    :param degree: the degree
+    :return: the legendre function
     """
 
     def func(channel):
@@ -338,8 +354,9 @@ def legendre_polynomial(degree=None):
 def laguerre_polynomial(degree=None):
     """
     A function to laguerre polynomial of an array of samples.
-    @param degree: the degree
-    @return: the legendre function
+
+    :param degree: the degree
+    :return: the legendre function
     """
 
     def func(channel):
@@ -353,9 +370,10 @@ def laguerre_polynomial(degree=None):
 
 def hard_clip(thresholds=None):
     """
-    A function which hard clips an array of samples
-    @param thresholds: the thresholds of clipping
-    @return: the clipping function
+    A function which hard clips an array of samples.
+
+    :param thresholds: the thresholds of clipping
+    :return: the clipping function
     """
 
     def func(channel):
@@ -369,8 +387,9 @@ def hard_clip(thresholds=None):
 def soft_clip(thresholds=None):
     """
     A function which soft clips an array of samples
-    @param thresholds: the thresholds of clipping
-    @return: the clipping function
+
+    :param thresholds: the thresholds of clipping
+    :return: the clipping function
     """
 
     def func(channel):

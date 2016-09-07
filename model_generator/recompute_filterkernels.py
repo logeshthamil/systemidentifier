@@ -5,10 +5,11 @@ import sumpf
 def powertoany(degree, ip_filter_kernels, polynomial, coefficient):
     """
     Convert the filter coefficients from the powerseries expansion nonlinear function to any.
-    @param degree: the degree of the nonlinear functions
-    @param ip_filter_kernels: the reference filter kernels
-    @param polynomial: the desired polynomial function
-    @param coefficient: the desired polynomial coefficients
+
+    :param degree: the degree of the nonlinear functions
+    :param ip_filter_kernels: the reference filter kernels
+    :param polynomial: the desired polynomial function
+    :param coefficient: the desired polynomial coefficients
     """
     ip_filter_kernels_spec = []
     for kernel in ip_filter_kernels:
@@ -52,10 +53,11 @@ def powertoany(degree, ip_filter_kernels, polynomial, coefficient):
 def anytopower(degree=None, ip_filter_kernels=None, polynomial=None, coefficient=None):
     """
     Convert the filter coefficients from any nonlinear function other than powerseries expansion.
-    @param degree: the degree of the nonlinear functions
-    @param ip_filter_kernels: the reference filter kernels
-    @param polynomial: the desired polynomial function
-    @param coefficient: the desired polynomial coefficients
+
+    :param degree: the degree of the nonlinear functions
+    :param ip_filter_kernels: the reference filter kernels
+    :param polynomial: the desired polynomial function
+    :param coefficient: the desired polynomial coefficients
     """
     ip_filter_kernels_spec = []
     for kernel in ip_filter_kernels:
