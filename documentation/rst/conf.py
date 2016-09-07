@@ -40,7 +40,7 @@ extensions = [
     'sphinx_epytext',
     'sphinx.ext.autosummary',
     'sphinx.ext.inheritance_diagram',
-    'sphinx.ext.graphviz'
+    'sphinx.ext.graphviz',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -127,6 +127,7 @@ html_theme = 'agogo'
 # documentation.
 html_theme_options = {
     "textalign": "left",
+    "bgcolor": "silver",
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -289,7 +290,7 @@ texinfo_documents = [
 #texinfo_appendices = []
 
 # If false, no module index is generated.
-#texinfo_domain_indices = True
+texinfo_domain_indices = False
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
@@ -305,7 +306,7 @@ inheritance_graph_attrs = dict(rankdir="TB")
 
 autoclass_content = "both"
 
-autodoc_default_flags = ['members','inherited-members']
+autodoc_default_flags = ['members']
 
 autosummary_generate = True
 

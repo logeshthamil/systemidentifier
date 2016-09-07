@@ -4,7 +4,8 @@ __pycache__
 
 # ignore the cache from the tests
 tests/.cache
+/documentation/
 
 # Files to not ignore
-!/index.rst
-!/conf.py
+!/documentation/rst/index.rst
+!/documentation/rst/conf.py

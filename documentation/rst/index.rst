@@ -12,7 +12,7 @@ About:
    This nlsp library is the summary of the programs which I have written during my master thesis at HEAD acoustics GmbH.
 
 Master Thesis:
-   The final report of my thesis work can be found here :download:`Logesh_Masterthesis.pdf`. This report can be used to
+   The final report of my thesis work can be found here :download:`/Logesh_Masterthesis.pdf`. This report can be used to
    get the background information to use this library.
 
 External Libraries:
@@ -36,14 +36,9 @@ Documentation:
         :parts: 10
 
 .. toctree::
-        :maxdepth: 3
+        :maxdepth: 4
 
         nlsp
-
-.. autosummary::
-        :toctree: generated
-
-        nlsp.aliasing_compensation
 
 
 
