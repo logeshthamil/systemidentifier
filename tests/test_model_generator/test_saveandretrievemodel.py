@@ -73,3 +73,21 @@ def test_methods_retrievemodel():
         assert str(e) == "Please enter the filename"
     retrieve_model.SetFilename(location)
     retrieve_model.GetModel()
+
+def test_saveandretreive_clippingHGM():
+    """
+    test save and retreive model class for HGM with clipping functions as nonlinear functions.
+    """
+    branches = 5
+    thresholds = [[-1.0,1.0],]*branches
+    location = "C:\Users\diplomand.8\Desktop\some1.npz"
+    model = nlsp.HammersteinGroupModel(nonlinear_functions=[nlsp.nonlinear_function.HardClip(clipping_threshold=threshold) for threshold in thresholds])
+    save = nlsp.SaveHGMModel(filename=location, model=model)
+    retrieve = nlsp.RetrieveHGMModel(filename=location)
+    model_retrieved = retrieve.GetModel()
+    sample = sumpf.modules.SweepGenerator().GetSignal()
+    model.SetInput(sample)
+    model_retrieved.SetInput(sample)
+    evaluation = nlsp.evaluations.CompareWithReference(reference_signal=model.GetOutput(),
+                                                       signal_to_be_evaluated=model_retrieved.GetOutput())
+    assert evaluation.GetSignaltoErrorRatio() > 500

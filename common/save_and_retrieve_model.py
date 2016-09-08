@@ -113,13 +113,21 @@ def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
         return o.__module__ + "." + o.__class__.__name__
 
     degree = []
-    for nl in nonlinearfunctions:
-        degree.append(nl.GetMaximumHarmonics())
-    degree = str(degree)
     nl_class = str(fullname(nonlinearfunctions[0]))
     aliasingcomp = str(fullname(aliasingcomp))
     downsamplingposition = str(downsamplingposition)
-    label = nl_class + "*" + degree[1:-1] + "*" + aliasingcomp + "*" + downsamplingposition
+    if nl_class is nlsp.nonlinear_function.HardClip or nlsp.nonlinear_function.SoftClip:
+        for nl in nonlinearfunctions:
+            degree.append(nl.GetThresholds())
+        degree = numpy.concatenate(numpy.array(degree), axis=0)
+        degree = numpy.char.mod('%f', degree)
+        degree = ",".join(degree)
+        label = nl_class + "*" + degree + "*" + aliasingcomp + "*" + downsamplingposition
+    else:
+        for nl in nonlinearfunctions:
+            degree.append(nl.GetMaximumHarmonics())
+        degree = str(degree)
+        label = nl_class + "*" + degree[1:-1] + "*" + aliasingcomp + "*" + downsamplingposition
     return label
 
 
@@ -137,8 +145,15 @@ def decode_label(label):
     aliasingcomp_loc = a[3]
 
     nonlinearfunction_class = eval(nonlinearfunction_class)
-    nonlinearfunction_degree = [int(e) for e in nonlinearfunction_degree.split(',')]
+    if nonlinearfunction_class is nlsp.nonlinear_function.HardClip or nlsp.nonlinear_function.SoftClip:
+        thres = list(eval(nonlinearfunction_degree))
+        thresholds_list = []
+        for a, b in zip(*[iter(thres)] * 2):
+            thresholds_list.append([a,b])
+        nonlinear_functions = [nonlinearfunction_class(clipping_threshold=threshold) for threshold in thresholds_list]
+    else:
+        nonlinearfunction_degree = [int(e) for e in nonlinearfunction_degree.split(',')]
+        nonlinear_functions = [nonlinearfunction_class(degree=i) for i in nonlinearfunction_degree]
     aliasingcomp_type = eval(aliasingcomp_type)
     aliasingcomp_loc = eval(aliasingcomp_loc)
-    nonlinear_functions = [nonlinearfunction_class(degree=i) for i in nonlinearfunction_degree]
     return nonlinear_functions, aliasingcomp_type, aliasingcomp_loc
