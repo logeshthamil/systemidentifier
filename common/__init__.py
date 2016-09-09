@@ -9,3 +9,4 @@ from save_and_retrieve_model import SaveHGMModel, RetrieveHGMModel
 import math_operations as math
 from find_harmonics import FindHarmonicImpulseResponse_NovakSweep
 from adaptation_algorithm import MISO_NLMS_algorithm, SISO_NLMS_algorithm
+from compare_models import CompareModelsAccuracy

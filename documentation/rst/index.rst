@@ -33,12 +33,12 @@ External Libraries:
 Documentation:
 
    .. inheritance-diagram:: nlsp.model_generator nlsp.model_generator.modify_model nlsp.model_generator.change_nonlinearfunction
-        :parts: 10
+:parts: 10
 
 .. toctree::
-        :maxdepth: 4
+:maxdepth: 4
 
-        nlsp
+            nlsp
 
 
 

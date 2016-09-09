@@ -145,11 +145,12 @@ def decode_label(label):
     aliasingcomp_loc = a[3]
 
     nonlinearfunction_class = eval(nonlinearfunction_class)
-    if (nonlinearfunction_class is nlsp.nonlinear_function.HardClip) or (nonlinearfunction_class is nlsp.nonlinear_function.SoftClip):
+    if (nonlinearfunction_class is nlsp.nonlinear_function.HardClip) or (
+        nonlinearfunction_class is nlsp.nonlinear_function.SoftClip):
         thres = list(eval(nonlinearfunction_degree))
         thresholds_list = []
         for a, b in zip(*[iter(thres)] * 2):
-            thresholds_list.append([a,b])
+            thresholds_list.append([a, b])
         nonlinear_functions = [nonlinearfunction_class(clipping_threshold=threshold) for threshold in thresholds_list]
     else:
         nonlinearfunction_degree = [int(e) for e in nonlinearfunction_degree.split(',')]

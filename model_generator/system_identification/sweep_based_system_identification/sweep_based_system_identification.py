@@ -8,6 +8,7 @@ class SineSweep(SystemIdentification):
     """
     A class which identifies a model of the system using a sine sweep signal.
     """
+
     def __init__(self, system_response=None, select_branches=None, aliasing_compensation=None,
                  excitation_length=None, excitation_sampling_rate=None, filter_length=None, excitation_start_freq=20.0,
                  excitation_stop_freq=20000.0):

@@ -1,5 +1,6 @@
 import sumpf
 
+
 class SoftClipSignal(object):
     """
     Class to clip the signal using soft clipper.

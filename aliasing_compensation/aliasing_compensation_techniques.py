@@ -8,6 +8,7 @@ class AliasingCompensation(object):
     postprocessing units. Every derived aliasing compensation technique should implement the signal processing chain for
     aliasing compensation.
     """
+
     def __init__(self, input_signal=None, maximum_harmonics=None):
         """
         :param input_signal: the input signal

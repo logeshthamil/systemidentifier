@@ -233,8 +233,9 @@ class Cosinesweepgenerator_Novak(object):
         fft_len = int(length)
         interval = numpy.linspace(0, sampling_rate / 2, num=fft_len / 2 + 1)
         inverse_sweep = 2 * numpy.sqrt(interval / sweep_parameter) * numpy.exp(1j * (
-        2 * numpy.pi * sweep_parameter * interval * (
-        self.GetStartFrequency() / interval + numpy.log(interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
+            2 * numpy.pi * sweep_parameter * interval * (
+                self.GetStartFrequency() / interval + numpy.log(
+                    interval / self.GetStartFrequency()) - 1) - numpy.pi / 4))
         inverse_sweep[0] = 0j
         rev_sweep = numpy.fft.irfft(inverse_sweep)
         rev_sweep = sumpf.Signal(channels=(rev_sweep,), samplingrate=sampling_rate, labels=("Reversed Sweep signal",))

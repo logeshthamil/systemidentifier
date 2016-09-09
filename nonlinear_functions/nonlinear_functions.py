@@ -55,7 +55,7 @@ class ClippingNonlinearBlock(NonlinearBlock):
         else:
             self._clipping_threshold = clipping_threshold
 
-    @sumpf.Input(data_type=tuple, observers=["GetMaximumHarmonics","GetThresholds"])
+    @sumpf.Input(data_type=tuple, observers=["GetMaximumHarmonics", "GetThresholds"])
     def SetClippingThreshold(self, clipping_threshold=None):
         """
         Set the clipping threshold of the clipping nonlinear block.
