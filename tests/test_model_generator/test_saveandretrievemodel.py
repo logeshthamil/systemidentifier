@@ -94,3 +94,23 @@ def test_saveandretreive_clippingHGM():
     evaluation = nlsp.evaluations.CompareWithReference(reference_signal=model.GetOutput(),
                                                        signal_to_be_evaluated=model_retrieved.GetOutput())
     assert evaluation.GetSignaltoErrorRatio() > 500
+
+
+def test_savemodel_withclippingfunction():
+    branches = 2
+    artificial_location_adaptive = "O:\\Diplomanden\\Logeshwaran.Thamilselvan\\Loudspeaker nonlinearity\\models\\artificialadaptive.npz"
+    method = 'Nelder-Mead'
+    ref_hgm = nlsp.HammersteinGroupModel(
+        nonlinear_functions=[nlsp.nonlinear_function.Power(degree=i) for i in range(branches)],
+        filter_impulseresponses=nlsp.helper_functions.create_arrayof_simplefilter(branches=branches),
+        aliasing_compensation=nlsp.aliasing_compensation.ReducedUpsamplingAliasingCompensation())
+    adaptive_identification = nlsp.system_identification.ClippingAdaptive(select_branches=range(1, branches + 1),
+                                                                          excitation_length=2 ** 15,
+                                                                          thresholds=[[-1.0, 1.0], [-0.9, 0.9]])
+    excitation = adaptive_identification.GetExcitation()
+    ref_hgm.SetInput(excitation)
+    adaptive_identification.SetResponse(response=ref_hgm.GetOutput())
+    output_model_adaptive = adaptive_identification.GetOutputModel()
+    save_adaptive = nlsp.SaveHGMModel(filename=artificial_location_adaptive, model=output_model_adaptive)
+    iden_hgm = nlsp.RetrieveHGMModel(filename=artificial_location_adaptive).GetModel()
+    os.remove(artificial_location_adaptive)

@@ -116,7 +116,7 @@ def generate_label(nonlinearfunctions, aliasingcomp, downsamplingposition):
     nl_class = str(fullname(nonlinearfunctions[0]))
     aliasingcomp = str(fullname(aliasingcomp))
     downsamplingposition = str(downsamplingposition)
-    if (nl_class is nlsp.nonlinear_function.HardClip) or (nl_class is nlsp.nonlinear_function.SoftClip):
+    if ('HardClip' in nl_class) or ('SoftClip' in nl_class):
         for nl in nonlinearfunctions:
             degree.append(nl.GetThresholds())
         degree = numpy.concatenate(numpy.array(degree), axis=0)
@@ -145,8 +145,7 @@ def decode_label(label):
     aliasingcomp_loc = a[3]
 
     nonlinearfunction_class = eval(nonlinearfunction_class)
-    if (nonlinearfunction_class is nlsp.nonlinear_function.HardClip) or (
-        nonlinearfunction_class is nlsp.nonlinear_function.SoftClip):
+    if ('HardClip' in str(nonlinearfunction_class)) or ('SoftClip' in str):
         thres = list(eval(nonlinearfunction_degree))
         thresholds_list = []
         for a, b in zip(*[iter(thres)] * 2):
