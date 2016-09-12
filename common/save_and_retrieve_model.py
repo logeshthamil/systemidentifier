@@ -145,7 +145,7 @@ def decode_label(label):
     aliasingcomp_loc = a[3]
 
     nonlinearfunction_class = eval(nonlinearfunction_class)
-    if ('HardClip' in str(nonlinearfunction_class)) or ('SoftClip' in str):
+    if ('HardClip' in str(nonlinearfunction_class)) or ('SoftClip' in str(nonlinearfunction_class)):
         thres = list(eval(nonlinearfunction_degree))
         thresholds_list = []
         for a, b in zip(*[iter(thres)] * 2):
