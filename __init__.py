@@ -6,3 +6,4 @@ from common import evaluations, excitation_generators, math, helper_functions, p
 from models import *
 from model_generator import *
 from common import *
+from common import curve_fitting_algorithms

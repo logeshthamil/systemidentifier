@@ -10,3 +10,4 @@ import math_operations as math
 from find_harmonics import FindHarmonicImpulseResponse_NovakSweep
 from adaptation_algorithm import MISO_NLMS_algorithm, SISO_NLMS_algorithm
 from compare_models import CompareModelsAccuracy
+import curve_fitting_algorithms

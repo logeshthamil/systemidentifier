@@ -219,7 +219,7 @@ def plot_filterspec(input_array, show=True):
         _show()
 
 
-def plot_simplearray(x_array, y_array, x_label, y_label, label, show=True):
+def plot_simplearray(x_array=None, y_array=None, x_label=None, y_label=None, label=None, show=True):
     # print label
     # fig, ax = pyplot.subplots()
     pyplot.plot(x_array, y_array, label=label)
