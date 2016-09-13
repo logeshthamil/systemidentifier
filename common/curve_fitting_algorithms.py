@@ -48,14 +48,18 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         exp = numpy.exp(cropped)
         errorexp = numpy.sum(exp)
         error = numpy.sum(cropped)
+        distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
+        distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
+        sum = numpy.sum(distance_square.GetChannels()[0])
+        variance = sum / len(distance_square.GetChannels()[0])
         mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
                                                                                 desired_frequency_range=[start_freq,
                                                                                                          stop_freq]).GetChannels()))
-        error_value = mean * 100 + error + errorexp
-        if Print is True:
-            print "Error value:" + str(error_value)
+        error_value = abs(mean * 100 + error + errorexp + variance * 100)
         if return_error is True:
             Error.append(error_value)
+        if Print is True:
+            print "Error value:" + str(error_value)
         return error_value
 
     prp = sumpf.modules.ChannelDataProperties()
@@ -147,10 +151,14 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         exp = numpy.exp(cropped)
         errorexp = numpy.sum(exp)
         error = numpy.sum(cropped)
+        distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
+        distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
+        sum = numpy.sum(distance_square.GetChannels()[0])
+        variance = sum / len(distance_square.GetChannels()[0])
         mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
                                                                                 desired_frequency_range=[start_freq,
                                                                                                          stop_freq]).GetChannels()))
-        error_value = mean * 100 + error + errorexp
+        error_value = abs(mean * 100 + error + errorexp + variance * 100)
         if return_error is True:
             Error.append(error_value)
         if Print is True:
