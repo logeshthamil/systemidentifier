@@ -62,7 +62,6 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
     prp.SetSignal(signal=fir_kernels[0])
     if initial_coeff is None:
         initial_coeff = sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order).GetCoefficients()
-        print "Initial Coefficients:" + str(initial_coeff)
         iir_initial = [initial_coeff, ] * len(fir_kernels)
     else:
         iir_initial = initial_coeff
@@ -72,13 +71,14 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         for biquad_n in range(len(iir_individual)):
             num = iir_individual[biquad_n][0]
             num = numpy.asarray(num)
-            num = numpy.append(num, [0, 0], axis=0)
+            num = numpy.append(num, [0, ] * (3 - len(num)), axis=0)
             den = iir_individual[biquad_n][1]
             coeffs.append(num)
             coeffs.append(den)
         coeffs = numpy.concatenate(numpy.array(coeffs), axis=0)
         coeffs = numpy.append(coeffs, [1000.0], axis=0)
         Error = []
+        print "Initial Coefficients:" + str(coeffs)
         result = scipy.optimize.minimize(errorfunction, (coeffs), method=algorithm,
                                          options={'disp': False, 'maxiter': max_iterations})
         iden_filter = sumpf.modules.ConstantSpectrumGenerator(value=1.0, resolution=prp.GetResolution(),
