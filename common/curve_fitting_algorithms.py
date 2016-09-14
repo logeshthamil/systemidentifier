@@ -2,6 +2,7 @@ import sumpf
 import nlsp
 import numpy
 import scipy.optimize
+import pandas
 
 
 def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm='Nelder-Mead', initial_coeff=None,
@@ -42,19 +43,25 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
             iden_filter = iden_filter * temp
         difference = iden_filter - fir_individual
         positive = difference * difference
-        magnitude = numpy.array(positive.GetMagnitude())
-        cropped = magnitude[:,
-                  int(round(start_freq / positive.GetResolution())):int(round(stop_freq / positive.GetResolution()))]
-        exp = numpy.exp(cropped)
-        errorexp = numpy.sum(exp)
-        error = numpy.sum(cropped)
+        positive_cut = nlsp.common.helper_functions_private.cut_spectrum(input_spectrum=positive,
+                                                                         desired_frequency_range=[start_freq,
+                                                                                                  stop_freq])
+        # error and exponential error calculation
+        errorexp = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
+        error = numpy.sum(positive_cut.GetChannels()[0])
+
+        # variance calculation
         distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
         distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
         sum = numpy.sum(distance_square.GetChannels()[0])
         variance = sum / len(distance_square.GetChannels()[0])
+
+        # mean calculation
         mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
                                                                                 desired_frequency_range=[start_freq,
                                                                                                          stop_freq]).GetChannels()))
+
+        # error value calculation
         error_value = abs(mean * 100 + error + errorexp + variance * 100)
         if return_error is True:
             Error.append(error_value)
@@ -75,7 +82,7 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         for biquad_n in range(len(iir_individual)):
             num = iir_individual[biquad_n][0]
             num = numpy.asarray(num)
-            num = numpy.append(num, [0, ] * (3 - len(num)), axis=0)
+            num = numpy.append(num, [1, ] * (3 - len(num)), axis=0)
             den = iir_individual[biquad_n][1]
             coeffs.append(num)
             coeffs.append(den)
@@ -145,19 +152,25 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
             length=prp.GetSpectrumLength(), resolution=prp.GetResolution(), frequency=freq_param).GetSpectrum()
         difference = iden_filter - fir_individual
         positive = difference * difference
-        magnitude = numpy.array(positive.GetMagnitude())
-        cropped = magnitude[:,
-                  int(round(start_freq / positive.GetResolution())):int(round(stop_freq / positive.GetResolution()))]
-        exp = numpy.exp(cropped)
-        errorexp = numpy.sum(exp)
-        error = numpy.sum(cropped)
+        positive_cut = nlsp.common.helper_functions_private.cut_spectrum(input_spectrum=positive,
+                                                                         desired_frequency_range=[start_freq,
+                                                                                                  stop_freq])
+        # error and exponential error calculation
+        errorexp = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
+        error = numpy.sum(positive_cut.GetChannels()[0])
+
+        # variance calculation
         distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
         distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
         sum = numpy.sum(distance_square.GetChannels()[0])
         variance = sum / len(distance_square.GetChannels()[0])
+
+        # mean calculation
         mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
                                                                                 desired_frequency_range=[start_freq,
                                                                                                          stop_freq]).GetChannels()))
+
+        # error value calculation
         error_value = abs(mean * 100 + error + errorexp + variance * 100)
         if return_error is True:
             Error.append(error_value)
@@ -201,4 +214,4 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
             Error[Error > 50000] = 50000
         else:
             Error = None
-    return iir_identified
+    return iir_identified, Error

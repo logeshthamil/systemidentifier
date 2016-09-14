@@ -285,10 +285,40 @@ def smooth_filter_kernels(kernels=None):
     for kernel in kernels:
         kernel_spec = sumpf.modules.FourierTransform(kernel).GetSpectrum()
         kernel_spec_channel = kernel_spec.GetChannels()[0]
-        kernel_spec_channel_smooth = savitzky_golay(kernel_spec_channel, 53, 3)
+        kernel_spec_channel_smooth = savitzky_golay(kernel_spec_channel, 93, 3)
         kernel_spec_smooth = sumpf.Spectrum(channels=[kernel_spec_channel_smooth, ],
                                             resolution=kernel_spec.GetResolution(),
                                             labels=kernel_spec.GetLabels())
         kernel_smooth = sumpf.modules.InverseFourierTransform(kernel_spec_smooth).GetSignal()
         kernels_smooth.append(kernel_smooth)
     return kernels_smooth
+
+
+def exponentially_weighted_sum(input):
+    """
+    Compute the exponentially weighted sum of a signal or spectrum. The input is weighted in frequency domain.
+
+    :param input: the input signal or spectrum
+    :type input: sumpf.Signal or sumpf.Spectrum
+    :return: the exponentially weighted sum
+    :rtype: tuple
+    """
+    if isinstance(input, (sumpf.Signal)):
+        ip = sumpf.modules.FourierTransform(signal=input).GetSpectrum()
+    else:
+        ip = input
+    dummy = 0.0001
+    while True:
+        dummy = dummy + 0.0001
+        low = 1 * (dummy ** 1)
+        high = 1 * (dummy ** (len(input) - 1))
+        if low > 1 and high > 10000:
+            break
+    energy_allchannels = []
+    for c in ip.GetChannels():
+        energy_singlechannel = []
+        c = reversed(c)
+        for i, s in enumerate(c):
+            energy_singlechannel.append((abs(s)) * (1 * (dummy ** i)))
+        energy_allchannels.append(numpy.sum(energy_singlechannel))
+    return energy_allchannels
