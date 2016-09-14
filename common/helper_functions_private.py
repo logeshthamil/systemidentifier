@@ -272,7 +272,7 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     return np.convolve(m[::-1], y, mode='valid')
 
 
-def smooth_filter_kernels(kernels=None):
+def smooth_filter_kernels(kernels=None, window_size=53, polynomial_order=3):
     """
     Smooth the spectrum of the filter kernels, to make it suitable for curve fitting algorithm.
 
@@ -285,7 +285,7 @@ def smooth_filter_kernels(kernels=None):
     for kernel in kernels:
         kernel_spec = sumpf.modules.FourierTransform(kernel).GetSpectrum()
         kernel_spec_channel = kernel_spec.GetChannels()[0]
-        kernel_spec_channel_smooth = savitzky_golay(kernel_spec_channel, 93, 3)
+        kernel_spec_channel_smooth = savitzky_golay(kernel_spec_channel, window_size, polynomial_order)
         kernel_spec_smooth = sumpf.Spectrum(channels=[kernel_spec_channel_smooth, ],
                                             resolution=kernel_spec.GetResolution(),
                                             labels=kernel_spec.GetLabels())
