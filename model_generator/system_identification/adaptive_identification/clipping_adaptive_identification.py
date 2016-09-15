@@ -102,8 +102,6 @@ class ClippingAdaptive(SystemIdentification):
         """
         self.__nlfunction = nlsp.nonlinear_function.HardClip
         nonlinear_functions = []
-        print self.__thresholds
-        print self._select_branches
         for branch in self._select_branches:
             nonlinear_func = self.__nlfunction(clipping_threshold=self.__thresholds[branch - 1])
             nonlinear_functions.append(nonlinear_func)

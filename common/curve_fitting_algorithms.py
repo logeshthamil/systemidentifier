@@ -6,9 +6,9 @@ import pandas
 
 
 def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm='Nelder-Mead', initial_coeff=None,
-                                                    filter_order=4,
-                                                    start_freq=50.0, stop_freq=19000.0, Print=True, max_iterations=1000,
-                                                    plot_individual=False, return_error=False, return_coeffs=False):
+                                                    filter_order=4, start_freq=50.0, stop_freq=19000.0, Print=True,
+                                                    max_iterations=1000, plot_individual=False, return_error=False,
+                                                    return_coeffs=False):
     """
     Compute the equivalent iir biquad filter kernels for fir filters.
 
@@ -126,7 +126,7 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
     return iir_identified, Error, all_coeff
 
 
-def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algorithm='Nelder-Mead', initial_coeff=None,
+def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algorithm='Powell', initial_coeff=None,
                                                         filter_order=4,
                                                         start_freq=50.0, stop_freq=19000.0, Print=True,
                                                         max_iterations=100,
@@ -259,7 +259,7 @@ def compute_iir_from_fir_using_curvetracing_sequencialbiquads(fir_kernels=None, 
             found_biquad, error, coeffs = compute_iir_from_fir_using_curvetracing_biquads(
                 fir_kernels=[fir_individual, ], algorithm=algorithm, initial_coeff=individual_biquad,
                 filter_order=filt_ord, start_freq=start_freq, stop_freq=stop_freq,
-                Print=True, max_iterations=max_iterations, plot_individual=False,
+                Print=Print, max_iterations=max_iterations, plot_individual=False,
                 return_error=return_error, return_coeffs=True)
             temp_coeff = sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order).GetCoefficients()[0]
             coeffs.coefficients[0].append(temp_coeff)
