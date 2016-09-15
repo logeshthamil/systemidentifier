@@ -96,9 +96,9 @@ def create_arrayof_complexbpfilters(start_frequency=20.0, stop_frequency=20000.0
         filter_length = 2 ** 10
     if sampling_rate is None:
         sampling_rate = 48000
-    ip_prp = sumpf.modules.ChannelDataProperties()
-    ip_prp.SetSamplingRate(sampling_rate)
-    ip_prp.SetSignalLength(filter_length)
+    prp = sumpf.modules.ChannelDataProperties()
+    prp.SetSamplingRate(sampling_rate)
+    prp.SetSignalLength(filter_length)
     dummy = 10
     while True:
         dummy = dummy - 0.1
@@ -111,20 +111,15 @@ def create_arrayof_complexbpfilters(start_frequency=20.0, stop_frequency=20000.0
         frequencies.append(100 * (dummy ** i))
     filter_spec = []
     for freq in frequencies:
-        spec = (sumpf.modules.FilterGenerator(
-            filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order),
-            frequency=freq,
-            resolution=ip_prp.GetResolution(),
-            length=ip_prp.GetSpectrumLength()).GetSpectrum()) * \
-               (sumpf.modules.FilterGenerator(
-                   filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order),
-                   frequency=freq / 2, transform=True,
-                   resolution=ip_prp.GetResolution(),
-                   length=ip_prp.GetSpectrumLength()).GetSpectrum()) * \
-               (sumpf.modules.FilterGenerator(
-                   filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=filter_order),
-                   frequency=3 * freq / 4, transform=True,
-                   resolution=ip_prp.GetResolution(),
-                   length=ip_prp.GetSpectrumLength()).GetSpectrum())
+        spec = sumpf.modules.FilterGenerator(
+            filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=15, ripple=1), resolution=prp.GetResolution(),
+            length=prp.GetSpectrumLength(), transform=True).GetSpectrum() + \
+               sumpf.modules.WeightingFilterGenerator(resolution=prp.GetResolution(),
+                                                      length=prp.GetSpectrumLength()).GetSpectrum() + \
+               sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=5, ripple=1),
+                                             resolution=prp.GetResolution(), length=prp.GetSpectrumLength(),
+                                             transform=False).GetSpectrum() + \
+               sumpf.modules.WeightingFilterGenerator(resolution=prp.GetResolution(), length=prp.GetSpectrumLength(),
+                                                      weighting=sumpf.modules.WeightingFilterGenerator.C).GetSpectrum()
         filter_spec.append(sumpf.modules.InverseFourierTransform(spec).GetSignal())
     return filter_spec
