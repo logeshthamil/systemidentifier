@@ -30,7 +30,10 @@ class ClippingAdaptive(SystemIdentification):
             self.multichannel_algorithm = nlsp.MISO_NLMS_algorithm()
         else:
             self.multichannel_algorithm = multichannel_algorithm
-        self._select_branches = select_branches
+        if select_branches is None:
+            self._select_branches = range(1, len(thresholds) + 1)
+        else:
+            self._select_branches = select_branches
         self.__nlfunction = nonlinear_function
         self.__input_model = nlsp.HammersteinGroupModel
         self._aliasing_compensation = aliasing_compensation
@@ -38,8 +41,9 @@ class ClippingAdaptive(SystemIdentification):
             self.__thresholds = [[-1.0, 1.0], ] * max(self._select_branches)
         else:
             self.__thresholds = thresholds
-        SystemIdentification.__init__(self, system_response=system_response, select_branches=select_branches,
-                                      aliasing_compensation=aliasing_compensation, excitation_length=excitation_length,
+        SystemIdentification.__init__(self, system_response=system_response, select_branches=self._select_branches,
+                                      aliasing_compensation=self._aliasing_compensation,
+                                      excitation_length=excitation_length,
                                       excitation_sampling_rate=excitation_sampling_rate)
 
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
@@ -98,6 +102,8 @@ class ClippingAdaptive(SystemIdentification):
         """
         self.__nlfunction = nlsp.nonlinear_function.HardClip
         nonlinear_functions = []
+        print self.__thresholds
+        print self._select_branches
         for branch in self._select_branches:
             nonlinear_func = self.__nlfunction(clipping_threshold=self.__thresholds[branch - 1])
             nonlinear_functions.append(nonlinear_func)
