@@ -21,10 +21,7 @@ class Adaptive(SystemIdentification):
         :param excitation_sampling_rate: the sampling rate of the excitation and response signals
         :param aliasing_compensation: the aliasing compensation parameter of the resulting model
         """
-        if system_excitation is None:
-            self.__system_excitation = sumpf.Signal()
-        else:
-            self.__system_excitation = system_excitation
+        self.__system_excitation = system_excitation
         if multichannel_algorithm is None:
             self.multichannel_algorithm = nlsp.MISO_NLMS_algorithm()
         else:
@@ -37,6 +34,7 @@ class Adaptive(SystemIdentification):
                                       aliasing_compensation=aliasing_compensation, excitation_length=excitation_length,
                                       excitation_sampling_rate=excitation_sampling_rate)
 
+    @sumpf.Output(sumpf.Signal)
     def GetExcitation(self, excitation_length=None, excitation_sampling_rate=None):
         """
         Get the excitation signal for system identification.
@@ -45,22 +43,29 @@ class Adaptive(SystemIdentification):
         :param excitation_sampling_rate: the sampling rate of the excitation signal
         :return: the excitation signal
         """
-        if excitation_length is not None:
-            self._length = excitation_length
-        if excitation_sampling_rate is not None:
-            self._sampling_rate = excitation_sampling_rate
-        self._excitation_generator = sumpf.modules.NoiseGenerator(
-            distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
-            samplingrate=self._sampling_rate, length=self._length, seed="seed")
-        return self._excitation_generator.GetSignal()
+        if self.__system_excitation is None:
+            if excitation_length is not None:
+                self._length = excitation_length
+            if excitation_sampling_rate is not None:
+                self._sampling_rate = excitation_sampling_rate
+            excitation_generator = sumpf.modules.NoiseGenerator(
+                distribution=sumpf.modules.NoiseGenerator.UniformDistribution(),
+                samplingrate=self._sampling_rate, length=self._length, seed="seed")
+            self.__system_excitation = excitation_generator.GetSignal()
+        return self.__system_excitation
 
+    @sumpf.Input(sumpf.Signal, ["GetExcitation", "_GetFilterImpuleResponses", "_GetNonlinerFunctions"])
+    def _SetExcitation(self, excitation):
+        self.__system_excitation = excitation
+
+    @sumpf.Output(tuple)
     def _GetFilterImpuleResponses(self):
         """
         Get the identified filter impulse responses.
 
         :return: the filter impulse responses
         """
-        input_ex = self.GetExcitation()
+        input_ex = self.__system_excitation
         nonlinear_functions = [self.__nlfunction(degree=i) for i in self._select_branches]
         input_signal = sumpf.modules.MergeSignals()
         for nonlinear_function in nonlinear_functions:
@@ -85,6 +90,7 @@ class Adaptive(SystemIdentification):
             filter_kernels = kernel
         return filter_kernels
 
+    @sumpf.Output(tuple)
     def _GetNonlinerFunctions(self):
         """
         Get the nonlinear functions.
