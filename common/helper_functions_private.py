@@ -322,3 +322,19 @@ def exponentially_weighted_sum(input):
             energy_singlechannel.append((abs(s)) * (1 * (dummy ** i)))
         energy_allchannels.append(numpy.sum(energy_singlechannel))
     return energy_allchannels
+
+def exponential_weighting(input_spectrum, base=2):
+    if isinstance(input_spectrum, (sumpf.Signal)):
+        input_spectrum = sumpf.modules.FourierTransform(signal=input_spectrum).GetSpectrum()
+    else:
+        input_spectrum = input_spectrum
+    channels_ip = []
+    for ip in input_spectrum.GetChannels():
+        channel_ip = []
+        for n, i in enumerate(ip):
+            exp = i*(base)**(1.0/(n+1)*input_spectrum.GetResolution())
+            channel_ip.append(exp)
+        channels_ip.append(tuple(channel_ip))
+    output = sumpf.Spectrum(channels=tuple(channels_ip), resolution=input_spectrum.GetResolution(),
+                                             labels=input_spectrum.GetLabels())
+    return output

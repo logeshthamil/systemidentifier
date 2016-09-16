@@ -160,6 +160,8 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         iden_filter = sumpf.modules.FilterGenerator(
             filterfunction=sumpf.modules.FilterGenerator.TRANSFERFUNCTION(numerator=num, denominator=den),
             length=prp.GetSpectrumLength(), resolution=prp.GetResolution(), frequency=freq_param).GetSpectrum()
+        # # iden_filter = sumpf.modules.FourierTransform(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal()*factor).GetSpectrum()
+        # fir_individual1 = sumpf.modules.FourierTransform(sumpf.modules.InverseFourierTransform(fir_individual).GetSignal()*factor).GetSpectrum()
         difference = iden_filter - fir_individual
         positive = difference * difference
         positive_cut = nlsp.common.helper_functions_private.cut_spectrum(input_spectrum=positive,
@@ -196,7 +198,10 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         iir_initial = initial_coeff
     iir_initial = numpy.asarray(iir_initial)
     for fir_individual, iir_individual in zip(fir_kernels, iir_initial):  # each filter adaptation
-        fir_individual = sumpf.modules.FourierTransform(fir_individual).GetSpectrum()
+        factor = 1
+        while (nlsp.common.helper_functions_private.calculateenergy_freqdomain(fir_individual*factor)[0] < 900):
+            factor = factor + 1
+        fir_individual = sumpf.modules.FourierTransform(fir_individual*factor).GetSpectrum()
         coeffs = []
         num = iir_individual[0]
         den = iir_individual[1]
@@ -208,8 +213,9 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         result = scipy.optimize.minimize(errorfunction, (coeffs), method=algorithm,
                                          options={'disp': False, 'maxiter': max_iterations})
         freq_param = result.x[-1]
-        num = result.x[:(len(result.x) - 1) / 2]
-        den = result.x[(len(result.x) - 1) / 2:-1]
+        num = numpy.array(result.x[:(len(result.x) - 1) / 2])
+        num = num/factor
+        den = numpy.array(result.x[(len(result.x) - 1) / 2:-1])
         iden_filter = sumpf.modules.FilterGenerator(
             filterfunction=sumpf.modules.FilterGenerator.TRANSFERFUNCTION(numerator=num, denominator=den),
             length=prp.GetSpectrumLength(), resolution=prp.GetResolution(), frequency=freq_param).GetSpectrum()
@@ -217,7 +223,7 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         print "Final coefficients" + str(result.x)
         if plot_individual is True:
             nlsp.plots.plot(iden_filter, show=False)
-            nlsp.plots.plot(fir_individual, show=True)
+            nlsp.plots.plot(fir_individual/factor, show=True)
         iir_identified.append(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal())
         if return_error is True:
             Error = numpy.asarray(Error)
