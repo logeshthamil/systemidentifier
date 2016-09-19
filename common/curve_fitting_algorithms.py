@@ -32,6 +32,9 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         errorexp = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
             nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.25))[0]
         error_value = errorexp
+        if Print is True:
+            print "Error value:" + str(error_value)
+        return error_value
 
     prp = sumpf.modules.ChannelDataProperties()
     prp.SetSignal(signal=fir_kernels[0])
@@ -54,8 +57,8 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
             coeffs.append(den)
         coeffs = numpy.concatenate(numpy.array(coeffs), axis=0)
         coeffs = numpy.append(coeffs, [frequen], axis=0)
-        Error = []
-        print "Initial Coefficients:" + str(coeffs)
+        if Print is True:
+            print "Initial Coefficients:" + str(coeffs)
         result = scipy.optimize.minimize(errorfunction, (coeffs), method=algorithm,
                                          options={'disp': False, 'maxiter': max_iterations})
         iden_filter = sumpf.modules.ConstantSpectrumGenerator(value=1.0, resolution=prp.GetResolution(),
@@ -70,8 +73,9 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
                 length=prp.GetSpectrumLength(), resolution=prp.GetResolution(),
                 frequency=result.x[-1]).GetSpectrum()
             iden_filter = iden_filter * temp
-        print "Initial coefficients" + str(coeffs)
-        print "Final coefficients" + str(result.x)
+        if Print is True:
+            print "Initial coefficients" + str(coeffs)
+            print "Final coefficients" + str(result.x)
         if plot_individual is True:
             nlsp.plots.plot(iden_filter, show=False)
             nlsp.plots.plot(fir_individual, show=True)
@@ -131,7 +135,6 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         coeffs.append(den)
         coeffs = numpy.concatenate(coeffs, axis=0)
         coeffs = numpy.append(coeffs, [1000.0], axis=0)
-        Error = []
         result = scipy.optimize.minimize(errorfunction, (coeffs), method=algorithm,
                                          options={'disp': False, 'maxiter': max_iterations})
         freq_param = result.x[-1]
@@ -141,8 +144,9 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         iden_filter = sumpf.modules.FilterGenerator(
             filterfunction=sumpf.modules.FilterGenerator.TRANSFERFUNCTION(numerator=num, denominator=den),
             length=prp.GetSpectrumLength(), resolution=prp.GetResolution(), frequency=freq_param).GetSpectrum()
-        print "Initial coefficients" + str(coeffs)
-        print "Final coefficients" + str(result.x)
+        if Print is True:
+            print "Initial coefficients" + str(coeffs)
+            print "Final coefficients" + str(result.x)
         if plot_individual is True:
             nlsp.plots.plot(iden_filter, show=False)
             nlsp.plots.plot(fir_individual/factor, show=True)
@@ -153,27 +157,25 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
     return iir_identified, all_coeff
 
 
-def compute_iir_from_fir_using_curvetracing_sequencialbiquads(fir_kernels=None, algorithm='Nelder-Mead',
-                                                              filter_order=4, start_freq=50.0, stop_freq=19000.0,
-                                                              Print=True, max_iterations=1000, plot_individual=False):
-    found_iir = []
-    coeff = []
-    prp = sumpf.modules.ChannelDataProperties()
-    prp.SetSignal(signal=fir_kernels[0])
-    for fir_individual in fir_kernels:  # each filter adaptation
-        individual_biquad = None
-        for filt_ord in range(2, filter_order + 1, 2):
-            found_biquad, coeffs = compute_iir_from_fir_using_curvetracing_biquads(
-                fir_kernels=[fir_individual, ], algorithm=algorithm, initial_coeff=individual_biquad,
-                filter_order=filt_ord, start_freq=start_freq, stop_freq=stop_freq,
-                Print=Print, max_iterations=max_iterations, plot_individual=False)
-            temp_coeff = sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order).GetCoefficients()[0]
-            coeffs.coefficients[0].append(temp_coeff)
-            individual_biquad = coeffs
-        coeff.append(individual_biquad)
-        if plot_individual is True:
-            nlsp.plots.plot(sumpf.modules.FourierTransform(found_biquad[0]).GetSpectrum(), show=False)
-            nlsp.plots.plot(sumpf.modules.FourierTransform(fir_individual).GetSpectrum())
-        found_iir.append(found_biquad)
-        output_coeff = pandas.concat(coeff)
-    return found_iir, output_coeff
+# def compute_iir_from_fir_using_curvetracing_sequencialbiquads(fir_kernels=None, algorithm='Nelder-Mead',
+#                                                               filter_order=4, start_freq=50.0, stop_freq=19000.0,
+#                                                               Print=True, max_iterations=1000, plot_individual=False):
+#     found_iir = []
+#     individual_biquad = None
+#     prp = sumpf.modules.ChannelDataProperties()
+#     prp.SetSignal(signal=fir_kernels[0])
+#     for fir_individual in fir_kernels:  # each filter adaptation
+#         individual_biquad = None
+#         for filt_ord in range(2, filter_order + 1, 2):
+#             found_biquad, coeffs = compute_iir_from_fir_using_curvetracing_biquads(
+#                 fir_kernels=[fir_individual, ], algorithm=algorithm, initial_coeff=individual_biquad,
+#                 filter_order=filt_ord, start_freq=start_freq, stop_freq=stop_freq,
+#                 Print=Print, max_iterations=max_iterations, plot_individual=False)
+#             temp_coeff = sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order).GetCoefficients()[0]
+#             coeffs.coefficients[0].append(temp_coeff)
+#             individual_biquad = coeffs
+#         if plot_individual is True:
+#             nlsp.plots.plot(sumpf.modules.FourierTransform(found_biquad[0]).GetSpectrum(), show=False)
+#             nlsp.plots.plot(sumpf.modules.FourierTransform(fir_individual).GetSpectrum())
+#         found_iir.append(found_biquad)
+#     return found_iir
