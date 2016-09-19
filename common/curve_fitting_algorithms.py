@@ -7,31 +7,11 @@ import pandas
 
 def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm='Nelder-Mead', initial_coeff=None,
                                                     filter_order=4, start_freq=50.0, stop_freq=19000.0, Print=True,
-                                                    max_iterations=1000, plot_individual=False, return_error=False,
-                                                    return_coeffs=False):
-    """
-    Compute the equivalent iir biquad filter kernels for fir filters.
-
-    :param fir_kernels: the fir filter kernels
-    :type fir_kernels: array of sumpf.Signal()
-    :param algorithm: the curve tracing algorithm Eg, 'Nelder-Mead', 'Powell', 'BFGS', 'CG' etc,
-    :type algorithm: scipy.optimize.minimize(), method parameter
-    :param initial_coeff: the initial iir filter coefficients
-    :type initial_coeff: array of sumpf.modules.FilterGenerator.BUTTERWORTH(order=100).GetCoefficients()
-    :param filter_order: the order of the iir filter
-    :type filter_order: int
-    :param start_freq: the starting desired frequency
-    :type start_freq: float
-    :param stop_freq: the stoping desired frequency
-    :type stop_freq: float
-    :return: the iir filter kernels
-    :rtype: array of sumpf.Signal()
-    """
+                                                    max_iterations=1000, plot_individual=False):
     iir_identified = []
     pandas.DataFrame()
     coefficients = []
     frequencies = []
-    # freq_unique = (2.0 * numpy.pi)
     def errorfunction(parameters):
         iden_filter = sumpf.modules.ConstantSpectrumGenerator(value=1.0, resolution=prp.GetResolution(),
                                                               length=prp.GetSpectrumLength()).GetSpectrum()
@@ -48,28 +28,10 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         positive_cut = nlsp.common.helper_functions_private.cut_spectrum(input_spectrum=positive,
                                                                          desired_frequency_range=[start_freq,
                                                                                                   stop_freq])
-        # error and exponential error calculation
-        errorexp = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
-        error = numpy.sum(positive_cut.GetChannels()[0])
-
-        # variance calculation
-        distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
-        distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
-        sum = numpy.sum(distance_square.GetChannels()[0])
-        variance = sum / len(distance_square.GetChannels()[0])
-
-        # mean calculation
-        mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
-                                                                                desired_frequency_range=[start_freq,
-                                                                                                         stop_freq]).GetChannels()))
-
-        # error value calculation
-        error_value = abs(mean * 100 + error + errorexp + variance * 100)
-        if return_error is True:
-            Error.append(error_value)
-        if Print is True:
-            print "Error value:" + str(error_value)
-        return error_value
+        # exponential error calculation
+        errorexp = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
+            nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.25))[0]
+        error_value = errorexp
 
     prp = sumpf.modules.ChannelDataProperties()
     prp.SetSignal(signal=fir_kernels[0])
@@ -114,44 +76,20 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
             nlsp.plots.plot(iden_filter, show=False)
             nlsp.plots.plot(fir_individual, show=True)
         iir_identified.append(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal())
-        if return_error is True:
-            Error = numpy.asarray(Error)
-            Error[Error > 50000] = 50000
-        else:
-            Error = None
-        if return_coeffs is True:
-            coefficients.append(individual_coeff)
-            frequencies.append(result.x[-1])
+        coefficients.append(individual_coeff)
+        frequencies.append(result.x[-1])
     all_coeff = pandas.Series([coefficients, frequencies], index=['coefficients', 'frequencies'])
-    return iir_identified, Error, all_coeff
+    return iir_identified, all_coeff
 
 
 def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algorithm='Powell', initial_coeff=None,
-                                                        filter_order=4,
-                                                        start_freq=50.0, stop_freq=19000.0, Print=True,
-                                                        max_iterations=100,
-                                                        plot_individual=False, return_error=False):
-    """
-    Compute the equivalent higher order iir filter kernels for fir filters.
-
-    :param fir_kernels: the fir filter kernels
-    :type fir_kernels: array of sumpf.Signal()
-    :param algorithm: the curve tracing algorithm Eg, 'Nelder-Mead', 'Powell', 'BFGS', 'CG' etc,
-    :type algorithm: scipy.optimize.minimize(), method parameter
-    :param initial_coeff: the initial iir filter coefficients
-    :type initial_coeff: array of sumpf.modules.FilterGenerator.BUTTERWORTH(order=100).GetCoefficients()
-    :param filter_order: the order of the iir filter
-    :type filter_order: int
-    :param start_freq: the starting desired frequency
-    :type start_freq: float
-    :param stop_freq: the stoping desired frequency
-    :type stop_freq: float
-    :return: the iir filter kernels
-    :rtype: array of sumpf.Signal()
-    """
+                                                        filter_order=4, start_freq=50.0, stop_freq=19000.0, Print=True,
+                                                        max_iterations=100, plot_individual=False):
     iir_identified = []
     prp = sumpf.modules.ChannelDataProperties()
     prp.SetSignal(signal=fir_kernels[0])
+    coefficients = []
+    frequencies = []
 
     def errorfunction(parameters):
         freq_param = parameters[-1]
@@ -165,27 +103,10 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         positive_cut = nlsp.common.helper_functions_private.cut_spectrum(input_spectrum=positive,
                                                                          desired_frequency_range=[start_freq,
                                                                                                   stop_freq])
-        # error and exponential error calculation
+        # exponential error calculation
         errorexp = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
             nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.25))[0]
-        # error = numpy.sum(positive_cut.GetChannels()[0])
-
-        # variance calculation
-        # distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
-        # distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
-        # sum = numpy.sum(distance_square.GetChannels()[0])
-        # variance = sum / len(distance_square.GetChannels()[0])
-        #
-        # mean calculation
-        # mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
-        #                                                                         desired_frequency_range=[start_freq,
-        #                                                                                                  stop_freq]).GetChannels()))
-
-        # error value calculation
-        # error_value = abs(mean * 100 + error + errorexp + variance * 100)
         error_value = errorexp
-        if return_error is True:
-            Error.append(error_value)
         if Print is True:
             print "Error value:" + str(error_value)
         return error_value
@@ -198,6 +119,7 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         iir_initial = initial_coeff
     iir_initial = numpy.asarray(iir_initial)
     for fir_individual, iir_individual in zip(fir_kernels, iir_initial):  # each filter adaptation
+        individual_coeff = []
         factor = 1
         while (nlsp.common.helper_functions_private.calculateenergy_freqdomain(fir_individual*factor)[0] < 900):
             factor = factor + 1
@@ -225,53 +147,33 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
             nlsp.plots.plot(iden_filter, show=False)
             nlsp.plots.plot(fir_individual/factor, show=True)
         iir_identified.append(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal())
-        if return_error is True:
-            Error = numpy.asarray(Error)
-            Error[Error > 50000] = 50000
-        else:
-            Error = None
-    return iir_identified, Error
+        coefficients.append([num, den])
+        frequencies.append(result.x[-1])
+    all_coeff = pandas.Series([coefficients, frequencies], index=['coefficients', 'frequencies'])
+    return iir_identified, all_coeff
 
 
 def compute_iir_from_fir_using_curvetracing_sequencialbiquads(fir_kernels=None, algorithm='Nelder-Mead',
                                                               filter_order=4, start_freq=50.0, stop_freq=19000.0,
-                                                              Print=True,
-                                                              max_iterations=1000, plot_individual=False,
-                                                              return_error=False):
-    """
-    Compute the equivalent iir biquad filter kernels sequencially for fir filters.
-
-    :param fir_kernels: the fir filter kernels
-    :type fir_kernels: array of sumpf.Signal()
-    :param algorithm: the curve tracing algorithm Eg, 'Nelder-Mead', 'Powell', 'BFGS', 'CG' etc,
-    :type algorithm: scipy.optimize.minimize(), method parameter
-    :param initial_coeff: the initial iir filter coefficients
-    :type initial_coeff: array of sumpf.modules.FilterGenerator.BUTTERWORTH(order=100).GetCoefficients()
-    :param filter_order: the order of the iir filter
-    :type filter_order: int
-    :param start_freq: the starting desired frequency
-    :type start_freq: float
-    :param stop_freq: the stoping desired frequency
-    :type stop_freq: float
-    :return: the iir filter kernels
-    :rtype: array of sumpf.Signal()
-    """
+                                                              Print=True, max_iterations=1000, plot_individual=False):
     found_iir = []
+    coeff = []
     prp = sumpf.modules.ChannelDataProperties()
     prp.SetSignal(signal=fir_kernels[0])
     for fir_individual in fir_kernels:  # each filter adaptation
         individual_biquad = None
         for filt_ord in range(2, filter_order + 1, 2):
-            found_biquad, error, coeffs = compute_iir_from_fir_using_curvetracing_biquads(
+            found_biquad, coeffs = compute_iir_from_fir_using_curvetracing_biquads(
                 fir_kernels=[fir_individual, ], algorithm=algorithm, initial_coeff=individual_biquad,
                 filter_order=filt_ord, start_freq=start_freq, stop_freq=stop_freq,
-                Print=Print, max_iterations=max_iterations, plot_individual=False,
-                return_error=return_error, return_coeffs=True)
+                Print=Print, max_iterations=max_iterations, plot_individual=False)
             temp_coeff = sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order).GetCoefficients()[0]
             coeffs.coefficients[0].append(temp_coeff)
             individual_biquad = coeffs
+        coeff.append(individual_biquad)
         if plot_individual is True:
             nlsp.plots.plot(sumpf.modules.FourierTransform(found_biquad[0]).GetSpectrum(), show=False)
             nlsp.plots.plot(sumpf.modules.FourierTransform(fir_individual).GetSpectrum())
         found_iir.append(found_biquad)
-    return found_iir
+        output_coeff = pandas.concat(coeff)
+    return found_iir, output_coeff
