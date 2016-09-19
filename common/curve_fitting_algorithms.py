@@ -46,7 +46,10 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         iir_initial = initial_coeff.coefficients
         freq = initial_coeff.frequencies
     for fir_individual, iir_individual, frequen in zip(fir_kernels, iir_initial, freq):  # each filter adaptation
-        fir_individual = sumpf.modules.FourierTransform(fir_individual).GetSpectrum()
+        factor = 1
+        while (nlsp.common.helper_functions_private.calculateenergy_freqdomain(fir_individual * factor)[0] < 900):
+            factor = factor + 1
+        fir_individual = sumpf.modules.FourierTransform(fir_individual * factor).GetSpectrum()
         coeffs = []
         for biquad_n in range(len(iir_individual)):
             num = iir_individual[biquad_n][0]
@@ -67,6 +70,8 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         for a, b, c, d, e, f in zip(*[iter(result.x)] * 6):
             num = [a, b, c]
             den = [d, e, f]
+            num = numpy.asarray(num)
+            num = num / factor
             individual_coeff.append([num, den])
             temp = sumpf.modules.FilterGenerator(
                 filterfunction=sumpf.modules.FilterGenerator.TRANSFERFUNCTION(numerator=num, denominator=den),
@@ -119,11 +124,12 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         num = numpy.ones(filter_order + 1)
         den = numpy.ones(filter_order + 1)
         iir_initial = [[num, den], ] * len(fir_kernels)
+        freq = [1000.0, ] * len(fir_kernels)
     else:
-        iir_initial = initial_coeff
-    iir_initial = numpy.asarray(iir_initial)
-    for fir_individual, iir_individual in zip(fir_kernels, iir_initial):  # each filter adaptation
-        individual_coeff = []
+        iir_initial = initial_coeff.coefficients
+        freq = initial_coeff.frequencies
+
+    for fir_individual, iir_individual, frequen in zip(fir_kernels, iir_initial, freq):  # each filter adaptation
         factor = 1
         while (nlsp.common.helper_functions_private.calculateenergy_freqdomain(fir_individual*factor)[0] < 900):
             factor = factor + 1
@@ -134,12 +140,12 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         coeffs.append(num)
         coeffs.append(den)
         coeffs = numpy.concatenate(coeffs, axis=0)
-        coeffs = numpy.append(coeffs, [1000.0], axis=0)
+        coeffs = numpy.append(coeffs, [frequen], axis=0)
         result = scipy.optimize.minimize(errorfunction, (coeffs), method=algorithm,
                                          options={'disp': False, 'maxiter': max_iterations})
         freq_param = result.x[-1]
         num = numpy.array(result.x[:(len(result.x) - 1) / 2])
-        num = num/factor
+        num = num / factor
         den = numpy.array(result.x[(len(result.x) - 1) / 2:-1])
         iden_filter = sumpf.modules.FilterGenerator(
             filterfunction=sumpf.modules.FilterGenerator.TRANSFERFUNCTION(numerator=num, denominator=den),
@@ -149,7 +155,7 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
             print "Final coefficients" + str(result.x)
         if plot_individual is True:
             nlsp.plots.plot(iden_filter, show=False)
-            nlsp.plots.plot(fir_individual/factor, show=True)
+            nlsp.plots.plot(fir_individual / factor, show=True)
         iir_identified.append(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal())
         coefficients.append([num, den])
         frequencies.append(result.x[-1])
