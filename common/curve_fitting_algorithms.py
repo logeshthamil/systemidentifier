@@ -160,30 +160,30 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         iden_filter = sumpf.modules.FilterGenerator(
             filterfunction=sumpf.modules.FilterGenerator.TRANSFERFUNCTION(numerator=num, denominator=den),
             length=prp.GetSpectrumLength(), resolution=prp.GetResolution(), frequency=freq_param).GetSpectrum()
-        # # iden_filter = sumpf.modules.FourierTransform(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal()*factor).GetSpectrum()
-        # fir_individual1 = sumpf.modules.FourierTransform(sumpf.modules.InverseFourierTransform(fir_individual).GetSignal()*factor).GetSpectrum()
         difference = iden_filter - fir_individual
         positive = difference * difference
         positive_cut = nlsp.common.helper_functions_private.cut_spectrum(input_spectrum=positive,
                                                                          desired_frequency_range=[start_freq,
                                                                                                   stop_freq])
         # error and exponential error calculation
-        errorexp = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
-        error = numpy.sum(positive_cut.GetChannels()[0])
+        errorexp = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
+            nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.25))[0]
+        # error = numpy.sum(positive_cut.GetChannels()[0])
 
         # variance calculation
-        distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
-        distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
-        sum = numpy.sum(distance_square.GetChannels()[0])
-        variance = sum / len(distance_square.GetChannels()[0])
-
+        # distance = difference - sumpf.modules.SpectrumMean(spectrum=difference).GetMean()
+        # distance_square = sumpf.modules.Multiply(value1=distance, value2=distance).GetResult()
+        # sum = numpy.sum(distance_square.GetChannels()[0])
+        # variance = sum / len(distance_square.GetChannels()[0])
+        #
         # mean calculation
-        mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
-                                                                                desired_frequency_range=[start_freq,
-                                                                                                         stop_freq]).GetChannels()))
+        # mean = abs(numpy.mean(nlsp.common.helper_functions_private.cut_spectrum(positive,
+        #                                                                         desired_frequency_range=[start_freq,
+        #                                                                                                  stop_freq]).GetChannels()))
 
         # error value calculation
-        error_value = abs(mean * 100 + error + errorexp + variance * 100)
+        # error_value = abs(mean * 100 + error + errorexp + variance * 100)
+        error_value = errorexp
         if return_error is True:
             Error.append(error_value)
         if Print is True:
