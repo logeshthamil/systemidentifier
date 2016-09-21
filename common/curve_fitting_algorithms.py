@@ -29,9 +29,10 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
                                                                          desired_frequency_range=[start_freq,
                                                                                                   stop_freq])
         # exponential error calculation
-        errorexp = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
-            nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.25))[0]
-        error_value = errorexp
+        errorexp1 = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
+            nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.1))[0]
+        errorexp2 = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
+        error_value = errorexp2
         if Print is True:
             print "Error value:" + str(error_value)
         return error_value
@@ -40,6 +41,7 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
     prp.SetSignal(signal=fir_kernels[0])
     if initial_coeff is None:
         initial_coeff = sumpf.modules.FilterGenerator.BUTTERWORTH(order=filter_order).GetCoefficients()
+        # initial_coeff = [([1.0, 1.0, 1.0], [1.0, 1.0, 1.0]),]*(filter_order/2)
         iir_initial = [initial_coeff, ] * len(fir_kernels)
         freq = [1000.0, ] * len(fir_kernels)
     else:
@@ -113,9 +115,10 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
                                                                          desired_frequency_range=[start_freq,
                                                                                                   stop_freq])
         # exponential error calculation
-        errorexp = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
-            nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.25))[0]
-        error_value = errorexp
+        errorexp1 = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
+            nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.1))[0]
+        errorexp2 = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
+        error_value = errorexp2
         if Print is True:
             print "Error value:" + str(error_value)
         return error_value

@@ -27,6 +27,3 @@ def test_multiordertracing():
                                                                                                               filter_order=4, Print=False, max_iterations=10)
     assert len(curve_tracing_filters_iir) == len(coeff.coefficients) == len(coeff.frequencies)
 
-
-test_biquadtracing()
-test_multiordertracing()
