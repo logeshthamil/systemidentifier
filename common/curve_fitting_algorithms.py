@@ -9,7 +9,6 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
                                                     filter_order=4, start_freq=50.0, stop_freq=19000.0, Print=True,
                                                     max_iterations=1000, plot_individual=False):
     iir_identified = []
-    pandas.DataFrame()
     coefficients = []
     frequencies = []
     def errorfunction(parameters):
