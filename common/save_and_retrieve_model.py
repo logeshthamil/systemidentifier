@@ -71,10 +71,9 @@ class RetrieveHGMModel(SaveandRetrieveModel):
     Retrieve the model from a specific file location.
     """
 
-    def __init__(self, filename=None, file_format=None):
+    def __init__(self, filename=None):
         """
         :param filename: the filename
-        :param file_format: the file format
         """
         SaveandRetrieveModel.__init__(self, filename=filename)
 
