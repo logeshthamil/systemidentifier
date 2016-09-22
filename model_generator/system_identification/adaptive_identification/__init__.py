@@ -1,3 +1,5 @@
 from adaptive_identification import Adaptive
 
 from clipping_adaptive_identification import ClippingAdaptive
+
+from curve_tracing_systemidentification import ClippingAdaptiveIIR

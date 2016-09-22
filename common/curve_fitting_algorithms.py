@@ -83,8 +83,8 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
             print "Initial coefficients" + str(coeffs)
             print "Final coefficients" + str(result.x)
         if plot_individual is True:
-            nlsp.plots.plot(iden_filter, show=False)
-            nlsp.plots.plot(fir_individual, show=True)
+            nlsp.plot.plot_signalorspectrum(iden_filter, show=False)
+            nlsp.plot.plot_signalorspectrum(fir_individual, show=True)
         iir_identified.append(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal())
         coefficients.append(individual_coeff)
         frequencies.append(result.x[-1])
@@ -156,8 +156,8 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
             print "Initial coefficients" + str(coeffs)
             print "Final coefficients" + str(result.x)
         if plot_individual is True:
-            nlsp.plots.plot(iden_filter, show=False)
-            nlsp.plots.plot(fir_individual / factor, show=True)
+            nlsp.plot.plot_signalorspectrum(iden_filter, show=False)
+            nlsp.plot.plot_signalorspectrum(fir_individual / factor, show=True)
         iir_identified.append(sumpf.modules.InverseFourierTransform(iden_filter).GetSignal())
         coefficients.append([num, den])
         frequencies.append(result.x[-1])

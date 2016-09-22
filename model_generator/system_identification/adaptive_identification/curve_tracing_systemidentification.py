@@ -1,9 +1,10 @@
 from nlsp.model_generator.system_identification.system_identification_approaches import SystemIdentification
 import sumpf
 import nlsp
+import pandas
 
 
-class ClippingAdaptive(SystemIdentification):
+class ClippingAdaptiveIIR(SystemIdentification):
     """
     A class to identify a nonlinear system using adaptation algorithm.
     """
@@ -11,7 +12,9 @@ class ClippingAdaptive(SystemIdentification):
     def __init__(self, system_excitation=None, system_response=None, select_branches=None,
                  multichannel_algorithm=None, nonlinear_function=nlsp.nonlinear_function.HardClip,
                  excitation_length=2 ** 16, excitation_sampling_rate=None, aliasing_compensation=None,
-                 thresholds=None):
+                 thresholds=None, initial_coefficients=None, filter_order=8, algorithm='Powell',
+                 start_frequency=50.0, stop_frequency=19000.0, printeachiteration=False, plotindividual=False,
+                 maxiterations=50):
         """
         :param system_excitation: the excitation of the nonlinear system
         :param system_response: the response of the nonlinear system
@@ -38,10 +41,23 @@ class ClippingAdaptive(SystemIdentification):
             self.__thresholds = [[-1.0, 1.0], ] * max(self._select_branches)
         else:
             self.__thresholds = thresholds
+
+        # curve tracing parameters
+        self.__initialcoeff = initial_coefficients
+        self.__algorithm = algorithm
+        self.__filter_order = filter_order
+        self.__startfreq = start_frequency
+        self.__stopfreq = stop_frequency
+        self.__printeachiteration = printeachiteration
+        self.__plotindividual = plotindividual
+        self.__maxiterations = maxiterations
+
+
         SystemIdentification.__init__(self, system_response=system_response, select_branches=self._select_branches,
                                       aliasing_compensation=self._aliasing_compensation,
                                       excitation_length=excitation_length,
                                       excitation_sampling_rate=excitation_sampling_rate)
+        self.__coefficients = None
         if (self.__system_excitation is not None) and (self._system_response is not None):
             self.SetResponse(self._system_response)
 
@@ -76,29 +92,16 @@ class ClippingAdaptive(SystemIdentification):
 
         :return: the filter impulse responses
         """
-        input_ex = self.__system_excitation
-        nonlinear_functions = self._GetNonlinerFunctions()
-        input_signal = sumpf.modules.MergeSignals()
-        for nonlinear_function in nonlinear_functions:
-            aliasing_compensation = self._aliasing_compensation.CreateModified()
-            model = nlsp.HammersteinModel(nonlinear_function=nonlinear_function,
-                                          aliasing_compensation=aliasing_compensation,
-                                          downsampling_position=self._downsampling_position)
-            model.SetInput(input_ex)
-            input_signal.AddInput(model.GetOutput())
-        input_signal = input_signal.GetOutput()
-        desired_signal = self._system_response
-        self.multichannel_algorithm.SetInput(input_signal=input_signal)
-        self.multichannel_algorithm.SetDesiredOutput(desired_output=desired_signal)
-        w = self.multichannel_algorithm.GetFilterKernel()
-        kernel = [sumpf.modules.SplitSignal(data=w, channels=[i]).GetOutput() for i in range(len(w.GetChannels()))]
-        if self._filter_length is not None:
-            filter_kernels = []
-            for k in kernel:
-                filter_kernels.append(
-                    nlsp.common.helper_functions_private.change_length_signal(signal=k, length=self._filter_length))
-        else:
-            filter_kernels = kernel
+        algorithm = nlsp.system_identification.ClippingAdaptive(system_excitation=self.__system_excitation, system_response=self._system_response,
+                                                                select_branches=self._select_branches, multichannel_algorithm=self.multichannel_algorithm,
+                                                                nonlinear_function=self._GetNonlinerFunctions, excitation_length=self._length, excitation_sampling_rate=self._sampling_rate,
+                                                                aliasing_compensation=self._aliasing_compensation, thresholds=self.__thresholds)
+        output_model = algorithm.GetOutputModel()
+        filter_kernels_fir = output_model.GetFilterImpulseResponses()
+        filter_kernels, coefficients = nlsp.curve_fitting_algorithms.compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=filter_kernels_fir, initial_coeff=self.__initialcoeff, filter_order=self.__filter_order,
+                                                                                          start_freq=self.__startfreq, stop_freq=self.__stopfreq, Print=self.__printeachiteration, max_iterations=self.__maxiterations,
+                                                                                          plot_individual=self.__plotindividual)
+        self.__coefficients = coefficients
         return filter_kernels
 
     @sumpf.Output(tuple)
@@ -114,3 +117,10 @@ class ClippingAdaptive(SystemIdentification):
             nonlinear_func = self.__nlfunction(clipping_threshold=self.__thresholds[branch - 1])
             nonlinear_functions.append(nonlinear_func)
         return nonlinear_functions
+
+    @sumpf.Output(pandas.Series)
+    def GetFilterCoefficients(self):
+        if self.__coefficients is None:
+            print "The filter coefficients are not yet found!"
+            raise
+        return self.__coefficients
