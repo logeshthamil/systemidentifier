@@ -294,9 +294,9 @@ def smooth_filter_kernels(kernels=None, window_size=53, polynomial_order=3):
     return kernels_smooth
 
 
-def exponentially_weighted_sum(input):
+def linearweighting(input):
     """
-    Compute the exponentially weighted sum of a signal or spectrum. The input is weighted in frequency domain.
+    Compute the linearly weighted spectrum.
 
     :param input: the input signal or spectrum
     :type input: sumpf.Signal or sumpf.Spectrum
@@ -320,7 +320,10 @@ def exponentially_weighted_sum(input):
         c = reversed(c)
         for i, s in enumerate(c):
             energy_singlechannel.append((abs(s)) * (1 * (dummy ** i)))
-        energy_allchannels.append(numpy.sum(energy_singlechannel))
+        energy_singlechannel = numpy.asarray(energy_singlechannel)[::-1]
+        energy_allchannels.append(energy_singlechannel)
+    energy_allchannels = sumpf.Spectrum(channels=tuple(energy_allchannels), resolution=ip.GetResolution(),
+                            labels=ip.GetLabels())
     return energy_allchannels
 
 

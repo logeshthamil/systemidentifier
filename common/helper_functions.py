@@ -3,7 +3,7 @@ import sumpf
 
 
 def create_arrayof_bpfilter(start_frequency=20.0, stop_frequency=20000.0, branches=5, sampling_rate=None,
-                            filter_length=None):
+                            filter_length=None, order=10):
     """
     Generates logarithmically seperated band pass filters between start and stop frequencies.
 
@@ -32,11 +32,11 @@ def create_arrayof_bpfilter(start_frequency=20.0, stop_frequency=20000.0, branch
         frequencies.append(100 * (dummy ** i))
     filter_spec = []
     for freq in frequencies:
-        spec = (sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100),
+        spec = (sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=order),
                                               frequency=freq,
                                               resolution=ip_prp.GetResolution(),
                                               length=ip_prp.GetSpectrumLength()).GetSpectrum()) * \
-               (sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=100),
+               (sumpf.modules.FilterGenerator(filterfunction=sumpf.modules.FilterGenerator.BUTTERWORTH(order=order),
                                               frequency=freq / 2, transform=True,
                                               resolution=ip_prp.GetResolution(),
                                               length=ip_prp.GetSpectrumLength()).GetSpectrum())
@@ -84,7 +84,7 @@ def create_arrayof_simplefilter(start_frequency=20.0, stop_frequency=20000.0, br
 
 
 def create_arrayof_complexfilters(start_frequency=20.0, stop_frequency=20000.0, branches=5, sampling_rate=None,
-                                  filter_length=None, filter_order=15):
+                                  filter_length=None, order=15):
     """
     Generates logarithmically seperated complex band pass filters between start and stop frequencies.
 
@@ -114,12 +114,12 @@ def create_arrayof_complexfilters(start_frequency=20.0, stop_frequency=20000.0, 
     filter_spec = []
     for freq in frequencies:
         spec = sumpf.modules.FilterGenerator(
-            filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=filter_order, ripple=1), frequency=freq,
+            filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=order, ripple=1), frequency=freq,
             resolution=prp.GetResolution(), length=prp.GetSpectrumLength(), transform=True).GetSpectrum() + \
                sumpf.modules.WeightingFilterGenerator(resolution=prp.GetResolution(),
                                                       length=prp.GetSpectrumLength()).GetSpectrum() + \
                sumpf.modules.FilterGenerator(
-                   filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=filter_order, ripple=1),
+                   filterfunction=sumpf.modules.FilterGenerator.CHEBYCHEV1(order=order, ripple=1),
                    frequency=freq, resolution=prp.GetResolution(), length=prp.GetSpectrumLength(),
                    transform=False).GetSpectrum() + \
                sumpf.modules.WeightingFilterGenerator(resolution=prp.GetResolution(), length=prp.GetSpectrumLength(),

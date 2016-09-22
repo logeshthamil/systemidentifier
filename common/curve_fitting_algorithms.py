@@ -31,7 +31,8 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
         # exponential error calculation
         errorexp1 = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
             nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.1))[0]
-        errorexp2 = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
+        errorexp2 = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
+            nlsp.common.helper_functions_private.linearweighting(positive_cut))[0]
         error_value = errorexp2
         if Print is True:
             print "Error value:" + str(error_value)
@@ -117,7 +118,8 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         # exponential error calculation
         errorexp1 = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
             nlsp.common.helper_functions_private.exponential_weighting(positive_cut, base=1.1))[0]
-        errorexp2 = nlsp.common.helper_functions_private.exponentially_weighted_sum(positive_cut)[0]
+        errorexp2 = nlsp.common.helper_functions_private.calculateenergy_freqdomain(
+            nlsp.common.helper_functions_private.linearweighting(positive_cut))[0]
         error_value = errorexp2
         if Print is True:
             print "Error value:" + str(error_value)
