@@ -45,6 +45,7 @@ def test_SERvsfrequency_multichannel():
     evaluation = nlsp.evaluations.CompareWithReference(output_1, output_2)
     assert len(evaluation.GetSERvsFrequency().GetChannels()) == 2
 
+
 def test_ser_inputandoutputmethods():
     ref_signal = sumpf.modules.SweepGenerator().GetSignal()
     eval_signal = 5 * ref_signal

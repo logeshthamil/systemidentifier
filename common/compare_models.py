@@ -2,10 +2,12 @@ import sumpf
 import nlsp
 import models.generate_nonlinearmodels
 
+
 class CompareModels(object):
     """
     An abstract base class to compare two models.
     """
+
     def __init__(self, model_1=None, model_2=None):
         """
         :param model_1: the first model
@@ -22,7 +24,7 @@ class CompareModels(object):
         else:
             self._model_2 = model_2
 
-    @sumpf.Input(models.generate_nonlinearmodels, ["GetAccuracy",])
+    @sumpf.Input(models.generate_nonlinearmodels, ["GetAccuracy", ])
     def SetModel1(self, model_1):
         """
         Set the first model.
@@ -32,7 +34,7 @@ class CompareModels(object):
         """
         self._model_1 = model_1
 
-    @sumpf.Input(models.generate_nonlinearmodels, ["GetAccuracy",])
+    @sumpf.Input(models.generate_nonlinearmodels, ["GetAccuracy", ])
     def SetModel2(self, model_2):
         """
         Set the second model.
@@ -51,22 +53,24 @@ class CompareModels(object):
         """
         raise NotImplementedError("This method should have been overridden in a derived class")
 
+
 class CompareModelsAccuracy(CompareModels):
     """
     A class which compares the accuracy of two models for given input signal.
     """
+
     def __init__(self, model_ref=None, model_iden=None, input_signal=None):
         self.__inputsignal = input_signal
         CompareModels.__init__(self, model_1=model_ref, model_2=model_iden)
 
-    @sumpf.Input(sumpf.Signal, ["GetAccuracy",])
+    @sumpf.Input(sumpf.Signal, ["GetAccuracy", ])
     def SetInputSignal(self, input_signal):
         self.__inputsignal = input_signal
 
-    @sumpf.Output(tuple, ["GetAccuracy",])
+    @sumpf.Output(tuple, ["GetAccuracy", ])
     def GetAccuracy(self):
         if self.__inputsignal is None:
-            self.__inputsignal = sumpf.modules.SweepGenerator(length=2**18).GetSignal()
+            self.__inputsignal = sumpf.modules.SweepGenerator(length=2 ** 18).GetSignal()
         self._model_1.SetInput(self.__inputsignal)
         self._model_2.SetInput(self.__inputsignal)
         ref = self._model_1.GetOutput()

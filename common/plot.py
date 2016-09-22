@@ -43,7 +43,6 @@ def _show():
         _log()
 
 
-
 def plot_signalorspectrum(signalorspectrum, legend=True, show=True, line='-'):
     """
     A function to plot a signal or spectrum.
@@ -158,7 +157,7 @@ def relabelandplot(input, label=None, show=True, line="-"):
     relabelled = nlsp.helper_functions.relabel(input, label)
     if isinstance(relabelled, sumpf.Spectrum):
         _log()
-    plot_signalorspectrum(relabelled,show=show, line=line)
+    plot_signalorspectrum(relabelled, show=show, line=line)
 
 
 def plot_array(input_array, label_array=None, save=False, name=None, Show=True):
@@ -263,6 +262,7 @@ def plot_PDF(signalorspectrum, legend=True, show=True):
 
 """ short time fourier transform of audio signal """
 from numpy.lib import stride_tricks
+
 
 def _stft(sig, frameSize, overlapFac=0.5, window=numpy.hanning):
     win = window(frameSize)

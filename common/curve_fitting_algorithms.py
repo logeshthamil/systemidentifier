@@ -11,6 +11,7 @@ def compute_iir_from_fir_using_curvetracing_biquads(fir_kernels=None, algorithm=
     iir_identified = []
     coefficients = []
     frequencies = []
+
     def errorfunction(parameters):
         iden_filter = sumpf.modules.ConstantSpectrumGenerator(value=1.0, resolution=prp.GetResolution(),
                                                               length=prp.GetSpectrumLength()).GetSpectrum()
@@ -133,9 +134,9 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
 
     for fir_individual, iir_individual, frequen in zip(fir_kernels, iir_initial, freq):  # each filter adaptation
         factor = 1
-        while (nlsp.common.helper_functions_private.calculateenergy_freqdomain(fir_individual*factor)[0] < 900):
+        while (nlsp.common.helper_functions_private.calculateenergy_freqdomain(fir_individual * factor)[0] < 900):
             factor = factor + 1
-        fir_individual = sumpf.modules.FourierTransform(fir_individual*factor).GetSpectrum()
+        fir_individual = sumpf.modules.FourierTransform(fir_individual * factor).GetSpectrum()
         coeffs = []
         num = iir_individual[0]
         den = iir_individual[1]
@@ -163,7 +164,6 @@ def compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=None, algori
         frequencies.append(result.x[-1])
     all_coeff = pandas.Series([coefficients, frequencies], index=['coefficients', 'frequencies'])
     return iir_identified, all_coeff
-
 
 # def compute_iir_from_fir_using_curvetracing_sequencialbiquads(fir_kernels=None, algorithm='Nelder-Mead',
 #                                                               filter_order=4, start_freq=50.0, stop_freq=19000.0,

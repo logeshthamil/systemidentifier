@@ -52,7 +52,6 @@ class ClippingAdaptiveIIR(SystemIdentification):
         self.__plotindividual = plotindividual
         self.__maxiterations = maxiterations
 
-
         SystemIdentification.__init__(self, system_response=system_response, select_branches=self._select_branches,
                                       aliasing_compensation=self._aliasing_compensation,
                                       excitation_length=excitation_length,
@@ -92,15 +91,22 @@ class ClippingAdaptiveIIR(SystemIdentification):
 
         :return: the filter impulse responses
         """
-        algorithm = nlsp.system_identification.ClippingAdaptive(system_excitation=self.__system_excitation, system_response=self._system_response,
-                                                                select_branches=self._select_branches, multichannel_algorithm=self.multichannel_algorithm,
-                                                                nonlinear_function=self._GetNonlinerFunctions, excitation_length=self._length, excitation_sampling_rate=self._sampling_rate,
-                                                                aliasing_compensation=self._aliasing_compensation, thresholds=self.__thresholds)
+        algorithm = nlsp.system_identification.ClippingAdaptive(system_excitation=self.__system_excitation,
+                                                                system_response=self._system_response,
+                                                                select_branches=self._select_branches,
+                                                                multichannel_algorithm=self.multichannel_algorithm,
+                                                                nonlinear_function=self._GetNonlinerFunctions,
+                                                                excitation_length=self._length,
+                                                                excitation_sampling_rate=self._sampling_rate,
+                                                                aliasing_compensation=self._aliasing_compensation,
+                                                                thresholds=self.__thresholds)
         output_model = algorithm.GetOutputModel()
         filter_kernels_fir = output_model.GetFilterImpulseResponses()
-        filter_kernels, coefficients = nlsp.curve_fitting_algorithms.compute_iir_from_fir_using_curvetracing_higherorder(fir_kernels=filter_kernels_fir, initial_coeff=self.__initialcoeff, filter_order=self.__filter_order,
-                                                                                          start_freq=self.__startfreq, stop_freq=self.__stopfreq, Print=self.__printeachiteration, max_iterations=self.__maxiterations,
-                                                                                          plot_individual=self.__plotindividual)
+        filter_kernels, coefficients = nlsp.curve_fitting_algorithms.compute_iir_from_fir_using_curvetracing_higherorder(
+            fir_kernels=filter_kernels_fir, initial_coeff=self.__initialcoeff, filter_order=self.__filter_order,
+            start_freq=self.__startfreq, stop_freq=self.__stopfreq, Print=self.__printeachiteration,
+            max_iterations=self.__maxiterations,
+            plot_individual=self.__plotindividual)
         self.__coefficients = coefficients
         return filter_kernels
 
