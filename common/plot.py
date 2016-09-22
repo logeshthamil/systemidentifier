@@ -3,6 +3,7 @@ import math
 import sumpf
 import matplotlib.pyplot as pyplot
 import numpy
+import nlsp
 
 max_freq = 40000.0
 scale_log = False
@@ -146,19 +147,18 @@ def plot_groupdelayandmagnitude(signalorspectrumarray, legend=True, show=True):
         _show()
 
 
-def relabelandplot(input, label=None, show=True, save=False, name=None, line="-"):
+def relabelandplot(input, label=None, show=True, line="-"):
     """
     Relabel the input signal or spectrum and plot
-
     :param input: the input signal or spectrum
     :param label: the label text
     :param show: True or False
     :return: plots the given input with label
     """
-    relabelled = input
+    relabelled = nlsp.helper_functions.relabel(input, label)
     if isinstance(relabelled, sumpf.Spectrum):
         _log()
-    plot_signalorspectrum(relabelled, show=show, line=line)
+    plot_signalorspectrum(relabelled,show=show, line=line)
 
 
 def plot_array(input_array, label_array=None, save=False, name=None, Show=True):
@@ -172,7 +172,7 @@ def plot_array(input_array, label_array=None, save=False, name=None, Show=True):
     if label_array is None:
         label_array = ["none", ] * len(input_array)
     for input, label in zip(input_array, label_array):
-        relabelandplot(input, label, False, save, name)
+        relabelandplot(input, label, False)
     if Show is True:
         _show()
 
