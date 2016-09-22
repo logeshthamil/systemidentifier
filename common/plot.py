@@ -285,7 +285,7 @@ def _stft(sig, frameSize, overlapFac=0.5, window=numpy.hanning):
 """ scale frequency axis logarithmically """
 
 
-def _logscale_spec(spec, sr=44100, factor=100.):
+def _logscale_spec(spec, sr=44100, factor=10.):
     timebins, freqbins = numpy.shape(spec)
     scale = numpy.linspace(0, 1, freqbins) ** factor
     scale *= (freqbins - 1) / max(scale)
@@ -314,7 +314,7 @@ def _logscale_spec(spec, sr=44100, factor=100.):
 """ plot spectrogram"""
 
 
-def plotspectrogram(audio, binsize=2 ** 12, plotpath=None, colormap="rainbow"):
+def plotspectrogram(audio, binsize=2 ** 10, plotpath=None, colormap="rainbow"):
     """
     Plot the spectrogram path
     :param audio: the input signal
