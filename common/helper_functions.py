@@ -116,3 +116,41 @@ def create_arrayof_complexfilters(start_frequency=20.0, stop_frequency=20000.0, 
                sumpf.modules.WeightingFilterGenerator(resolution=prp.GetResolution(), length=prp.GetSpectrumLength(), weighting=sumpf.modules.WeightingFilterGenerator.C).GetSpectrum()
         filter_spec.append(sumpf.modules.InverseFourierTransform(spec).GetSignal())
     return filter_spec
+
+
+def relabel(input, labels=None):
+    """
+    Helper function to change the label of sumpf.Signal or sumpf.Spectrum.
+
+    :param input: the array of signals or spectrums
+    :type input: sumpf.Signal or sumpf.Spectrum
+    :param labels: the array of labels
+    :type labels: tuple
+    :return: relabeled signals or spectrums
+    :rtype: sumpf.Signal or sumpf.Spectrum
+    """
+    if isinstance(input, list) != True:
+        ip = []
+        ip.append(input)
+    else:
+        ip = input
+    if isinstance(labels, list) != True:
+        label = []
+        label.append(labels)
+    else:
+        label = labels
+    outputs = []
+    relabler = None
+    for inputs, labels in zip(ip, label):
+        if isinstance(inputs, sumpf.Signal):
+            relabler = sumpf.modules.RelabelSignal(signal=inputs, labels=(labels,)).GetOutput()
+        elif isinstance(inputs, sumpf.Spectrum):
+            relabler = sumpf.modules.RelabelSpectrum(spectrum=inputs, labels=(labels,)).GetOutput()
+        else:
+            print "The given input is not of Signal or Spectrum class"
+        outputs.append(relabler)
+    if len(outputs) == 1:
+        outputs = outputs[0]
+    else:
+        outputs = outputs
+    return outputs
